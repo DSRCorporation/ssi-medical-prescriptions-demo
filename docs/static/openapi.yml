@@ -13,7 +13,7 @@ components:
       bearerFormat: JWT 
 
 paths:
-  /{doctorId}/credential-offers/prescriptions:
+  /doctors/{doctorId}/prescriptions/credential-offers/:
     post:
       tags:
         - Doctor
@@ -59,7 +59,7 @@ paths:
                     type: string
 
           
-  /{doctorId}/credential-offers/prescriptions/{credentialOfferId}:
+  /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}:
     get:
       tags:
         - Doctor
@@ -99,7 +99,7 @@ paths:
                   nonce:
                     type: string
 
-  /{doctorId}/credential-offers/prescriptions/{credentialOfferId}/credential:
+  /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential:
     get:
       tags:
         - Doctor
@@ -130,7 +130,7 @@ paths:
                     type: object
           
 
-  /{patientId}/credentials/prescriptions/{credentialOfferId}:
+  /patients/{patientId}/prescriptions/credentials/:
     post:
       tags:
         - Patient
@@ -143,11 +143,11 @@ paths:
           schema:
             type: string
           required: true
-        - in: path
-          name: credentialOfferId
-          schema:
-            type: string
-          required: true
+        # - in: path
+        #   name: credentialOfferId
+        #   schema:
+        #     type: string
+        #   required: true
       requestBody:
           content:
             application/json:
@@ -224,7 +224,7 @@ paths:
                         type: string   
                         example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg                     
                   
-  /{pharmacyId}/presentation-requests/prescriptions:
+  /pharmacies/{pharmacyId}/prescriptions/presentation-requests:
     post:
       tags:
         - Pharmacy
@@ -248,7 +248,7 @@ paths:
                   presentationRequestId:
                     type: string
 
-  /{pharmacyId}/presentation-requests/prescriptions/{presentationRequestId}:
+  /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}:
     get:
       tags:
         - Pharmacy
@@ -279,7 +279,7 @@ paths:
                   nonce:
                     type: string
 
-  /{patientId}/presentations/prescriptions:
+  /patients/{patientId}/prescriptions/presentations/:
     post:
       tags:
         - Patient
@@ -356,7 +356,7 @@ paths:
                         challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
                         jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
 
-  /{pharmacy}/presentation-requests/prescriptions/{presentationRequestId}/presentation:
+  /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation:
     get:
       tags:
         - Pharmacy
@@ -424,7 +424,7 @@ paths:
                         challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
                         jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
 
-  /{patientId}/credentials/prescriptions/{credentialId}:
+  /patients/{patientId}/prescriptions/credentials/{credentialId}:
     get:
       tags:
         - Patient
@@ -455,7 +455,7 @@ paths:
                       items:
                         type: object
 
-  /{patientId}/credentials/prescriptions:
+  /patients/{patientId}/prescriptions/credentials:
     get:
       tags:
         - Patient
@@ -481,7 +481,7 @@ paths:
                       items:
                         type: object
   
-  /{patientId}/credentials/prescriptions/{credentialId}/presentation:
+  /patients/{patientId}/prescriptions/credentials/{credentialId}/presentation:
     get:
       tags:
         - Patient
