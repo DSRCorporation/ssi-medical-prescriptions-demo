@@ -15,6 +15,8 @@ components:
 paths:
   /{doctorId}/credential-offers/prescriptions:
     post:
+      tags:
+        - Doctor
       summary: Creates credential offer for prescription (generates a link for QR code)
       security:
         - bearerAuth: []
@@ -59,6 +61,8 @@ paths:
           
   /{doctorId}/credential-offers/prescriptions/{credentialOfferId}:
     get:
+      tags:
+        - Doctor
       summary: Gets credential offer by id
       parameters:
         - in: path
@@ -94,10 +98,43 @@ paths:
                       type: string
                   nonce:
                     type: string
-  
+
+  /{doctorId}/credential-offers/prescriptions/{credentialOfferId}/credential:
+    get:
+      tags:
+        - Doctor
+      summary: Gets credential issued for given credential offer
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: doctorId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: credentialOfferId
+          schema:
+            type: string
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credential:
+                    type: object
+          
+
   /{patientId}/credentials/prescriptions/{credentialOfferId}:
     post:
-      summary: Creates credential for given credential offer
+      tags:
+        - Patient
+      summary: Creates credential in response to credential offer from doctor
       security:
         - bearerAuth: []
       parameters:
@@ -187,8 +224,10 @@ paths:
                         type: string   
                         example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg                     
                   
-  /{verifierId}/presentation-requests/prescriptions:
+  /{pharmacyId}/presentation-requests/prescriptions:
     post:
+      tags:
+        - Pharmacy
       summary: Creates presentation request for prescription (generates link for a QR code)
       security:
         - bearerAuth: []
@@ -209,8 +248,10 @@ paths:
                   presentationRequestId:
                     type: string
 
-  /{verifierId}/presentation-requests/prescriptions/{presentationRequestId}:
+  /{pharmacyId}/presentation-requests/prescriptions/{presentationRequestId}:
     get:
+      tags:
+        - Pharmacy
       summary: Gets presentation request for prescription by request id
       security:
         - bearerAuth: []
@@ -240,7 +281,9 @@ paths:
 
   /{patientId}/presentations/prescriptions:
     post:
-      summary: Creates verifiable presentation in response to prescription presentation request
+      tags:
+        - Patient
+      summary: Creates verifiable presentation in response to prescription presentation request from pharmacy
       security:
         - bearerAuth: []
       parameters:
@@ -313,8 +356,10 @@ paths:
                         challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
                         jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
 
-  /{verifierId}/presentations/prescriptions/presentationRequestId:
+  /{pharmacy}/presentation-requests/prescriptions/{presentationRequestId}/presentation:
     get:
+      tags:
+        - Pharmacy
       summary: Gets verifiable presentation for given presentation request
       security:
         - bearerAuth: []
@@ -381,6 +426,8 @@ paths:
 
   /{patientId}/credentials/prescriptions/{credentialId}:
     get:
+      tags:
+        - Patient
       summary: Gets prescription credential by id issued for given patient
       security:
         - bearerAuth: []
@@ -410,6 +457,8 @@ paths:
 
   /{patientId}/credentials/prescriptions:
     get:
+      tags:
+        - Patient
       summary: Gets all prescription credentials issued for given patient
       security:
         - bearerAuth: []
@@ -434,6 +483,8 @@ paths:
   
   /{patientId}/credentials/prescriptions/{credentialId}/presentation:
     get:
+      tags:
+        - Patient
       summary: Gets presentation without proof of specific credential issued for given patient
       security:
         - bearerAuth: []
