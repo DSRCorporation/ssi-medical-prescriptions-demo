@@ -257,7 +257,7 @@ paths:
               properties:
                 presentationRequestId:
                   type: string
-                credential:
+                presentation:
                   type: object
                 jws:
                   type: string
@@ -431,7 +431,33 @@ paths:
                       type: array
                       items:
                         type: object
-        
+  
+  /{patientId}/credentials/prescriptions/{credentialId}/presentation:
+    get:
+      summary: Gets presentation without proof of a specific credential issued for a given patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: credentialId
+          schema:
+            type: string
+          required: true
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    presentation:
+                      type: object
 
                     
 
