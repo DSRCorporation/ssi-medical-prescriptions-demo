@@ -253,8 +253,6 @@ paths:
       tags:
         - Pharmacy
       summary: Gets presentation request for prescription by request id
-      security:
-        - bearerAuth: []
       parameters:
         - in: path
           name: pharmacyId
