@@ -233,7 +233,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: verifierId
+          name: pharmacyId
           schema:
             type: string
           required: true
@@ -257,7 +257,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: verifierId
+          name: pharmacyId
           schema:
             type: string
           required: true
@@ -365,7 +365,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: verifierId
+          name: pharmacyId
           schema:
             type: string
           required: true
