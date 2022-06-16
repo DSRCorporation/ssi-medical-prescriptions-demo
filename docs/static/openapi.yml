@@ -376,6 +376,8 @@ paths:
       tags:
         - Patient
       summary: Gets all dids belonging to given patient
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: patientId
