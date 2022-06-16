@@ -208,7 +208,7 @@ paths:
                 properties:
                   presentationRequestId:
                     type: string
-                  nonce:
+                  challenge:
                     type: string
 
   /patients/{patientId}/prescriptions/presentations/:
@@ -232,11 +232,10 @@ paths:
               properties:
                 presentationRequestId:
                   type: string
-                presentation:
-                  type: object
-                proof:
-                  type: object
-                  $ref: '#/components/schemas/presentationProof'
+                credentialId:
+                  type: string
+                jws: 
+                  type: string
         required: true
 
       responses:
@@ -359,10 +358,10 @@ paths:
                         type: object
   
   /patients/{patientId}/prescriptions/credentials/{credentialId}/presentation:
-    get:
+    post:
       tags:
         - Patient
-      summary: Gets presentation without proof of specific credential issued for given patient
+      summary: Generates canonical presentation of credential for JWS signature
       security:
         - bearerAuth: []
       parameters:
@@ -376,6 +375,15 @@ paths:
           schema:
             type: string
           required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challenge:
+                  type: string
+        required: true
       responses:
           '200':
             description: OK
@@ -384,8 +392,8 @@ paths:
                 schema:
                   type: object
                   properties:
-                    presentation:
-                      type: object
+                    base64JWSPayload:
+                      type: string
 
 
 components:
