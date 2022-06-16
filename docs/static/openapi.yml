@@ -236,7 +236,7 @@ paths:
                   type: object
                 proof:
                   type: object
-                  $ref: '#/components/schemas/proof'
+                  $ref: '#/components/schemas/presentationProof'
         required: true
 
       responses:
@@ -436,7 +436,7 @@ components:
               example: ["medicine1", "medicine2", "medicine3"]
         proof:
           type: object
-          $ref: '#/components/schemas/proof'
+          $ref: '#/components/schemas/credentialProof'
 
     presentation:
       type: object
@@ -456,9 +456,9 @@ components:
         proof:
           type: array
           items:
-            $ref: '#/components/schemas/proof'
+            $ref: '#/components/schemas/presentationProof'
 
-    proof:
+    credentialProof:
       type: object
       properties:
         type:
@@ -473,9 +473,29 @@ components:
         verificationMethod:
           type: string
           # example: did:example:123#key-0
-        challenge:
-          type: string
-          # example: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
         jws:
           type: string   
           # example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+      
+      example:
+          type: JsonWebSignature2020
+          created: '2021-10-02T17:58:00Z'
+          proofPurpose: assertionMethod
+          verificationMethod: did:example:123#key-0
+          jws: ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0VQqAghUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+      
+    presentationProof:
+      allOf:
+        - $ref: '#/components/schemas/credentialProof'
+        - type: object
+          properties:
+            challenge:
+              type: string
+      example:
+        type: JsonWebSignature2020
+        created: '2021-10-02T17:58:00Z'
+        proofPurpose: authentication
+        verificationMethod: did:example:124322#key-2
+        challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
+        jws: ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0VQqAghUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+
