@@ -5,13 +5,6 @@ info:
 servers:
   - url: http://localhost:8080/v1
 
-components:
-  securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
-      type: http
-      scheme: bearer
-      bearerFormat: JWT 
-
 paths:
   /doctors/{doctorId}/prescriptions/credential-offers/:
     post:
@@ -143,11 +136,6 @@ paths:
           schema:
             type: string
           required: true
-        # - in: path
-        #   name: credentialOfferId
-        #   schema:
-        #     type: string
-        #   required: true
       requestBody:
           content:
             application/json:
@@ -168,61 +156,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  '@context':
-                    type: array
-                    items:
-                      type: string
-                    example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
-                  type:
-                    type: array
-                    items:
-                      type: string
-                    example: ["VerifiableCredential", "PrescriptionCredential"]
-                  issuer:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        example: did:example:123
-                      name:
-                        type: string
-                        example: Dr. Connors
-                  issuanceDate:
-                    type: string
-                  expirationDate:
-                    type: string
-                  credentialSubject:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                      medicines:
-                        type: array
-                        items:
-                          type: string
-                        example: ["medicine1", "medicine2", "medicine3"]
-                  proof:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        example: JsonWebSignature2020
-                      created:
-                        type: string
-                        example: '2021-10-02T17:58:00Z'
-                      proofPurpose:
-                        type: string
-                        example: assertionMethod
-                      verificationMethod:
-                        type: string
-                        example: did:example:123#key-0
-                      jws:
-                        type: string   
-                        example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg                     
+                $ref: '#/components/schemas/credential'                
                   
   /pharmacies/{pharmacyId}/prescriptions/presentation-requests:
     post:
@@ -302,22 +236,7 @@ paths:
                   type: object
                 proof:
                   type: object
-                  properties:
-                    type:
-                      type: string
-                      example: JsonWebSignature2020
-                    created:
-                      type: string
-                      example: '2021-10-02T17:58:00Z'
-                    proofPurpose:
-                      type: string
-                      example: authentication
-                    verificationMethod:
-                      type: string
-                      example: did:example:76e12ec21ebhyu1f712ebc6f1z2/keys/2
-                    jws:
-                      type: string   
-                      example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg   
+                  $ref: '#/components/schemas/proof'
         required: true
 
       responses:
@@ -326,49 +245,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  '@context':
-                    type: array
-                    items:
-                      type: string
-                    example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
-                  type:
-                    type: string
-                    example: "VerifiablePresentation"
-                  verifiableCredential:
-                    type: array
-                    items:
-                      type: object
-                      example:
-                        '@context': ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
-                        type: ["VerifiableCredential", "PrescriptionCredential"]
-                        issuer:
-                          id: did:example:123
-                          name: Dr. Connors
-                        issuanceDate: 2021-10-02T17:58:00Z
-                        expirationDate: 2021-10-02T17:58:00Z
-                        credentialSubject:
-                          id: did:example:76e12ec21ebhyu1f712ebc6f1z2
-                          name: John Doe
-                          medicines: ["medicine1", "medicine2", "medicine3"]
-                        proof:
-                          type: JsonWebSignature2020
-                          created: 2021-10-02T17:58:00Z
-                          proofPurpose: assertionMethod
-                          verificationMethod: did:example:123#key-0
-                          jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
-                  proof:
-                    type: array
-                    items:
-                      type: object
-                      example:
-                        type: JsonWebSignature2020
-                        created: '2021-10-02T17:58:00Z'
-                        proofPurpose: authentication
-                        verificationMethod: did:example:76e12ec21ebhyu1f712ebc6f1z2/keys/2
-                        challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
-                        jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+                $ref: '#/components/schemas/presentation'
   /patients/{patientId}/dids:
     get:
       tags:
@@ -420,49 +297,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  '@context':
-                    type: array
-                    items:
-                      type: string
-                    example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
-                  type:
-                    type: string
-                    example: "VerifiablePresentation"
-                  verifiableCredential:
-                    type: array
-                    items:
-                      type: object
-                      example:
-                        '@context': ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
-                        type: ["VerifiableCredential", "PrescriptionCredential"]
-                        issuer:
-                          id: did:example:123
-                          name: Dr. Connors
-                        issuanceDate: 2021-10-02T17:58:00Z
-                        expirationDate: 2021-10-02T17:58:00Z
-                        credentialSubject:
-                          id: did:example:76e12ec21ebhyu1f712ebc6f1z2
-                          name: John Doe
-                          medicines: ["medicine1", "medicine2", "medicine3"]
-                        proof:
-                          type: JsonWebSignature2020
-                          created: 2021-10-02T17:58:00Z
-                          proofPurpose: assertionMethod
-                          verificationMethod: did:example:123#key-0
-                          jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
-                  proof:
-                    type: array
-                    items:
-                      type: object
-                      example:
-                        type: JsonWebSignature2020
-                        created: '2021-10-02T17:58:00Z'
-                        proofPurpose: authentication
-                        verificationMethod: did:example:76e12ec21ebhyu1f712ebc6f1z2/keys/2
-                        challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
-                        jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+                type: array
+                items:
+                  $ref: '#/components/schemas/presentation'
 
   /patients/{patientId}/prescriptions/credentials/{credentialId}:
     get:
@@ -550,5 +387,95 @@ paths:
                     presentation:
                       type: object
 
-                    
 
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    credential:
+      type: object
+      properties:
+        '@context':
+          type: array
+          items:
+            type: string
+          example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
+        type:
+          type: array
+          items:
+            type: string
+          example: ["VerifiableCredential", "PrescriptionCredential"]
+        issuer:
+          type: object
+          properties:
+            id:
+              type: string
+              example: did:example:123
+            name:
+              type: string
+              example: Dr. Connors
+        issuanceDate:
+          type: string
+        expirationDate:
+          type: string
+        credentialSubject:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            medicines:
+              type: array
+              items:
+                type: string
+              example: ["medicine1", "medicine2", "medicine3"]
+        proof:
+          type: object
+          $ref: '#/components/schemas/proof'
+
+    presentation:
+      type: object
+      properties:
+        '@context':
+          type: array
+          items:
+            type: string
+          example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
+        type:
+          type: string
+          example: "VerifiablePresentation"
+        verifiableCredential:
+          type: array
+          items:
+            $ref: '#/components/schemas/credential'
+        proof:
+          type: array
+          items:
+            $ref: '#/components/schemas/proof'
+
+    proof:
+      type: object
+      properties:
+        type:
+          type: string
+          # example: JsonWebSignature2020
+        created:
+          type: string
+          # example: '2021-10-02T17:58:00Z'
+        proofPurpose:
+          type: string
+          # example: assertionMethod
+        verificationMethod:
+          type: string
+          # example: did:example:123#key-0
+        challenge:
+          type: string
+          # example: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
+        jws:
+          type: string   
+          # example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
