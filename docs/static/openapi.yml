@@ -353,6 +353,30 @@ paths:
                         verificationMethod: did:example:76e12ec21ebhyu1f712ebc6f1z2/keys/2
                         challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
                         jws: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+  /patients/{patientId}/dids:
+    get:
+      tags:
+        - Patient
+      summary: Gets all dids belonging to given patient
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dids:
+                    type: array
+                    items:
+                      type: string
 
   /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation:
     get:
