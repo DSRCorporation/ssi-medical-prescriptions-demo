@@ -300,8 +300,6 @@ paths:
                   type: string
                 presentation:
                   type: object
-                jws:
-                  type: string
                 proof:
                   type: object
                   properties:
