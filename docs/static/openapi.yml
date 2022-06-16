@@ -302,6 +302,24 @@ paths:
                   type: object
                 jws:
                   type: string
+                proof:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: JsonWebSignature2020
+                    created:
+                      type: string
+                      example: '2021-10-02T17:58:00Z'
+                    proofPurpose:
+                      type: string
+                      example: authentication
+                    verificationMethod:
+                      type: string
+                      example: did:example:76e12ec21ebhyu1f712ebc6f1z2/keys/2
+                    jws:
+                      type: string   
+                      example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg   
         required: true
 
       responses:
