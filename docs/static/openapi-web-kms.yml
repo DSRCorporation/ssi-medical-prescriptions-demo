@@ -1,0 +1,471 @@
+openapi: '3.0.2'
+info:
+  title: SSI medical prescriptions DEMO API
+  version: '1.0'
+servers:
+  - url: http://localhost:8080/v1
+
+paths:
+  /doctors/{doctorId}/prescriptions/credential-offers/:
+    post:
+      tags:
+        - Doctor
+      summary: Creates credential offer for prescription (generates a link for QR code)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: doctorId
+          schema:
+            type: string
+          required: true
+      requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  issuer:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: did:example:123
+                      name:
+                        type: string
+                        example: Dr. Connors
+                  medicines:
+                    type: array
+                    items:
+                      type: string
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credentialOfferId:
+                    type: string
+
+          
+  /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}:
+    get:
+      tags:
+        - Doctor
+      summary: Gets credential offer by id
+      parameters:
+        - in: path
+          name: doctorId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: credentialOfferId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credentialOfferId:
+                    type: string
+                  issuer:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                  medicines:
+                    type: array
+                    items:
+                      type: string
+                  nonce:
+                    type: string
+
+  /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential:
+    get:
+      tags:
+        - Doctor
+      summary: Gets credential issued for given credential offer
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: doctorId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: credentialOfferId
+          schema:
+            type: string
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/credential'
+          
+
+  /patients/{patientId}/prescriptions/credentials/:
+    post:
+      tags:
+        - Patient
+      summary: Creates credential in response to credential offer from doctor
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+      requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credentialOfferId:
+                    type: string
+                  did:
+                    type: string
+                  kmsPassphrase:
+                    type: string
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/credential'                
+                  
+  /pharmacies/{pharmacyId}/prescriptions/presentation-requests:
+    post:
+      tags:
+        - Pharmacy
+      summary: Creates presentation request for prescription (generates link for a QR code)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: pharmacyId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  presentationRequestId:
+                    type: string
+
+  /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}:
+    get:
+      tags:
+        - Pharmacy
+      summary: Gets presentation request for prescription by request id
+      parameters:
+        - in: path
+          name: pharmacyId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: presentationRequestId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  presentationRequestId:
+                    type: string
+                  challenge:
+                    type: string
+
+  /patients/{patientId}/prescriptions/presentations:
+    post:
+      tags:
+        - Patient
+      summary: Creates verifiable presentation in response to prescription presentation request from pharmacy
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                presentationRequestId:
+                  type: string
+                credentialId:
+                  type: string
+                challenge:
+                  type: string
+                kmsPassphrase:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/presentation'
+  /patients/{patientId}/dids:
+    get:
+      tags:
+        - Patient
+      summary: Gets all dids belonging to given patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dids:
+                    type: array
+                    items:
+                      type: string
+
+  /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation:
+    get:
+      tags:
+        - Pharmacy
+      summary: Gets verifiable presentation for given presentation request
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: pharmacyId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: presentationRequestId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/presentation'
+
+  /patients/{patientId}/prescriptions/credentials/{credentialId}:
+    get:
+      tags:
+        - Patient
+      summary: Gets prescription credential by id issued for given patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: credentialId
+          schema:
+            type: string
+          required: true
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    credentials:
+                      type: array
+                      items:
+                        type: object
+
+  /patients/{patientId}/prescriptions/credentials:
+    get:
+      tags:
+        - Patient
+      summary: Gets all prescription credentials issued for given patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    credentials:
+                      type: array
+                      items:
+                        type: object
+
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    credential:
+      type: object
+      properties:
+        '@context':
+          type: array
+          items:
+            type: string
+          example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
+        type:
+          type: array
+          items:
+            type: string
+          example: ["VerifiableCredential", "PrescriptionCredential"]
+        issuer:
+          type: object
+          properties:
+            id:
+              type: string
+              example: did:example:123
+            name:
+              type: string
+              example: Dr. Connors
+        issuanceDate:
+          type: string
+        expirationDate:
+          type: string
+        credentialSubject:
+          type: object
+          properties:
+            id:
+              type: string
+              example: did:example:124
+            name:
+              type: string
+              example: John Doe
+            medicines:
+              type: array
+              items:
+                type: string
+              example: ["medicine1", "medicine2", "medicine3"]
+        proof:
+          type: object
+          $ref: '#/components/schemas/credentialProof'
+
+    presentation:
+      type: object
+      properties:
+        '@context':
+          type: array
+          items:
+            type: string
+          example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
+        type:
+          type: string
+          example: "VerifiablePresentation"
+        verifiableCredential:
+          type: array
+          items:
+            $ref: '#/components/schemas/credential'
+        proof:
+          type: array
+          items:
+            $ref: '#/components/schemas/presentationProof'
+
+    credentialProof:
+      type: object
+      properties:
+        type:
+          type: string
+          # example: JsonWebSignature2020
+        created:
+          type: string
+          # example: '2021-10-02T17:58:00Z'
+        proofPurpose:
+          type: string
+          # example: assertionMethod
+        verificationMethod:
+          type: string
+          # example: did:example:123#key-0
+        jws:
+          type: string   
+          # example: eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..VA8VQqAerUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+      
+      example:
+          type: JsonWebSignature2020
+          created: '2021-10-02T17:58:00Z'
+          proofPurpose: assertionMethod
+          verificationMethod: did:example:123#key-0
+          jws: ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0VQqAghUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+      
+    presentationProof:
+      allOf:
+        - $ref: '#/components/schemas/credentialProof'
+        - type: object
+          properties:
+            challenge:
+              type: string
+      example:
+        type: JsonWebSignature2020
+        created: '2021-10-02T17:58:00Z'
+        proofPurpose: authentication
+        verificationMethod: did:example:124#key-2
+        challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
+        jws: ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0VQqAghUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
+
