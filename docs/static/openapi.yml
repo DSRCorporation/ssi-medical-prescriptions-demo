@@ -234,9 +234,10 @@ paths:
                   type: string
                 credentialId:
                   type: string
-                proof: 
-                  type: object
-                  $ref: '#/components/schemas/presentationProof'
+                verificationMethod:
+                  type: string
+                jwsSignature:
+                  type: string
         required: true
 
       responses:
@@ -358,7 +359,7 @@ paths:
                       items:
                         type: object
   
-  /patients/{patientId}/prescriptions/credentials/{credentialId}/presentation:
+  /patients/{patientId}/prescriptions/credentials/{credentialId}/presentation-jws-payload:
     post:
       tags:
         - Patient
@@ -383,6 +384,8 @@ paths:
               type: object
               properties:
                 challenge:
+                  type: string
+                verificationMethod:
                   type: string
         required: true
       responses:
