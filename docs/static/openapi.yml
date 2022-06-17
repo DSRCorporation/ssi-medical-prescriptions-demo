@@ -234,8 +234,9 @@ paths:
                   type: string
                 credentialId:
                   type: string
-                jws: 
-                  type: string
+                proof: 
+                  type: object
+                  $ref: '#/components/schemas/presentationProof'
         required: true
 
       responses:
