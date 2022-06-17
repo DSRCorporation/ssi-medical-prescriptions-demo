@@ -363,7 +363,7 @@ paths:
     post:
       tags:
         - Patient
-      summary: Generates canonical presentation of credential for JWS signature
+      summary: Generates canonical jws payload of credential presentaion for signing
       security:
         - bearerAuth: []
       parameters:
