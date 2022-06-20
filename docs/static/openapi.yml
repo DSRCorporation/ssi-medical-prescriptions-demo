@@ -446,11 +446,8 @@ components:
               type: string
             name:
               type: string
-            medicines:
-              type: array
-              items:
-                type: string
-              example: ["medicine1", "medicine2", "medicine3"]
+            prescription:
+              $ref: '#/components/schemas/prescription'
         proof:
           type: object
           $ref: '#/components/schemas/credentialProof'
@@ -516,3 +513,88 @@ components:
         challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
         jws: ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0VQqAghUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
 
+    
+    ointmentDrugInfo:
+      type: object
+      properties:
+        amountOfMedicine:
+          type: number
+        useArea:
+          type: string
+        applicationFrequency:
+          type: string
+        usage:
+          type: string
+
+    tabletDrugInfo:
+      type: object
+      properties:
+        numberOfDrug:
+          type: number
+        numberOfDoses:
+          type: string
+        daysOfMedication:
+          type: number
+        timingToTakeMedicine:
+          type: string
+
+    drug:
+      type: object
+      properties:
+        drugNumber:
+          type: number
+        drugName:
+          type: string
+        drugType:
+          type: string
+          example: tablet / ointment
+        refillAvailability:
+          type: boolean
+        info:
+          type: object
+          anyOf:
+            - $ref: '#/components/schemas/ointmentDrugInfo'
+            - $ref: '#/components/schemas/tabletDrugInfo'
+    
+    prescription:
+      type: object
+      properties:
+        patientInfo:
+          type: object
+          properties:
+            name:
+              type: string
+            birthday:
+              type: string
+            sex:
+              type: string
+        issuanceInfo:
+          type: object
+          properties:
+            issuanceDate:
+              type: string
+            expirationDate:
+              type: string
+        hospitalInfo:
+          type: object
+          properties:
+            location:
+              type: string
+            hospitalName:
+              type: string
+            doctorName:
+              type: string
+            phone:
+              type: string
+            doctorSignatureStamp:
+              type: string
+            prefectureNumber:
+              type: number
+            scoreVoteNumber:
+              type: number
+            medicalInstitutionNumber:
+              type: number
+        drugs:
+          type: array
+          items:
+            $ref: '#/components/schemas/drug'
