@@ -50,6 +50,12 @@ paths:
                 properties:
                   credentialOfferId:
                     type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
           
   /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}:
@@ -91,6 +97,12 @@ paths:
                       type: string
                   nonce:
                     type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
   /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential:
     get:
@@ -121,6 +133,12 @@ paths:
                 properties:
                   credential:
                     type: object
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
           
 
   /patients/{patientId}/prescriptions/credentials/:
@@ -156,7 +174,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/credential'                
+                $ref: '#/components/schemas/credential'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'            
                   
   /pharmacies/{pharmacyId}/prescriptions/presentation-requests:
     post:
@@ -181,6 +205,12 @@ paths:
                 properties:
                   presentationRequestId:
                     type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
   /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}:
     get:
@@ -210,6 +240,12 @@ paths:
                     type: string
                   challenge:
                     type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
   /patients/{patientId}/prescriptions/presentations/:
     post:
@@ -247,6 +283,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/presentation'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
   /patients/{patientId}/dids:
     get:
       tags:
@@ -273,6 +316,12 @@ paths:
                     type: array
                     items:
                       type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
   /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation:
     get:
@@ -306,6 +355,12 @@ paths:
                     type: boolean
                   verificationComment:
                     type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
   /patients/{patientId}/prescriptions/credentials/{credentialId}:
     get:
@@ -337,6 +392,12 @@ paths:
                       type: array
                       items:
                         type: object
+          default:
+            description: unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
 
   /patients/{patientId}/prescriptions/credentials:
     get:
@@ -363,6 +424,13 @@ paths:
                       type: array
                       items:
                         type: object
+          
+          default:
+            description: unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
   
   /patients/{patientId}/prescriptions/credentials/{credentialId}/presentation-jws-payload:
     post:
@@ -403,6 +471,13 @@ paths:
                   properties:
                     base64JWSPayload:
                       type: string
+          
+          default:
+            description: unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
 
 
 components:
@@ -598,3 +673,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/drug'
+        
+    error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+      required:
+        - code
+        - message
