@@ -23,21 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  issuer:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        example: did:example:123
-                      name:
-                        type: string
-                        example: Dr. Connors
-                  medicines:
-                    type: array
-                    items:
-                      type: string
+                $ref: '#/components/schemas/prescription'
           required: true
 
       responses:

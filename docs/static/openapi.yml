@@ -23,21 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  issuer:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        example: did:example:123
-                      name:
-                        type: string
-                        example: Dr. Connors
-                  medicines:
-                    type: array
-                    items:
-                      type: string
+                $ref: '#/components/schemas/prescription'
           required: true
 
       responses:
@@ -82,20 +68,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  credentialOfferId:
-                    type: string
-                  issuer:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                  medicines:
-                    type: array
-                    items:
-                      type: string
-                  nonce:
+                  prescription:
+                    $ref: '#/components/schemas/prescription'
+                  challenge:
                     type: string
         default:
           description: unexpected error
