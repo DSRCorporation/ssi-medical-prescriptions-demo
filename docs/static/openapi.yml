@@ -298,9 +298,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/presentation'
+                type: object
+                properties:
+                  presentation:
+                    $ref: '#/components/schemas/presentation'
+                  verificationStatus:
+                    type: boolean
+                  verificationComment:
+                    type: string
 
   /patients/{patientId}/prescriptions/credentials/{credentialId}:
     get:
