@@ -1,7 +1,6 @@
 # SSI medical prescriptions-demo
 
 
-
 ## Run mock server
 1. Build mock server docker image:
     ```bash
@@ -9,7 +8,12 @@
     ```
 2. Run mock server container
     ```
-    make run-server-docker
+    make run-mock-server
     ```
+    - Mock server api will be available at http://localhost:8989
+    - Openapi will be available at http://localhost:8889
 
-- Mock server will be running under http://localhost:8989
+3. Stop mock server
+    ```bash
+    make stop-mock-server
+    ```

@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  ssi-medical-prescriptions-demo.openapi.com:
+    container_name: ssi-medical-prescriptions-demo.openapi.com
+    image: swaggerapi/swagger-ui
+    environment:
+      - SWAGGER_JSON=/specs/openapi-web-kms.yml
+      - BASE_URL=/openapi
+    ports:
+      - 8889:8080
+    volumes:
+      - ../../docs/static:/specs
