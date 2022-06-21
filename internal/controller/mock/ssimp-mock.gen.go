@@ -122,68 +122,68 @@ type TabletDrugInfo struct {
 	TimingToTakeMedicine *string  `json:"timingToTakeMedicine,omitempty"`
 }
 
-// PostDoctorsDoctorIdPrescriptionsCredentialOffersJSONBody defines parameters for PostDoctorsDoctorIdPrescriptionsCredentialOffers.
-type PostDoctorsDoctorIdPrescriptionsCredentialOffersJSONBody = Prescription
+// PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody defines parameters for PostV1DoctorsDoctorIdPrescriptionsCredentialOffers.
+type PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody = Prescription
 
-// PostPatientsPatientIdPrescriptionsCredentialsJSONBody defines parameters for PostPatientsPatientIdPrescriptionsCredentials.
-type PostPatientsPatientIdPrescriptionsCredentialsJSONBody struct {
+// PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody defines parameters for PostV1PatientsPatientIdPrescriptionsCredentials.
+type PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody struct {
 	CredentialOfferId *string `json:"credentialOfferId,omitempty"`
 	Did               *string `json:"did,omitempty"`
 	KmsPassphrase     *string `json:"kmsPassphrase,omitempty"`
 }
 
-// PostPatientsPatientIdPrescriptionsPresentationsJSONBody defines parameters for PostPatientsPatientIdPrescriptionsPresentations.
-type PostPatientsPatientIdPrescriptionsPresentationsJSONBody struct {
+// PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody defines parameters for PostV1PatientsPatientIdPrescriptionsPresentations.
+type PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody struct {
 	Challenge             *string `json:"challenge,omitempty"`
 	CredentialId          *string `json:"credentialId,omitempty"`
 	KmsPassphrase         *string `json:"kmsPassphrase,omitempty"`
 	PresentationRequestId *string `json:"presentationRequestId,omitempty"`
 }
 
-// PostDoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody defines body for PostDoctorsDoctorIdPrescriptionsCredentialOffers for application/json ContentType.
-type PostDoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody = PostDoctorsDoctorIdPrescriptionsCredentialOffersJSONBody
+// PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody defines body for PostV1DoctorsDoctorIdPrescriptionsCredentialOffers for application/json ContentType.
+type PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody = PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody
 
-// PostPatientsPatientIdPrescriptionsCredentialsJSONRequestBody defines body for PostPatientsPatientIdPrescriptionsCredentials for application/json ContentType.
-type PostPatientsPatientIdPrescriptionsCredentialsJSONRequestBody PostPatientsPatientIdPrescriptionsCredentialsJSONBody
+// PostV1PatientsPatientIdPrescriptionsCredentialsJSONRequestBody defines body for PostV1PatientsPatientIdPrescriptionsCredentials for application/json ContentType.
+type PostV1PatientsPatientIdPrescriptionsCredentialsJSONRequestBody PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody
 
-// PostPatientsPatientIdPrescriptionsPresentationsJSONRequestBody defines body for PostPatientsPatientIdPrescriptionsPresentations for application/json ContentType.
-type PostPatientsPatientIdPrescriptionsPresentationsJSONRequestBody PostPatientsPatientIdPrescriptionsPresentationsJSONBody
+// PostV1PatientsPatientIdPrescriptionsPresentationsJSONRequestBody defines body for PostV1PatientsPatientIdPrescriptionsPresentations for application/json ContentType.
+type PostV1PatientsPatientIdPrescriptionsPresentationsJSONRequestBody PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Creates credential offer for prescription (generates a link for QR code)
-	// (POST /doctors/{doctorId}/prescriptions/credential-offers/)
-	PostDoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context, doctorId string) error
+	// (POST /v1/doctors/{doctorId}/prescriptions/credential-offers/)
+	PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context, doctorId string) error
 	// Gets credential offer by id
-	// (GET /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId})
-	GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx echo.Context, doctorId string, credentialOfferId string) error
+	// (GET /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId})
+	GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx echo.Context, doctorId string, credentialOfferId string) error
 	// Gets credential issued for given credential offer
-	// (GET /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential)
-	GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx echo.Context, doctorId string, credentialOfferId string) error
+	// (GET /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential)
+	GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx echo.Context, doctorId string, credentialOfferId string) error
 	// Gets all dids belonging to given patient
-	// (GET /patients/{patientId}/dids)
-	GetPatientsPatientIdDids(ctx echo.Context, patientId string) error
+	// (GET /v1/patients/{patientId}/dids)
+	GetV1PatientsPatientIdDids(ctx echo.Context, patientId string) error
 	// Gets all prescription credentials issued for given patient
-	// (GET /patients/{patientId}/prescriptions/credentials)
-	GetPatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error
+	// (GET /v1/patients/{patientId}/prescriptions/credentials)
+	GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error
 	// Creates credential in response to credential offer from doctor
-	// (POST /patients/{patientId}/prescriptions/credentials/)
-	PostPatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error
+	// (POST /v1/patients/{patientId}/prescriptions/credentials/)
+	PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error
 	// Gets prescription credential by id issued for given patient
-	// (GET /patients/{patientId}/prescriptions/credentials/{credentialId})
-	GetPatientsPatientIdPrescriptionsCredentialsCredentialId(ctx echo.Context, patientId string, credentialId string) error
+	// (GET /v1/patients/{patientId}/prescriptions/credentials/{credentialId})
+	GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId(ctx echo.Context, patientId string, credentialId string) error
 	// Creates verifiable presentation in response to prescription presentation request from pharmacy
-	// (POST /patients/{patientId}/prescriptions/presentations)
-	PostPatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error
+	// (POST /v1/patients/{patientId}/prescriptions/presentations)
+	PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error
 	// Creates presentation request for prescription (generates link for a QR code)
-	// (POST /pharmacies/{pharmacyId}/prescriptions/presentation-requests)
-	PostPharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context, pharmacyId string) error
+	// (POST /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests)
+	PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context, pharmacyId string) error
 	// Gets presentation request for prescription by request id
-	// (GET /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId})
-	GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx echo.Context, pharmacyId string, presentationRequestId string) error
+	// (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId})
+	GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx echo.Context, pharmacyId string, presentationRequestId string) error
 	// Gets verifiable presentation for given presentation request
-	// (GET /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation)
-	GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error
+	// (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation)
+	GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -191,8 +191,8 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// PostDoctorsDoctorIdPrescriptionsCredentialOffers converts echo context to params.
-func (w *ServerInterfaceWrapper) PostDoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context) error {
+// PostV1DoctorsDoctorIdPrescriptionsCredentialOffers converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "doctorId" -------------
 	var doctorId string
@@ -205,36 +205,12 @@ func (w *ServerInterfaceWrapper) PostDoctorsDoctorIdPrescriptionsCredentialOffer
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostDoctorsDoctorIdPrescriptionsCredentialOffers(ctx, doctorId)
+	err = w.Handler.PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx, doctorId)
 	return err
 }
 
-// GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId converts echo context to params.
-func (w *ServerInterfaceWrapper) GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "doctorId" -------------
-	var doctorId string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "doctorId", runtime.ParamLocationPath, ctx.Param("doctorId"), &doctorId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter doctorId: %s", err))
-	}
-
-	// ------------- Path parameter "credentialOfferId" -------------
-	var credentialOfferId string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "credentialOfferId", runtime.ParamLocationPath, ctx.Param("credentialOfferId"), &credentialOfferId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter credentialOfferId: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx, doctorId, credentialOfferId)
-	return err
-}
-
-// GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential converts echo context to params.
-func (w *ServerInterfaceWrapper) GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx echo.Context) error {
+// GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "doctorId" -------------
 	var doctorId string
@@ -252,15 +228,39 @@ func (w *ServerInterfaceWrapper) GetDoctorsDoctorIdPrescriptionsCredentialOffers
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter credentialOfferId: %s", err))
 	}
 
-	ctx.Set(BearerAuthScopes, []string{""})
-
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx, doctorId, credentialOfferId)
+	err = w.Handler.GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx, doctorId, credentialOfferId)
 	return err
 }
 
-// GetPatientsPatientIdDids converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPatientsPatientIdDids(ctx echo.Context) error {
+// GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "doctorId" -------------
+	var doctorId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "doctorId", runtime.ParamLocationPath, ctx.Param("doctorId"), &doctorId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter doctorId: %s", err))
+	}
+
+	// ------------- Path parameter "credentialOfferId" -------------
+	var credentialOfferId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "credentialOfferId", runtime.ParamLocationPath, ctx.Param("credentialOfferId"), &credentialOfferId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter credentialOfferId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx, doctorId, credentialOfferId)
+	return err
+}
+
+// GetV1PatientsPatientIdDids converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1PatientsPatientIdDids(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "patientId" -------------
 	var patientId string
@@ -273,12 +273,12 @@ func (w *ServerInterfaceWrapper) GetPatientsPatientIdDids(ctx echo.Context) erro
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetPatientsPatientIdDids(ctx, patientId)
+	err = w.Handler.GetV1PatientsPatientIdDids(ctx, patientId)
 	return err
 }
 
-// GetPatientsPatientIdPrescriptionsCredentials converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPatientsPatientIdPrescriptionsCredentials(ctx echo.Context) error {
+// GetV1PatientsPatientIdPrescriptionsCredentials converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "patientId" -------------
 	var patientId string
@@ -291,12 +291,12 @@ func (w *ServerInterfaceWrapper) GetPatientsPatientIdPrescriptionsCredentials(ct
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetPatientsPatientIdPrescriptionsCredentials(ctx, patientId)
+	err = w.Handler.GetV1PatientsPatientIdPrescriptionsCredentials(ctx, patientId)
 	return err
 }
 
-// PostPatientsPatientIdPrescriptionsCredentials converts echo context to params.
-func (w *ServerInterfaceWrapper) PostPatientsPatientIdPrescriptionsCredentials(ctx echo.Context) error {
+// PostV1PatientsPatientIdPrescriptionsCredentials converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "patientId" -------------
 	var patientId string
@@ -309,12 +309,12 @@ func (w *ServerInterfaceWrapper) PostPatientsPatientIdPrescriptionsCredentials(c
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostPatientsPatientIdPrescriptionsCredentials(ctx, patientId)
+	err = w.Handler.PostV1PatientsPatientIdPrescriptionsCredentials(ctx, patientId)
 	return err
 }
 
-// GetPatientsPatientIdPrescriptionsCredentialsCredentialId converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPatientsPatientIdPrescriptionsCredentialsCredentialId(ctx echo.Context) error {
+// GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "patientId" -------------
 	var patientId string
@@ -335,12 +335,12 @@ func (w *ServerInterfaceWrapper) GetPatientsPatientIdPrescriptionsCredentialsCre
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetPatientsPatientIdPrescriptionsCredentialsCredentialId(ctx, patientId, credentialId)
+	err = w.Handler.GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId(ctx, patientId, credentialId)
 	return err
 }
 
-// PostPatientsPatientIdPrescriptionsPresentations converts echo context to params.
-func (w *ServerInterfaceWrapper) PostPatientsPatientIdPrescriptionsPresentations(ctx echo.Context) error {
+// PostV1PatientsPatientIdPrescriptionsPresentations converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "patientId" -------------
 	var patientId string
@@ -353,12 +353,12 @@ func (w *ServerInterfaceWrapper) PostPatientsPatientIdPrescriptionsPresentations
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostPatientsPatientIdPrescriptionsPresentations(ctx, patientId)
+	err = w.Handler.PostV1PatientsPatientIdPrescriptionsPresentations(ctx, patientId)
 	return err
 }
 
-// PostPharmaciesPharmacyIdPrescriptionsPresentationRequests converts echo context to params.
-func (w *ServerInterfaceWrapper) PostPharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context) error {
+// PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "pharmacyId" -------------
 	var pharmacyId string
@@ -371,12 +371,12 @@ func (w *ServerInterfaceWrapper) PostPharmaciesPharmacyIdPrescriptionsPresentati
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostPharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx, pharmacyId)
+	err = w.Handler.PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx, pharmacyId)
 	return err
 }
 
-// GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx echo.Context) error {
+// GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "pharmacyId" -------------
 	var pharmacyId string
@@ -395,12 +395,12 @@ func (w *ServerInterfaceWrapper) GetPharmaciesPharmacyIdPrescriptionsPresentatio
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx, pharmacyId, presentationRequestId)
+	err = w.Handler.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx, pharmacyId, presentationRequestId)
 	return err
 }
 
-// GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context) error {
+// GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "pharmacyId" -------------
 	var pharmacyId string
@@ -421,7 +421,7 @@ func (w *ServerInterfaceWrapper) GetPharmaciesPharmacyIdPrescriptionsPresentatio
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx, pharmacyId, presentationRequestId)
+	err = w.Handler.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx, pharmacyId, presentationRequestId)
 	return err
 }
 
@@ -453,55 +453,55 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.POST(baseURL+"/doctors/:doctorId/prescriptions/credential-offers/", wrapper.PostDoctorsDoctorIdPrescriptionsCredentialOffers)
-	router.GET(baseURL+"/doctors/:doctorId/prescriptions/credential-offers/:credentialOfferId", wrapper.GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId)
-	router.GET(baseURL+"/doctors/:doctorId/prescriptions/credential-offers/:credentialOfferId/credential", wrapper.GetDoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential)
-	router.GET(baseURL+"/patients/:patientId/dids", wrapper.GetPatientsPatientIdDids)
-	router.GET(baseURL+"/patients/:patientId/prescriptions/credentials", wrapper.GetPatientsPatientIdPrescriptionsCredentials)
-	router.POST(baseURL+"/patients/:patientId/prescriptions/credentials/", wrapper.PostPatientsPatientIdPrescriptionsCredentials)
-	router.GET(baseURL+"/patients/:patientId/prescriptions/credentials/:credentialId", wrapper.GetPatientsPatientIdPrescriptionsCredentialsCredentialId)
-	router.POST(baseURL+"/patients/:patientId/prescriptions/presentations", wrapper.PostPatientsPatientIdPrescriptionsPresentations)
-	router.POST(baseURL+"/pharmacies/:pharmacyId/prescriptions/presentation-requests", wrapper.PostPharmaciesPharmacyIdPrescriptionsPresentationRequests)
-	router.GET(baseURL+"/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId", wrapper.GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId)
-	router.GET(baseURL+"/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId/presentation", wrapper.GetPharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation)
+	router.POST(baseURL+"/v1/doctors/:doctorId/prescriptions/credential-offers/", wrapper.PostV1DoctorsDoctorIdPrescriptionsCredentialOffers)
+	router.GET(baseURL+"/v1/doctors/:doctorId/prescriptions/credential-offers/:credentialOfferId", wrapper.GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId)
+	router.GET(baseURL+"/v1/doctors/:doctorId/prescriptions/credential-offers/:credentialOfferId/credential", wrapper.GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential)
+	router.GET(baseURL+"/v1/patients/:patientId/dids", wrapper.GetV1PatientsPatientIdDids)
+	router.GET(baseURL+"/v1/patients/:patientId/prescriptions/credentials", wrapper.GetV1PatientsPatientIdPrescriptionsCredentials)
+	router.POST(baseURL+"/v1/patients/:patientId/prescriptions/credentials/", wrapper.PostV1PatientsPatientIdPrescriptionsCredentials)
+	router.GET(baseURL+"/v1/patients/:patientId/prescriptions/credentials/:credentialId", wrapper.GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId)
+	router.POST(baseURL+"/v1/patients/:patientId/prescriptions/presentations", wrapper.PostV1PatientsPatientIdPrescriptionsPresentations)
+	router.POST(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests", wrapper.PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests)
+	router.GET(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId", wrapper.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId)
+	router.GET(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId/presentation", wrapper.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"IfNwGDAhe12nq78/Wl4t/xsAAP//jR64f6YvAAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
