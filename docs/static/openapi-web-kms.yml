@@ -3,10 +3,10 @@ info:
   title: SSI medical prescriptions DEMO API
   version: '1.0'
 servers:
-  - url: http://localhost:8080/v1
+  - url: http://localhost:8080
 
 paths:
-  /doctors/{doctorId}/prescriptions/credential-offers/:
+  /v1/doctors/{doctorId}/prescriptions/credential-offers/:
     post:
       tags:
         - Doctor
@@ -43,7 +43,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
           
-  /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}:
+  /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}:
     get:
       tags:
         - Doctor
@@ -78,7 +78,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
 
-  /doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential:
+  /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential:
     get:
       tags:
         - Doctor
@@ -112,7 +112,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
 
-  /patients/{patientId}/prescriptions/credentials/:
+  /v1/patients/{patientId}/prescriptions/credentials/:
     post:
       tags:
         - Patient
@@ -153,7 +153,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
 
-  /pharmacies/{pharmacyId}/prescriptions/presentation-requests:
+  /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests:
     post:
       tags:
         - Pharmacy
@@ -183,7 +183,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
 
-  /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}:
+  /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}:
     get:
       tags:
         - Pharmacy
@@ -218,7 +218,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
 
-  /patients/{patientId}/prescriptions/presentations:
+  /v1/patients/{patientId}/prescriptions/presentations:
     post:
       tags:
         - Patient
@@ -260,7 +260,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
             
-  /patients/{patientId}/dids:
+  /v1/patients/{patientId}/dids:
     get:
       tags:
         - Patient
@@ -293,7 +293,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'   
 
-  /pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation:
+  /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation:
     get:
       tags:
         - Pharmacy
@@ -332,7 +332,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'       
 
-  /patients/{patientId}/prescriptions/credentials/{credentialId}:
+  /v1/patients/{patientId}/prescriptions/credentials/{credentialId}:
     get:
       tags:
         - Patient
@@ -369,7 +369,7 @@ paths:
                 schema:
                   $ref: '#/components/schemas/error'       
 
-  /patients/{patientId}/prescriptions/credentials:
+  /v1/patients/{patientId}/prescriptions/credentials:
     get:
       tags:
         - Patient
