@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  mock-server:
+    container_name: ssi-medical-prescriptions-demo.mock-server.com
+    image: ${MOCK_SERVER_IMAGE}:${MOCK_SERVER_IMAGE_TAG}
+    ports:
+      - 8989:8989
