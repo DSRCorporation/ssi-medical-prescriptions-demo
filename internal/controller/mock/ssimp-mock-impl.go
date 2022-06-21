@@ -83,9 +83,9 @@ func (*SSIMPMockImpl) GetPatientsPatientIdPrescriptionsCredentialsCredentialId(c
 
 // Generates canonical jws payload of credential presentaion for signing
 // (POST /patients/{patientId}/prescriptions/credentials/{credentialId}/presentation-jws-payload)
-func (*SSIMPMockImpl) PostPatientsPatientIdPrescriptionsCredentialsCredentialIdPresentationJwsPayload(ctx echo.Context, patientId string, credentialId string) error {
-	return &ErrorImpl{msg: "not implemented"}
-}
+// func (*SSIMPMockImpl) PostPatientsPatientIdPrescriptionsCredentialsCredentialIdPresentationJwsPayload(ctx echo.Context, patientId string, credentialId string) error {
+// 	return &ErrorImpl{msg: "not implemented"}
+// }
 
 // Creates verifiable presentation in response to prescription presentation request from pharmacy
 // (POST /patients/{patientId}/prescriptions/presentations/)
