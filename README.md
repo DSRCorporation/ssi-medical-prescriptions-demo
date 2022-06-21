@@ -1,7 +1,13 @@
 # SSI medical prescriptions-demo
 
+## Mock server
 
-## Run mock server
+### Build mock server
+```bash
+make mock-server
+```
+
+### Run mock server and swagger ui using docker
 1. Build mock server docker image:
     ```bash
     make mock-server-docker
