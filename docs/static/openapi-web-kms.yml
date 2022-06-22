@@ -33,9 +33,7 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  credentialOfferId:
-                    type: string
+                $ref: '#/components/schemas/credentialOfferResponse'
         default:
           description: unexpected error
           content:
@@ -172,10 +170,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  presentationRequestId:
-                    type: string
+                $ref: '#/components/schemas/createPresentationResponse'
         default:
           description: unexpected error
           content:
@@ -281,11 +276,8 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  dids:
-                    type: array
-                    items:
-                      type: string
+                $ref: '#/components/schemas/allDidsResponse'
+                
         default:
           description: unexpected error
           content:
@@ -357,11 +349,8 @@ paths:
               application/json:
                 schema:
                   type: object
-                  properties:
-                    credentials:
-                      type: array
-                      items:
-                        type: object
+                  $ref: '#/components/schemas/prescriptionCredentialResponse'
+                  
           default:
             description: unexpected error
             content:
@@ -388,12 +377,7 @@ paths:
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    credentials:
-                      type: array
-                      items:
-                        type: object
+                  $ref: '#/components/schemas/prescriptionCredentialResponse'
           default:
             description: unexpected error
             content:
@@ -594,6 +578,34 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/drug'
+
+    credentialOfferResponse:
+      type: object
+      properties:
+        credentialOfferId:
+          type: string
+
+    createPresentationResponse:
+      type: object
+      properties:
+        presentationRequestId:
+          type: string
+    
+    allDidsResponse:
+      type: object
+      properties:
+        dids:
+          type: array
+          items:
+            type: string
+
+    prescriptionCredentialResponse:
+      type: object
+      properties:
+        credentials:
+          type: array
+          items:
+            type: object
 
     error:
       type: object
