@@ -17,7 +17,7 @@ make mock-server
     make run-mock-server
     ```
     - Mock server api will be available at http://localhost:8989
-    - Openapi will be available at http://localhost:8889
+    - Openapi will be available at http://localhost:8889/openapi
 
 3. Stop mock server
     ```bash
