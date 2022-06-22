@@ -63,12 +63,8 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  prescription:
-                    $ref: '#/components/schemas/prescription'
-                  challenge:
-                    type: string
+                $ref: '#/components/schemas/getCredentialOfferResponse'
+                
         default:
           description: unexpected error
           content:
@@ -170,7 +166,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/createPresentationResponse'
+                $ref: '#/components/schemas/createPresentationRequestResponse'
         default:
           description: unexpected error
           content:
@@ -200,12 +196,8 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  presentationRequestId:
-                    type: string
-                  challenge:
-                    type: string
+                $ref: '#/components/schemas/getPresentationRequestResponse' 
+
         default:
           description: unexpected error
           content:
@@ -276,7 +268,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/allDidsResponse'
+                $ref: '#/components/schemas/getAllDidsResponse'
                 
         default:
           description: unexpected error
@@ -309,14 +301,8 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  presentation:
-                    $ref: '#/components/schemas/presentation'
-                  verificationStatus:
-                    type: boolean
-                  verificationComment:
-                    type: string
+                $ref: '#/components/schemas/getVerifiablePresentationResponse'
+                
         default:
           description: unexpected error
           content:
@@ -349,7 +335,7 @@ paths:
               application/json:
                 schema:
                   type: object
-                  $ref: '#/components/schemas/prescriptionCredentialResponse'
+                  $ref: '#/components/schemas/getPrescriptionCredentialResponse'
                   
           default:
             description: unexpected error
@@ -377,7 +363,7 @@ paths:
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/prescriptionCredentialResponse'
+                  $ref: '#/components/schemas/getAllPrescriptionCredentialResponse'
           default:
             description: unexpected error
             content:
@@ -585,13 +571,29 @@ components:
         credentialOfferId:
           type: string
 
-    createPresentationResponse:
+    getCredentialOfferResponse:
+      type: object
+      properties:
+        prescription:
+          $ref: '#/components/schemas/prescription'
+        challenge:
+          type: string
+
+    createPresentationRequestResponse:
       type: object
       properties:
         presentationRequestId:
           type: string
-    
-    allDidsResponse:
+  
+    getPresentationRequestResponse:
+      type: object
+      properties:
+        presentationRequestId:
+          type: string
+        challenge:
+          type: string
+
+    getAllDidsResponse:
       type: object
       properties:
         dids:
@@ -599,12 +601,28 @@ components:
           items:
             type: string
 
-    prescriptionCredentialResponse:
+    getVerifiablePresentationResponse:
+      type: object
+      properties:
+        presentation:
+          $ref: '#/components/schemas/presentation'
+        verificationStatus:
+          type: boolean
+        verificationComment:
+          type: string
+
+    getAllPrescriptionCredentialResponse:
       type: object
       properties:
         credentials:
           type: array
           items:
+              type: object
+
+    getPrescriptionCredentialResponse:
+      type: object
+      properties:
+        credentials:
             type: object
 
     error:
