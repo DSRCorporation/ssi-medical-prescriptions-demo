@@ -19,3 +19,6 @@
 */
 
 package vc
+
+type Wallet interface {
+}
