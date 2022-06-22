@@ -21,7 +21,8 @@
 package vc
 
 type DIDComm interface {
-	CreateInvitation() string
-	AcceptInvitation(invitation string) string
-	AcceptRequest(connectionId string) string
+	CreateInvitation() (string, error)
+	AcceptInvitation(invitation string) (string, error)
+	AcceptRequest(connectionId string) (string, error)
+	IsConnectionComplete(connectionId string) bool
 }

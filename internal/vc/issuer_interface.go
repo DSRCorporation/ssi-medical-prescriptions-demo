@@ -21,4 +21,7 @@
 package vc
 
 type Issuer interface {
+	SendCredentialOffer(connectionId string) error
+	AcceptCredentialRequest(piid string) error
+	AcceptPresentationRequest(piid string) error
 }
