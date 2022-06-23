@@ -21,4 +21,6 @@
 package vc
 
 type Verifier interface {
+	SendPresentationRequest(connectionId string) error
+	AcceptPresentation(piid string, name string) error
 }

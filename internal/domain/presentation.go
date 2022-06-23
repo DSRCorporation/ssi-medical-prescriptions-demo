@@ -18,18 +18,7 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package vc
+package domain
 
-import (
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
-)
-
-type ProofOptions struct {
-}
-
-type Wallet interface {
-	SignCredential(userId string, passphrase string, proofOptions ProofOptions, credential domain.Credential) (domain.Credential, error)
-	SignPresentation(userId string, passphrase string, proofOptions ProofOptions, presentaion domain.Presentation) (domain.Presentation, error)
-	VerifyCredential(userId string, passphrase string, credential domain.Credential) error
-	VerifyPresentation(userId string, passphrase string, presentation domain.Presentation) error
+type Presentation struct {
 }

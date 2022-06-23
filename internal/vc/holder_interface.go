@@ -21,4 +21,6 @@
 package vc
 
 type Holder interface {
+	AcceptOffer(piid string, did string) error
+	AcceptCredential(piid string, name string) error
 }

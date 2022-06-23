@@ -370,6 +370,46 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'         
+  
+  /v1/vc/verify-credential:
+    post:
+      tags:
+        - Verifiable
+      summary: Verify Credential
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/credential'
+      responses:
+          '200':
+            description: OK
+          default:
+            description: unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
+  
+  /v1/vc/verify-presentation:
+    post:
+      tags:
+        - Verifiable
+      summary: Verify Credential
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/presentation'
+      responses:
+          '200':
+            description: OK
+          default:
+            description: unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'    
 
 components:
   securitySchemes:
