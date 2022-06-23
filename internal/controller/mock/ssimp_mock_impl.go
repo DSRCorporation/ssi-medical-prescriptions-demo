@@ -110,3 +110,15 @@ func (*SSIMPMockImpl) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequests
 func (*SSIMPMockImpl) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error {
 	return &ErrorImpl{msg: "not implemented"}
 }
+
+// Verify Credential
+// (POST /v1/vc/verify-credential)
+func (*SSIMPMockImpl) PostV1VcVerifyCredential(ctx echo.Context) error {
+	return &ErrorImpl{msg: "not implemented"}
+}
+
+// Verify Credential
+// (POST /v1/vc/verify-presentation)
+func (*SSIMPMockImpl) PostV1VcVerifyPresentation(ctx echo.Context) error {
+	return &ErrorImpl{msg: "not implemented"}
+}
