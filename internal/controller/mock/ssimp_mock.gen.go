@@ -22,6 +22,11 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// CreatePresentationRequestResponse defines model for createPresentationRequestResponse.
+type CreatePresentationRequestResponse struct {
+	PresentationRequestId *string `json:"presentationRequestId,omitempty"`
+}
+
 // Credential defines model for credential.
 type Credential struct {
 	Context           *[]string `json:"@context,omitempty"`
@@ -38,6 +43,11 @@ type Credential struct {
 	} `json:"issuer,omitempty"`
 	Proof *CredentialProof `json:"proof,omitempty"`
 	Type  *[]string        `json:"type,omitempty"`
+}
+
+// CredentialOfferResponse defines model for credentialOfferResponse.
+type CredentialOfferResponse struct {
+	CredentialOfferId *string `json:"credentialOfferId,omitempty"`
 }
 
 // CredentialProof defines model for credentialProof.
@@ -62,6 +72,40 @@ type Drug struct {
 type Error struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
+}
+
+// GetAllDidsResponse defines model for getAllDidsResponse.
+type GetAllDidsResponse struct {
+	Dids *[]string `json:"dids,omitempty"`
+}
+
+// GetAllPrescriptionCredentialResponse defines model for getAllPrescriptionCredentialResponse.
+type GetAllPrescriptionCredentialResponse struct {
+	Credentials *[]map[string]interface{} `json:"credentials,omitempty"`
+}
+
+// GetCredentialOfferResponse defines model for getCredentialOfferResponse.
+type GetCredentialOfferResponse struct {
+	Challenge    *string       `json:"challenge,omitempty"`
+	Prescription *Prescription `json:"prescription,omitempty"`
+}
+
+// GetPrescriptionCredentialResponse defines model for getPrescriptionCredentialResponse.
+type GetPrescriptionCredentialResponse struct {
+	Credentials *map[string]interface{} `json:"credentials,omitempty"`
+}
+
+// GetPresentationRequestResponse defines model for getPresentationRequestResponse.
+type GetPresentationRequestResponse struct {
+	Challenge             *string `json:"challenge,omitempty"`
+	PresentationRequestId *string `json:"presentationRequestId,omitempty"`
+}
+
+// GetVerifiablePresentationResponse defines model for getVerifiablePresentationResponse.
+type GetVerifiablePresentationResponse struct {
+	Presentation        *Presentation `json:"presentation,omitempty"`
+	VerificationComment *string       `json:"verificationComment,omitempty"`
+	VerificationStatus  *bool         `json:"verificationStatus,omitempty"`
 }
 
 // OintmentDrugInfo defines model for ointmentDrugInfo.
@@ -470,38 +514,39 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
