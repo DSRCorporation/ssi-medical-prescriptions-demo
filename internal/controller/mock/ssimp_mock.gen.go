@@ -184,6 +184,12 @@ type PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody struct {
 	PresentationRequestId *string `json:"presentationRequestId,omitempty"`
 }
 
+// PostV1VcVerifyCredentialJSONBody defines parameters for PostV1VcVerifyCredential.
+type PostV1VcVerifyCredentialJSONBody = Credential
+
+// PostV1VcVerifyPresentationJSONBody defines parameters for PostV1VcVerifyPresentation.
+type PostV1VcVerifyPresentationJSONBody = Presentation
+
 // PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody defines body for PostV1DoctorsDoctorIdPrescriptionsCredentialOffers for application/json ContentType.
 type PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody = PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody
 
@@ -192,6 +198,12 @@ type PostV1PatientsPatientIdPrescriptionsCredentialsJSONRequestBody PostV1Patien
 
 // PostV1PatientsPatientIdPrescriptionsPresentationsJSONRequestBody defines body for PostV1PatientsPatientIdPrescriptionsPresentations for application/json ContentType.
 type PostV1PatientsPatientIdPrescriptionsPresentationsJSONRequestBody PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody
+
+// PostV1VcVerifyCredentialJSONRequestBody defines body for PostV1VcVerifyCredential for application/json ContentType.
+type PostV1VcVerifyCredentialJSONRequestBody = PostV1VcVerifyCredentialJSONBody
+
+// PostV1VcVerifyPresentationJSONRequestBody defines body for PostV1VcVerifyPresentation for application/json ContentType.
+type PostV1VcVerifyPresentationJSONRequestBody = PostV1VcVerifyPresentationJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -228,6 +240,12 @@ type ServerInterface interface {
 	// Gets verifiable presentation for given presentation request
 	// (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation)
 	GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error
+	// Verify Credential
+	// (POST /v1/vc/verify-credential)
+	PostV1VcVerifyCredential(ctx echo.Context) error
+	// Verify Credential
+	// (POST /v1/vc/verify-presentation)
+	PostV1VcVerifyPresentation(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -469,6 +487,24 @@ func (w *ServerInterfaceWrapper) GetV1PharmaciesPharmacyIdPrescriptionsPresentat
 	return err
 }
 
+// PostV1VcVerifyCredential converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1VcVerifyCredential(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostV1VcVerifyCredential(ctx)
+	return err
+}
+
+// PostV1VcVerifyPresentation converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1VcVerifyPresentation(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostV1VcVerifyPresentation(ctx)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -508,45 +544,48 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests", wrapper.PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests)
 	router.GET(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId", wrapper.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId)
 	router.GET(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId/presentation", wrapper.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation)
+	router.POST(baseURL+"/v1/vc/verify-credential", wrapper.PostV1VcVerifyCredential)
+	router.POST(baseURL+"/v1/vc/verify-presentation", wrapper.PostV1VcVerifyPresentation)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
