@@ -425,7 +425,7 @@ paths:
     post:
       tags:
         - Verifiable
-      summary: Verify Credential
+      summary: Verify Presentation
       requestBody:
         content:
           application/json:
