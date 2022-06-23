@@ -33,7 +33,9 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/credentialOfferResponse'
+                properties:
+                  credentialOfferId:
+                    type: string
         default:
           description: unexpected error
           content:
@@ -63,8 +65,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/getCredentialOfferResponse'
-                
+                type: object
+                properties:
+                  prescription:
+                    $ref: '#/components/schemas/prescription'
+                  challenge:
+                    type: string
         default:
           description: unexpected error
           content:
@@ -166,7 +172,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/createPresentationRequestResponse'
+                type: object
+                properties:
+                  presentationRequestId:
+                    type: string
         default:
           description: unexpected error
           content:
@@ -196,8 +205,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/getPresentationRequestResponse' 
-
+                type: object
+                properties:
+                  presentationRequestId:
+                    type: string
+                  challenge:
+                    type: string
         default:
           description: unexpected error
           content:
@@ -268,8 +281,11 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/getAllDidsResponse'
-                
+                properties:
+                  dids:
+                    type: array
+                    items:
+                      type: string
         default:
           description: unexpected error
           content:
@@ -301,8 +317,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/getVerifiablePresentationResponse'
-                
+                type: object
+                properties:
+                  presentation:
+                    $ref: '#/components/schemas/presentation'
+                  verificationStatus:
+                    type: boolean
+                  verificationComment:
+                    type: string
         default:
           description: unexpected error
           content:
@@ -335,8 +357,11 @@ paths:
               application/json:
                 schema:
                   type: object
-                  $ref: '#/components/schemas/getPrescriptionCredentialResponse'
-                  
+                  properties:
+                    credentials:
+                      type: array
+                      items:
+                        type: object
           default:
             description: unexpected error
             content:
@@ -363,7 +388,12 @@ paths:
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/getAllPrescriptionCredentialResponse'
+                  type: object
+                  properties:
+                    credentials:
+                      type: array
+                      items:
+                        type: object
           default:
             description: unexpected error
             content:
@@ -395,7 +425,7 @@ paths:
     post:
       tags:
         - Verifiable
-      summary: Verify Credential
+      summary: Verify Presentation
       requestBody:
         content:
           application/json:
@@ -604,66 +634,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/drug'
-
-    credentialOfferResponse:
-      type: object
-      properties:
-        credentialOfferId:
-          type: string
-
-    getCredentialOfferResponse:
-      type: object
-      properties:
-        prescription:
-          $ref: '#/components/schemas/prescription'
-        challenge:
-          type: string
-
-    createPresentationRequestResponse:
-      type: object
-      properties:
-        presentationRequestId:
-          type: string
-  
-    getPresentationRequestResponse:
-      type: object
-      properties:
-        presentationRequestId:
-          type: string
-        challenge:
-          type: string
-
-    getAllDidsResponse:
-      type: object
-      properties:
-        dids:
-          type: array
-          items:
-            type: string
-
-    getVerifiablePresentationResponse:
-      type: object
-      properties:
-        presentation:
-          $ref: '#/components/schemas/presentation'
-        verificationStatus:
-          type: boolean
-        verificationComment:
-          type: string
-
-    getAllPrescriptionCredentialResponse:
-      type: object
-      properties:
-        credentials:
-          type: array
-          items:
-              type: object
-
-    getPrescriptionCredentialResponse:
-      type: object
-      properties:
-        credentials:
-            type: object
 
     error:
       type: object
