@@ -2,6 +2,19 @@
 
 ## Mock server
 
+### Generate mock stubs for openapi specs
+1. Install oapi-codegen:
+    ```bash
+    go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+    ```
+    ```bash
+    export PATH=$PATH:$HOME/go/bin
+    ```
+2. Generate mock stubs for openapi specs
+    ```bash
+    oapi-codegen -package mock ./api/openapi-spec/openapi.yml > internal/controller/mock/ssimp_mock.gen.go
+    ```
+
 ### Build mock server
 ```bash
 make mock-server
@@ -22,16 +35,4 @@ make mock-server
 3. Stop mock server
     ```bash
     make stop-mock-server
-    ```
-### Generate mock stubs for openapi specs
-1. Install oapi-codegen:
-    ```bash
-    go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
-    ```
-    ```bash
-    export PATH=$PATH:$HOME/go/bin
-    ```
-2. Generate mock stubs for openapi specs
-    ```bash
-    oapi-codegen -package mock ./docs/static/openapi-web-kms.yml > internal controller/mock/ssimp_mock.gen.go
     ```
