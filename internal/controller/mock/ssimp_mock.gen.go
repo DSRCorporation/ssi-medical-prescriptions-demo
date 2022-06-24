@@ -22,6 +22,11 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// CreatePresentationRequestResponse defines model for createPresentationRequestResponse.
+type CreatePresentationRequestResponse struct {
+	PresentationRequestId *string `json:"presentationRequestId,omitempty"`
+}
+
 // Credential defines model for credential.
 type Credential struct {
 	Context           *[]string `json:"@context,omitempty"`
@@ -38,6 +43,11 @@ type Credential struct {
 	} `json:"issuer,omitempty"`
 	Proof *CredentialProof `json:"proof,omitempty"`
 	Type  *[]string        `json:"type,omitempty"`
+}
+
+// CredentialOfferResponse defines model for credentialOfferResponse.
+type CredentialOfferResponse struct {
+	CredentialOfferId *string `json:"credentialOfferId,omitempty"`
 }
 
 // CredentialProof defines model for credentialProof.
@@ -62,6 +72,40 @@ type Drug struct {
 type Error struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
+}
+
+// GetAllDidsResponse defines model for getAllDidsResponse.
+type GetAllDidsResponse struct {
+	Dids *[]string `json:"dids,omitempty"`
+}
+
+// GetAllPrescriptionCredentialResponse defines model for getAllPrescriptionCredentialResponse.
+type GetAllPrescriptionCredentialResponse struct {
+	Credentials *[]map[string]interface{} `json:"credentials,omitempty"`
+}
+
+// GetCredentialOfferResponse defines model for getCredentialOfferResponse.
+type GetCredentialOfferResponse struct {
+	Challenge    *string       `json:"challenge,omitempty"`
+	Prescription *Prescription `json:"prescription,omitempty"`
+}
+
+// GetPrescriptionCredentialResponse defines model for getPrescriptionCredentialResponse.
+type GetPrescriptionCredentialResponse struct {
+	Credentials *map[string]interface{} `json:"credentials,omitempty"`
+}
+
+// GetPresentationRequestResponse defines model for getPresentationRequestResponse.
+type GetPresentationRequestResponse struct {
+	Challenge             *string `json:"challenge,omitempty"`
+	PresentationRequestId *string `json:"presentationRequestId,omitempty"`
+}
+
+// GetVerifiablePresentationResponse defines model for getVerifiablePresentationResponse.
+type GetVerifiablePresentationResponse struct {
+	Presentation        *Presentation `json:"presentation,omitempty"`
+	VerificationComment *string       `json:"verificationComment,omitempty"`
+	VerificationStatus  *bool         `json:"verificationStatus,omitempty"`
 }
 
 // OintmentDrugInfo defines model for ointmentDrugInfo.
@@ -140,6 +184,12 @@ type PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody struct {
 	PresentationRequestId *string `json:"presentationRequestId,omitempty"`
 }
 
+// PostV1VcVerifyCredentialJSONBody defines parameters for PostV1VcVerifyCredential.
+type PostV1VcVerifyCredentialJSONBody = Credential
+
+// PostV1VcVerifyPresentationJSONBody defines parameters for PostV1VcVerifyPresentation.
+type PostV1VcVerifyPresentationJSONBody = Presentation
+
 // PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody defines body for PostV1DoctorsDoctorIdPrescriptionsCredentialOffers for application/json ContentType.
 type PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody = PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody
 
@@ -148,6 +198,12 @@ type PostV1PatientsPatientIdPrescriptionsCredentialsJSONRequestBody PostV1Patien
 
 // PostV1PatientsPatientIdPrescriptionsPresentationsJSONRequestBody defines body for PostV1PatientsPatientIdPrescriptionsPresentations for application/json ContentType.
 type PostV1PatientsPatientIdPrescriptionsPresentationsJSONRequestBody PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody
+
+// PostV1VcVerifyCredentialJSONRequestBody defines body for PostV1VcVerifyCredential for application/json ContentType.
+type PostV1VcVerifyCredentialJSONRequestBody = PostV1VcVerifyCredentialJSONBody
+
+// PostV1VcVerifyPresentationJSONRequestBody defines body for PostV1VcVerifyPresentation for application/json ContentType.
+type PostV1VcVerifyPresentationJSONRequestBody = PostV1VcVerifyPresentationJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -184,6 +240,12 @@ type ServerInterface interface {
 	// Gets verifiable presentation for given presentation request
 	// (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation)
 	GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error
+	// Verify Credential
+	// (POST /v1/vc/verify-credential)
+	PostV1VcVerifyCredential(ctx echo.Context) error
+	// Verify Credential
+	// (POST /v1/vc/verify-presentation)
+	PostV1VcVerifyPresentation(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -425,6 +487,24 @@ func (w *ServerInterfaceWrapper) GetV1PharmaciesPharmacyIdPrescriptionsPresentat
 	return err
 }
 
+// PostV1VcVerifyCredential converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1VcVerifyCredential(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostV1VcVerifyCredential(ctx)
+	return err
+}
+
+// PostV1VcVerifyPresentation converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1VcVerifyPresentation(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostV1VcVerifyPresentation(ctx)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -464,44 +544,48 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests", wrapper.PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests)
 	router.GET(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId", wrapper.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId)
 	router.GET(baseURL+"/v1/pharmacies/:pharmacyId/prescriptions/presentation-requests/:presentationRequestId/presentation", wrapper.GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation)
+	router.POST(baseURL+"/v1/vc/verify-credential", wrapper.PostV1VcVerifyCredential)
+	router.POST(baseURL+"/v1/vc/verify-presentation", wrapper.PostV1VcVerifyPresentation)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/+xbW1PjOhL+Ky6dfditSnASzhkgT8uEucCZIeFymKqhqC3F7tgKtuSRZCBF5b9vSbbj",
+	"m5yY2yzDnjditVqt7q8/dcvmHjksjBgFKgUa3iPh+BBi/afDAUuYcBBAJZaE0VP4EYOQpyAiRgUooYiz",
+	"CLgkIJJfNeFDVw3IRQRoiITkhHpouexkT9h0Do5Ey45azgUqCQ7qev/tMCrhTqq/4Q6HUQBoeIl8KSMx",
+	"tO3b29ut2+0txj170Ovv2rkqYd/0UaeVYKq3OmObuFpegBNzIhe2iIkEYc9vRXfQG/SU+FUHEQmhMOx0",
+	"tVHMOV6U93kWJ5uvbZe4Rk0Uh2AcUG53OImU25XAPzjM0BD9ZuextdPA2iVZYyDgLiJch/AAS/OCRIgY",
+	"UwfWCgBv2tkqhMgl7jD9NewPtlGnedf5pAO+ZY0YpYyL+gTTjiLO2GyTY/K4TLT4SlEJchfAyYzgaQCj",
+	"HK8dNCl4tTDwAGCsT4nxbAa8Oe8qgo/IuUnmotVeMwJw0RANeoN+t9/r9gbn/Z3hH7vDXu876qD5rUBD",
+	"BPMjfjw/IePwu/Cnn4+DmXs0d8Lgy5/zaHoYHg6OR0ful9GRP/3kkDE5+vj9w+n5ydnR3tbW+Wnv4uTH",
+	"vuf/df5u//DC/ezsfts9GeB5f/BlfDK/+M/F9z70t38//mvvZNCD9+J4cTaZH7vh+bdo8Pna/RGP6PTU",
+	"f//57nB6DB8/HI7H/r6H0ohPYh4xoX0shHIWo19B+szNUXMkGP0G0zPiUSxjDiqjUQfd6Cg7uDClhtXf",
+	"rmHR7aXwKsci8Zoh5NphxgQumtuIFcOAydJWoXd57NWBpJ4eN9GMHozDaZLY6TBNHqTD59WMQVLlirRs",
+	"ixEqQ6DSlOOEzpiahuliPEPDy/WZmmk64LF3qGYuO+snJDbk4lcGf3CYkSDYv8EkwFMSELkobHLKWAC4",
+	"iS85Zwaqc5irXTFjPMQSDRGhcnuQ755QCV7iuRCEwB6YI8fhR0y4AtRlojOXN+3DA7kfBAfEFc104RI3",
+	"YeMncFOyjpn32hCV0YBcfSsDRq350cdBANT7GcenB/KJXqmoXLNI68JsswMeW7Z5IPMzsWxTmyqxjb9X",
+	"shW+G7FQE8omXjyTWMaibTrX2KVmPw5ZTOV49hVc4hAKRjbEURSk639UKQzUWRgtjRtSX43APgfcMhBV",
+	"FNeJvZxy67yuDwdD7eozERGJA7NfXOZIxpuPDz28OmrPJA4jo2C2SqOmgDkr8NQGQxUVZaKQRMZKbM2Z",
+	"FfmMNubEDBxl6JrpwmEcLphsljFFKquezV58evltRAeWBKg0LzklXPouXjys6xBw12rxJrAWKeDttnur",
+	"3qNV4hX9UmlDcpW1tgSZGdhUad2Y+pe21hVa9FZHdH03ij2DoEWNV+/GHnKk1Y256pQ6m3wucnoY+s4u",
+	"dJ0d2On+/m5v1p0O/hh0d9/BO9yDne3dHVVzvaFmKJa+cq1TAcnje6HfdS80SPxerrXrhwReiPTorHJ4",
+	"zqvJX+PZARNgTrOVRNrG1FRIEhLqnbNzfA2Gg3otXWXJf6bAmFIkYA58P5Z+/utjVtkffTtHneTqTJcX",
+	"ejR3rCIXtFwW+hxJpM7bEabs1jr48HVs7U8OE2cL7RTU39K9JYuA4oigIdre6m2p9iHC0tcm2Td9OzlT",
+	"hX2f/HHoLksVajGPukzVyMLWIWFCk6sKjI6CKvfQhAl50T9IVB6kCou1rKgU3EKbw3EIUv1QOU2U7cpE",
+	"lJ0cKDMNFXsZyWNIXWYscK4SYRDyPXMXST9FZVrtFWorey4SDOWqHlC+L6sm6QdJ3ap9POj1nm3tptsc",
+	"bYZbLN7Q+E9dMMEMx4F8NgOSRtWwXEzhLgJHgmtlMnkS6LAW4X95paIj4jDEfKFArJlRWPn+LA01a8a4",
+	"VXS49U8PqAIcCAtbAaHXWuTk1FJ97b9UwmBVpF6iBHzoStnxSJjf1+7Elso/HhiA/wkeiPtR7b7txRKh",
+	"Y1TlGAx4YHK9EMrXtOWvFegrJH8CaYDxdGER98XBaZfff7wQTkuX1n8jtlbV/uJUXAWwfg3japb1yA3Q",
+	"GrjXwDrtGIV9n/WO7tLObg6b4TlJp02ySQdqShuwrZZ5TVxWvUt9EwjBQWCpSFpTCBj1CPUsyVKEpFEo",
+	"ACON5AZkNFHeQ+HSwGe/NoQ2XAi/GVCVqr0CBupE9Oww29jXvBqkPa6refgL347q0o3Pr0MxwUJEPsei",
+	"ZVP8P+qU3mJzRKiVeU7Rbr1t4iy0ksrrGdOjUHJubIVap8qooPMF02ZTRfm6+P7/gewbiD7plV6K7YvX",
+	"yeJpdD8pqfoVCH/tC9xSKjyG8Z/yDvjnng3lF8Jv5HTI38pYxf1Vj4pS1pUEU5AlZ0fkYx5iZ7E23RIZ",
+	"AirhUvn1GddN19iceSvVk5XixuQ7zZS2ysGVvtd0ebDhI9m3glEz3tZc8a4ueLHpijfDxrNA0r430tem",
+	"MucxQJ0YefIF0WsufqIGM15VFfSrpUS9xtkM+OliNVa6Jf4p+Lar31H8DLBXPjH4G/hl4G/4Gu5NlP9N",
+	"9Uqh4jckz9rsuHFsrXXRrfwjyJpK48LRzl6U3mq8xGvj8oVEQ3n7mgkt8ZNVclQWixywpmjUvtRqEY8K",
+	"Q7zUi/xiG/CmY6Lzk99kFBvzIP2qZGjbAXNw4DMhh7t7u3toebX8bwAAAP//q6j21tM1AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -21,6 +21,8 @@
 package mock
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -41,72 +43,168 @@ func (e *ErrorImpl) Error() string {
 // Creates credential offer for prescription (generates a link for QR code)
 // (POST /v1/doctors/{doctorId}/prescriptions/credential-offers/)
 func (*SSIMPMockImpl) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context, doctorId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := CredentialOfferResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Gets credential offer by id
 // (GET /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId})
 func (*SSIMPMockImpl) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx echo.Context, doctorId string, credentialOfferId string) error {
-	// return ctx.String(http.StatusOK, "Hello, World!")
-	return &ErrorImpl{msg: "not implemented"}
+	response := GetCredentialOfferResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Gets credential issued for given credential offer
 // (GET /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential)
 func (*SSIMPMockImpl) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx echo.Context, doctorId string, credentialOfferId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := CredentialResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Gets all dids belonging to given patient
 // (GET /v1/patients/{patientId}/dids)
 func (*SSIMPMockImpl) GetV1PatientsPatientIdDids(ctx echo.Context, patientId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := GetAllDidsResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Gets all prescription credentials issued for given patient
 // (GET /v1/patients/{patientId}/prescriptions/credentials)
 func (*SSIMPMockImpl) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := GetAllPrescriptionCredentialResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Creates credential in response to credential offer from doctor
 // (POST /v1/patients/{patientId}/prescriptions/credentials/)
 func (*SSIMPMockImpl) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := CredentialResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Gets prescription credential by id issued for given patient
 // (GET /v1/patients/{patientId}/prescriptions/credentials/{credentialId})
 func (*SSIMPMockImpl) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId(ctx echo.Context, patientId string, credentialId string) error {
-	return &ErrorImpl{msg: "not implemented"}
-}
+	response := GetPrescriptionCredentialResponseInfo
 
-// Generates canonical jws payload of credential presentaion for signing
-// (POST /v1/patients/{patientId}/prescriptions/credentials/{credentialId}/presentation-jws-payload)
-// func (*SSIMPMockImpl) PostV1PatientsPatientIdPrescriptionsCredentialsCredentialIdPresentationJwsPayload(ctx echo.Context, patientId string, credentialId string) error {
-// 	return &ErrorImpl{msg: "not implemented"}
-// }
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
+}
 
 // Creates verifiable presentation in response to prescription presentation request from pharmacy
 // (POST /v1/patients/{patientId}/prescriptions/presentations/)
 func (*SSIMPMockImpl) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := PresentationInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Creates presentation request for prescription (generates link for a QR code)
 // (POST /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests)
 func (*SSIMPMockImpl) PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context, pharmacyId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := CreatePresentationRequestResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Gets presentation request for prescription by request id
 // (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId})
 func (*SSIMPMockImpl) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx echo.Context, pharmacyId string, presentationRequestId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := GetPresentationRequestResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 // Gets verifiable presentation for given presentation request
 // (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation)
 func (*SSIMPMockImpl) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error {
-	return &ErrorImpl{msg: "not implemented"}
+	response := GetVerifiablePresentationResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
+}
+
+// Verify Credential
+// (POST /v1/vc/verify-credential)
+func (*SSIMPMockImpl) PostV1VcVerifyCredential(ctx echo.Context) error {
+	response := CredentialResponseInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
+}
+
+// Verify Credential
+// (POST /v1/vc/verify-presentation)
+func (*SSIMPMockImpl) PostV1VcVerifyPresentation(ctx echo.Context) error {
+	response := PresentationInfo
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
