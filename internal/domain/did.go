@@ -18,13 +18,9 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package storage
+package domain
 
-import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
-
-type PatientStorage interface {
-	GetDIDs(patientId string) (dids []domain.DID, err error)
-	GetCredentials(patientId string) (credentials []domain.Credential, err error)
-	AddCredential(patientId string, credential domain.Credential) (err error)
-	GetCredentialById(patientId string, credentialId string) (credential domain.Credential, err error)
+type DID struct {
+	id     string
+	rawDoc []byte
 }
