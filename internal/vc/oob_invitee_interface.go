@@ -20,9 +20,6 @@
 
 package vc
 
-type DIDComm interface {
-	CreateInvitation() (string, error)
-	AcceptInvitation(invitation string) (string, error)
-	AcceptRequest(connectionId string) (string, error)
-	IsConnectionComplete(connectionId string) bool
+type OOBInvitee interface {
+	AcceptOOBInvitation(invitation []byte) (connectionId string, err error)
 }

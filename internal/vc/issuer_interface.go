@@ -25,4 +25,7 @@ import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain
 type Issuer interface {
 	SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error)
 	AcceptCredentialRequest(piid string, credential domain.Credential) error
+
+	CreateOOBInvitation() (invitation []byte, err error)
+	AcceptOOBRequest(connectionId string) (connection domain.Connection, err error)
 }

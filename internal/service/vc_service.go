@@ -27,36 +27,36 @@ import (
 )
 
 type VCService struct {
-	issuerAgent   *vc.Issuer
-	holderAgent   *vc.Holder
-	verifierAgent *vc.Verifier
-	wallet        *vc.Wallet
-	storage       *storage.VCStorage
+	issuerAgent   vc.Issuer
+	holderAgent   vc.Holder
+	verifierAgent vc.Verifier
+	wallet        vc.Wallet
+	storage       storage.VCStorage
 }
 
 func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
-	conn, err := s.getConnection(issuerId, holderId)
+	conn, err := s.getOrCreateConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
 	var piid string
-	piid, err = (*s.holderAgent).SendCredentialRequest(conn, credential)
+	piid, err = s.holderAgent.SendCredentialRequest(conn, credential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	credential, err = (*s.wallet).SignCredential(issuerId, issuerKMSPassphrase, vc.ProofOptions{}, credential)
+	credential, err = s.wallet.SignCredential(issuerId, issuerKMSPassphrase, vc.ProofOptions{}, credential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	err = (*s.issuerAgent).AcceptCredentialRequest(piid, credential)
+	err = s.issuerAgent.AcceptCredentialRequest(piid, credential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	err = (*s.holderAgent).AcceptCredential(piid, credential.CredentialId)
+	err = s.holderAgent.AcceptCredential(piid, credential.CredentialId)
 	if err != nil {
 		return domain.Credential{}, err
 	}
@@ -65,25 +65,25 @@ func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string,
 }
 
 func (s *VCService) SendPresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
-	conn, err := s.getConnection(verifierId, holderId)
+	conn, err := s.getOrCreateConnection(verifierId, s.verifierAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
 	var piid string
-	piid, err = (*s.verifierAgent).SendPresentationRequest(conn)
+	piid, err = s.verifierAgent.SendPresentationRequest(conn)
 
-	presentation, err = (*s.wallet).SignPresentation(holderId, holderKMSPassphrase, vc.ProofOptions{}, unsignedPresentation)
+	presentation, err = s.wallet.SignPresentation(holderId, holderKMSPassphrase, vc.ProofOptions{}, unsignedPresentation)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
-	err = (*s.holderAgent).AcceptPresentationRequest(piid, presentation)
+	err = s.holderAgent.AcceptPresentationRequest(piid, presentation)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
-	err = (*s.verifierAgent).AcceptPresentation(piid, presentation.PresentationId)
+	err = s.verifierAgent.AcceptPresentation(piid, presentation.PresentationId)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
@@ -91,6 +91,33 @@ func (s *VCService) SendPresentation(verifierId string, holderId string, holderK
 	return presentation, nil
 }
 
-func (s *VCService) getConnection(inviterId string, inviteeId string) (conn domain.Connection, err error) {
-	return (*s.storage).GetConnection(inviterId, inviteeId)
+func (s *VCService) getOrCreateConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {
+	conn, err = s.storage.GetConnection(inviterId, inviteeId)
+	if err == nil {
+		return conn, nil
+	}
+
+	var invitation []byte
+	invitation, err = inviter.CreateOOBInvitation()
+	if err != nil {
+		return domain.Connection{}, err
+	}
+
+	var connectionId string
+	connectionId, err = invitee.AcceptOOBInvitation(invitation)
+	if err != nil {
+		return domain.Connection{}, err
+	}
+
+	conn, err = inviter.AcceptOOBRequest(connectionId)
+	if err != nil {
+		return domain.Connection{}, err
+	}
+
+	err = s.storage.SaveConnection(inviterId, inviteeId, conn)
+	if err != nil {
+		return domain.Connection{}, err
+	}
+
+	return conn, nil
 }
