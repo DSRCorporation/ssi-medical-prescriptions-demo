@@ -20,7 +20,9 @@
 
 package vc
 
+import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+
 type Verifier interface {
-	SendPresentationRequest(connectionId string) error
+	SendPresentationRequest(connection domain.Connection) (piid string, err error)
 	AcceptPresentation(piid string, name string) error
 }

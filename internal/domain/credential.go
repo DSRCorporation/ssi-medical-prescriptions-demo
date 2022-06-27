@@ -21,4 +21,9 @@
 package domain
 
 type Credential struct {
+	CredentialId  string
+	IssuerDID     string
+	HolderDID     string
+	Prescription  Prescription
+	RawCredential []byte
 }

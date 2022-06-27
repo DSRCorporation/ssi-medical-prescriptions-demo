@@ -20,8 +20,9 @@
 
 package vc
 
+import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+
 type Issuer interface {
-	SendCredentialOffer(connectionId string) error
-	AcceptCredentialRequest(piid string) error
-	AcceptPresentationRequest(piid string) error
+	SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error)
+	AcceptCredentialRequest(piid string, credential domain.Credential) error
 }

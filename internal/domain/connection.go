@@ -18,13 +18,10 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package vc
+package domain
 
-import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
-
-type Holder interface {
-	SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error)
-	AcceptOffer(piid string) error
-	AcceptCredential(piid string, name string) error
-	AcceptPresentationRequest(piid string, presentation domain.Presentation) error
+type Connection struct {
+	InviteeDID   string
+	InviterDID   string
+	ConnectionId string
 }
