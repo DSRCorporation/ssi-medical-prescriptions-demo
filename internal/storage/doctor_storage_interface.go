@@ -19,3 +19,15 @@
 */
 
 package storage
+
+import (
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+)
+
+type DoctorStorage interface {
+	CreatePrescriptionCredentialOffer(doctorId string, prescription domain.Prescription) (credentialOfferId string, err error)
+	GetPrescriptionByCredentialOfferId(doctorId string, credentialOfferId string) (prescription domain.Prescription, err error)
+	GetPrescriptionCredentialByCredentialId(doctorId string, credentialId string) (credential domain.Credential, err error)
+	GetPrescriptionCredentialByCredentialOfferId(doctorId string, credentialOfferId string) (credential domain.Credential, err error)
+	SavePrescriptionCredential(doctorId string, credentialOfferId string, credential domain.Credential) (err error)
+}
