@@ -24,4 +24,5 @@ import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain
 
 type VCStorage interface {
 	GetConnection(inviterId string, inviteeId string) (connection domain.Connection, err error)
+	SaveConnection(inviterId string, inviteeId string, connection domain.Connection) (err error)
 }
