@@ -26,22 +26,22 @@ import (
 )
 
 type DoctorSerive struct {
-	storage *storage.DoctorStorage
+	storage storage.DoctorStorage
 }
 
 func (s *DoctorSerive) CreatePrescriptionCredentialOffer(doctorId string, prescription domain.Prescription) (credentialOfferId string, err error) {
 	// @TODO: check prescription data
-	return (*s.storage).CreatePrescriptionCredentialOffer(doctorId, prescription)
+	return s.storage.CreatePrescriptionCredentialOffer(doctorId, prescription)
 }
 
 func (s *DoctorSerive) GetPrescriptionByCredentialOfferId(doctorId string, credentialOfferId string) (prescription domain.Prescription, err error) {
-	return (*s.storage).GetPrescriptionByCredentialOfferId(doctorId, credentialOfferId)
+	return s.storage.GetPrescriptionByCredentialOfferId(doctorId, credentialOfferId)
 }
 
 func (s *DoctorSerive) SavePrescriptionCredential(doctorId string, credentialOfferId string, credential domain.Credential) (err error) {
-	return (*s.storage).SavePrescriptionCredential(doctorId, credentialOfferId, credential)
+	return s.storage.SavePrescriptionCredential(doctorId, credentialOfferId, credential)
 }
 
 func (s *DoctorSerive) GetPrescriptionCredentialByCredentialOfferId(doctorId string, credentialOfferId string) (credential domain.Credential, err error) {
-	return (*s.storage).GetPrescriptionCredentialByCredentialOfferId(doctorId, credentialOfferId)
+	return s.storage.GetPrescriptionCredentialByCredentialOfferId(doctorId, credentialOfferId)
 }
