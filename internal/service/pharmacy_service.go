@@ -19,3 +19,24 @@
 */
 
 package service
+
+import (
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
+)
+
+type PharmacyService struct {
+	storage storage.PharmacyStorage
+}
+
+func (s *PharmacyService) CreatePresscriptionPresentationRequest(pharmacyId string) (presentationRequestId string, err error) {
+	return s.storage.CreatePrescriptionPresentationRequest(pharmacyId)
+}
+
+func (s *PharmacyService) GetPrescriptionPresentaionByPresentationRequestId(pharmacyId string, presentationRequestId string) (presentation domain.Presentation, err error) {
+	return s.storage.GetPrescriptionPresentationByPresentationRequestId(pharmacyId, presentationRequestId)
+}
+
+func (s *PharmacyService) AddPrescriptionPresentation(pharmacyId string, presentationRequestId string, presentation domain.Presentation) (err error) {
+	return s.storage.AddPrescriptionPresentation(pharmacyId, presentationRequestId, presentation)
+}
