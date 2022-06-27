@@ -24,7 +24,7 @@ import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain
 
 type PatientStorage interface {
 	GetDIDs(patientId string) (dids []domain.DID, err error)
-	GetCredentials(patientId string) (credentials []domain.Credential, err error)
-	AddCredential(patientId string, credential domain.Credential) (err error)
-	GetCredentialById(patientId string, credentialId string) (credential domain.Credential, err error)
+	GetPrescriptionCredentials(patientId string) (credentials []domain.Credential, err error)
+	AddPrescriptionCredential(patientId string, credential domain.Credential) (err error)
+	GetPrescriptionCredentialById(patientId string, credentialId string) (credential domain.Credential, err error)
 }
