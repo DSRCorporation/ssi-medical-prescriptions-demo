@@ -29,7 +29,7 @@ type PatientService struct {
 	storage storage.PatientStorage
 }
 
-func (s *PatientService) GetDIDs(patientId string) (dids []domain.DID, err error) {
+func (s *PatientService) GetDIDs(patientId string) (dids []string, err error) {
 	return s.storage.GetDIDs(patientId)
 }
 
