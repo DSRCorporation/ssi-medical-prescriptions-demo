@@ -41,12 +41,13 @@ func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string,
 	}
 
 	var piid string
-	piid, err = s.holderAgent.SendCredentialRequest(conn, credential)
+	var proofCredential domain.Credential // TODO signed unsignedCredential with key of holder
+	piid, err = s.holderAgent.SendCredentialRequest(conn, proofCredential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	credential, err = s.wallet.SignCredential(issuerId, issuerKMSPassphrase, vc.ProofOptions{}, credential)
+	credential, err = s.wallet.SignCredential(issuerId, issuerKMSPassphrase, vc.ProofOptions{}, unsignedCredential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
@@ -72,6 +73,9 @@ func (s *VCService) SendPresentation(verifierId string, holderId string, holderK
 
 	var piid string
 	piid, err = s.verifierAgent.SendPresentationRequest(conn)
+	if err != nil {
+		return domain.Presentation{}, err
+	}
 
 	presentation, err = s.wallet.SignPresentation(holderId, holderKMSPassphrase, vc.ProofOptions{}, unsignedPresentation)
 	if err != nil {
