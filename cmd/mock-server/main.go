@@ -22,6 +22,7 @@ package main
 
 import (
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/mock"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,7 +31,7 @@ func main() {
 	var impl mock.SSIMPMockImpl
 
 	e := echo.New()
-	mock.RegisterHandlers(e, &impl)
+	rest.RegisterHandlers(e, &impl)
 
 	e.Logger.Fatal(e.Start(":8989"))
 }
