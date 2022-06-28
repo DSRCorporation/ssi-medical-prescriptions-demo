@@ -21,4 +21,8 @@
 package domain
 
 type Presentation struct {
+	PresentationId  string
+	Credential      Credential
+	HolderDID       string
+	RawPresentation []byte
 }

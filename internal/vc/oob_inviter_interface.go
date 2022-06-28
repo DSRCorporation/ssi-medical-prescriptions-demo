@@ -18,12 +18,11 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package storage
+package vc
 
 import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 
-type PharmacyStorage interface {
-	CreatePrescriptionPresentationRequest(pharmacyId string) (presentationRequestId string, err error)
-	GetPrescriptionPresentationByPresentationRequestId(pharmacyId string, presentationRequestId string) (presentation domain.Presentation, err error)
-	AddPrescriptionPresentation(pharmacyId string, presentationRequestId string, presentation domain.Presentation) (err error)
+type OOBInviter interface {
+	CreateOOBInvitation() (invitation []byte, err error)
+	AcceptOOBRequest(connectionId string) (connection domain.Connection, err error)
 }

@@ -20,7 +20,13 @@
 
 package vc
 
+import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+
 type Holder interface {
-	AcceptOffer(piid string, did string) error
+	SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error)
+	AcceptOffer(piid string) error
 	AcceptCredential(piid string, name string) error
+	AcceptPresentationRequest(piid string, presentation domain.Presentation) error
+
+	AcceptOOBInvitation(invitation []byte) (connectionId string, err error)
 }

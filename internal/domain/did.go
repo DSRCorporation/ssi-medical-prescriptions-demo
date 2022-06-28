@@ -18,11 +18,9 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package vc
+package domain
 
-type DIDComm interface {
-	CreateInvitation() (string, error)
-	AcceptInvitation(invitation string) (string, error)
-	AcceptRequest(connectionId string) (string, error)
-	IsConnectionComplete(connectionId string) bool
+type DID struct {
+	id     string
+	rawDoc []byte
 }
