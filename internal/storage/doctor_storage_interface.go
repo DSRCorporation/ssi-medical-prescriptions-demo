@@ -25,9 +25,9 @@ import (
 )
 
 type DoctorStorage interface {
-	CreatePrescriptionCredentialOffer(doctorId string, prescription domain.Prescription) (credentialOfferId string, err error)
-	GetPrescriptionByCredentialOfferId(doctorId string, credentialOfferId string) (prescription domain.Prescription, err error)
+	CreatePrescriptionCredentialOffer(credentialOfferId string, prescription domain.Prescription) (err error)
+	GetPrescriptionByCredentialOfferId(credentialOfferId string) (prescription domain.Prescription, err error)
 	GetPrescriptionCredentialByCredentialId(doctorId string, credentialId string) (credential domain.Credential, err error)
-	GetPrescriptionCredentialByCredentialOfferId(doctorId string, credentialOfferId string) (credential domain.Credential, err error)
-	SavePrescriptionCredential(doctorId string, credentialOfferId string, credential domain.Credential) (err error)
+	GetPrescriptionCredentialByCredentialOfferId(credentialOfferId string) (credential domain.Credential, err error)
+	SavePrescriptionCredential(credentialOfferId string, credential domain.Credential) (err error)
 }

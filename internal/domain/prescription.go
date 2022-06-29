@@ -23,8 +23,6 @@ package domain
 import "encoding/json"
 
 type Prescription struct {
-	CredentialOfferId string
-	DoctorId          string
-
+	DoctorId        string
 	RawPrescription json.RawMessage
 }

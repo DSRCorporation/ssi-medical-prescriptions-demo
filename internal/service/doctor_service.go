@@ -29,19 +29,19 @@ type DoctorService struct {
 	storage storage.DoctorStorage
 }
 
-func (s *DoctorService) CreatePrescriptionCredentialOffer(doctorId string, prescription domain.Prescription) (credentialOfferId string, err error) {
+func (s *DoctorService) CreatePrescriptionCredentialOffer(credentialOfferId string, prescription domain.Prescription) (err error) {
 	// @TODO: check prescription data
-	return s.storage.CreatePrescriptionCredentialOffer(doctorId, prescription)
+	return s.storage.CreatePrescriptionCredentialOffer(credentialOfferId, prescription)
 }
 
-func (s *DoctorService) GetPrescriptionByCredentialOfferId(doctorId string, credentialOfferId string) (prescription domain.Prescription, err error) {
-	return s.storage.GetPrescriptionByCredentialOfferId(doctorId, credentialOfferId)
+func (s *DoctorService) GetPrescriptionByCredentialOfferId(credentialOfferId string) (prescription domain.Prescription, err error) {
+	return s.storage.GetPrescriptionByCredentialOfferId(credentialOfferId)
 }
 
-func (s *DoctorService) SavePrescriptionCredential(doctorId string, credentialOfferId string, credential domain.Credential) (err error) {
-	return s.storage.SavePrescriptionCredential(doctorId, credentialOfferId, credential)
+func (s *DoctorService) SavePrescriptionCredential(credentialOfferId string, credential domain.Credential) (err error) {
+	return s.storage.SavePrescriptionCredential(credentialOfferId, credential)
 }
 
-func (s *DoctorService) GetPrescriptionCredentialByCredentialOfferId(doctorId string, credentialOfferId string) (credential domain.Credential, err error) {
-	return s.storage.GetPrescriptionCredentialByCredentialOfferId(doctorId, credentialOfferId)
+func (s *DoctorService) GetPrescriptionCredentialByCredentialOfferId(credentialOfferId string) (credential domain.Credential, err error) {
+	return s.storage.GetPrescriptionCredentialByCredentialOfferId(credentialOfferId)
 }

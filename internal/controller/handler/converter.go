@@ -25,7 +25,7 @@ import (
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
-func ConvertToPrescription(in rest.Prescription) (out domain.Prescription) {
+func ConvertToPrescription(in rest.Prescription, doctorId string) (out domain.Prescription) {
 	// @TODO
 	return domain.Prescription{}
 }
