@@ -55,8 +55,8 @@ func (s *DoctorService) GetCredentialIdByOfferId(offerId string) (credentialId s
 	return s.storage.GetCredentialIdByOfferId(offerId)
 }
 
-func (s *DoctorService) GetCredentialIdByDoctorId(offerId string) (credentialId string, err error) {
-	return s.storage.GetCredentialIdByOfferId(offerId)
+func (s *DoctorService) GetCredentialIdsByDoctorId(offerId string) (credentialId []string, err error) {
+	return s.storage.GetCredentialIdsByDoctorId(offerId)
 }
 
 func (s *DoctorService) GetKMSPassphrase(doctorId string) (kmsPassphrase string, err error) {
