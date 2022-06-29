@@ -22,6 +22,10 @@ package domain
 
 import "encoding/json"
 
+const (
+	PRESCRRIPTION_CREDENTIAL_TYPE = "PrescriptionCredential"
+)
+
 type Credential struct {
 	CredentialId string
 	IssuerDID    string
