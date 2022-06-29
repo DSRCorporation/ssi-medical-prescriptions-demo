@@ -24,8 +24,19 @@ import "encoding/json"
 
 type Presentation struct {
 	PresentationId string
-	Credential     Credential
 	HolderDID      string
+	Type           string
 
+	Credential      Credential
 	RawPresentation json.RawMessage
+}
+
+func NewPresentation(presentationId string, holderDID string, presentationType string, credential Credential) (presentation *Presentation, err error) {
+	// @TODO: generate raw presentation
+	return &Presentation{
+		PresentationId: presentationId,
+		HolderDID:      holderDID,
+		Type:           presentationType,
+		Credential:     credential,
+	}, nil
 }
