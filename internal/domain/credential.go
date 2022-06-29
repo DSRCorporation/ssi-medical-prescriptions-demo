@@ -26,7 +26,19 @@ type Credential struct {
 	CredentialId string
 	IssuerDID    string
 	HolderDID    string
+	Type         string
 	Prescription Prescription
 
 	RawCredential json.RawMessage
+}
+
+func NewCredential(credentialId string, issuerDID string, holderDID string, credentialType string, prescription Prescription) (credential *Credential, err error) {
+	// @TODO: generate raw credential
+	return &Credential{
+		CredentialId: credentialId,
+		IssuerDID:    issuerDID,
+		HolderDID:    holderDID,
+		Type:         credentialType,
+		Prescription: prescription,
+	}, nil
 }
