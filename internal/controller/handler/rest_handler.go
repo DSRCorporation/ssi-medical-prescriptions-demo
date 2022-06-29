@@ -130,24 +130,153 @@ func (h *RestHandler) GetV1PatientsPatientIdDids(ctx echo.Context, patientId str
 // Gets all prescription credentials issued for given patient
 // (GET /v1/patients/{patientId}/prescriptions/credentials)
 func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
+	credentialIds, err := h.patientService.GetCredentialIdsByPatientId(patientId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	var rawCredentials []json.RawMessage
+	for _, credentialId := range credentialIds {
+		credential, err := h.vcService.GetCredentialById(credentialId)
+		if err == nil {
+			rawCredentials = append(rawCredentials, credential.RawCredential)
+		}
+	}
+
+	response := struct {
+		Credentials *[]json.RawMessage `json:"credentials"`
+	}{Credentials: &rawCredentials}
+
+	err = ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 
 // Creates credential in response to credential offer from doctor
 // (POST /v1/patients/{patientId}/prescriptions/credentials/)
-func (*RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
+func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
+	var body rest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody
+	ctx.Bind(body)
+
+	credentialOfferId := *body.CredentialOfferId
+	patientDID := body.Did
+	patientKmsPassphrase := body.KmsPassphrase
+
+	prescription, err := h.doctorService.GetPrescriptionByOfferId(credentialOfferId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	doctorId := prescription.DoctorId
+	doctorKmsPassphrase, err := h.doctorService.GetKMSPassphrase(doctorId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	doctorDID, err := h.doctorService.GetDID(doctorId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	credentialId := uuid.New().String()
+	unsignedCredential, err := domain.NewCredential(credentialId, doctorDID, *patientDID, domain.PRESCRRIPTION_CREDENTIAL_TYPE, prescription)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	signedCredential, err := h.vcService.ExchangeCredential(doctorId, doctorKmsPassphrase, patientId, *patientKmsPassphrase, *unsignedCredential)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.doctorService.SaveCredentialId(doctorId, credentialOfferId, signedCredential.CredentialId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.patientService.SaveCredentialId(patientId, signedCredential.CredentialId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = ctx.JSONBlob(http.StatusCreated, signedCredential.RawCredential)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 
 // Gets prescription credential by id issued for given patient
 // (GET /v1/patients/{patientId}/prescriptions/credentials/{credentialId})
-func (*RestHandler) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId(ctx echo.Context, patientId string, credentialId string) error {
+func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId(ctx echo.Context, patientId string, credentialId string) error {
+	credentialIds, err := h.patientService.GetCredentialIdsByPatientId(patientId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	for _, credId := range credentialIds {
+		if credId == credentialId {
+			credential, err := h.vcService.GetCredentialById(credentialId)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+
+			response := struct {
+				Credentials *json.RawMessage `json:"credentials"`
+			}{Credentials: &credential.RawCredential}
+
+			err = ctx.JSON(http.StatusOK, response)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+			break
+		}
+	}
+
 	return nil
 }
 
 // Creates verifiable presentation in response to prescription presentation request from pharmacy
 // (POST /v1/patients/{patientId}/prescriptions/presentations/)
-func (*RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error {
+func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error {
+	var body rest.PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody
+	ctx.Bind(body)
+
+	requestId := *body.PresentationRequestId
+	credentialId := *body.CredentialId
+
+	credential, err := h.vcService.GetCredentialById(credentialId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	pharmacyId, err := h.pharmacyService.GetPharmacyIdByRequestId(requestId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	patientDID := credential.HolderDID
+	patientKmsPassphrase := body.KmsPassphrase
+
+	presentationId := uuid.New().String()
+	unsignedPresentation, err := domain.NewPresentation(presentationId, patientDID, domain.PRESCRRIPTION_PRESENTATION_TYPE, credential)
+
+	signedPresentation, err := h.vcService.ExchangePresentation(pharmacyId, patientId, *patientKmsPassphrase, *unsignedPresentation)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.pharmacyService.SavePresentationId(pharmacyId, requestId, signedPresentation.PresentationId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = ctx.JSONBlob(http.StatusCreated, signedPresentation.RawPresentation)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 
