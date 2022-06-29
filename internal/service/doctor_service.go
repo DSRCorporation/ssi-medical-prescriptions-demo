@@ -29,19 +29,40 @@ type DoctorService struct {
 	storage storage.DoctorStorage
 }
 
-func (s *DoctorService) CreatePrescriptionCredentialOffer(credentialOfferId string, prescription domain.Prescription) (err error) {
+func (s *DoctorService) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
 	// @TODO: check prescription data
-	return s.storage.CreatePrescriptionCredentialOffer(credentialOfferId, prescription)
+	return s.storage.CreatePrescriptionOffer(offerId, prescription)
 }
 
-func (s *DoctorService) GetPrescriptionByCredentialOfferId(credentialOfferId string) (prescription domain.Prescription, err error) {
-	return s.storage.GetPrescriptionByCredentialOfferId(credentialOfferId)
+func (s *DoctorService) GetPrescriptionByOfferId(offerId string) (prescription domain.Prescription, err error) {
+	return s.storage.GetPrescriptionByOfferId(offerId)
 }
 
-func (s *DoctorService) SavePrescriptionCredential(credentialOfferId string, credential domain.Credential) (err error) {
-	return s.storage.SavePrescriptionCredential(credentialOfferId, credential)
+func (s *DoctorService) SaveCredentialId(doctorId string, credentialOfferId string, credentialId string) (err error) {
+	err = s.storage.AddCredentialIdByDoctorId(doctorId, credentialId)
+	if err != nil {
+		return err
+	}
+
+	err = s.storage.AddCredentialIdByOfferId(credentialOfferId, credentialId)
+	if err != nil {
+		return err
+	}
+	return
 }
 
-func (s *DoctorService) GetPrescriptionCredentialByCredentialOfferId(credentialOfferId string) (credential domain.Credential, err error) {
-	return s.storage.GetPrescriptionCredentialByCredentialOfferId(credentialOfferId)
+func (s *DoctorService) GetCredentialIdByOfferId(offerId string) (credentialId string, err error) {
+	return s.storage.GetCredentialIdByOfferId(offerId)
+}
+
+func (s *DoctorService) GetCredentialIdByDoctorId(offerId string) (credentialId string, err error) {
+	return s.storage.GetCredentialIdByOfferId(offerId)
+}
+
+func (s *DoctorService) GetKMSPassphrase(doctorId string) (kmsPassphrase string, err error) {
+	return s.storage.GetKMSPassphrase(doctorId)
+}
+
+func (s *DoctorService) GetDID(doctorId string) (did string, err error) {
+	return s.storage.GetDID(doctorId)
 }

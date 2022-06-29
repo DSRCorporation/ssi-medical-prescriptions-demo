@@ -28,6 +28,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/service"
 )
 
@@ -50,15 +51,15 @@ func (h *RestHandler) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx ech
 
 	prescription := ConvertToPrescription(body, doctorId)
 
-	credentialOfferId := uuid.New().String()
+	offerId := uuid.New().String()
 
-	err := h.doctorService.CreatePrescriptionCredentialOffer(credentialOfferId, prescription)
+	err := h.doctorService.CreatePrescriptionOffer(offerId, prescription)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	response := rest.CredentialOfferResponse{
-		CredentialOfferId: &credentialOfferId,
+		CredentialOfferId: &offerId,
 	}
 
 	err = ctx.JSON(http.StatusOK, response)
@@ -71,7 +72,7 @@ func (h *RestHandler) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx ech
 // Gets credential offer by id
 // (GET /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId})
 func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId(ctx echo.Context, doctorId string, credentialOfferId string) error {
-	prescription, err := h.doctorService.GetPrescriptionByCredentialOfferId(credentialOfferId)
+	prescription, err := h.doctorService.GetPrescriptionByOfferId(credentialOfferId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -93,9 +94,12 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx echo.Context, doctorId string, credentialOfferId string) error {
 	// long polling
 	for i := 0; i < LONG_POLLING_TIMEOUT_SECONDS; i++ {
-		credential, err := h.doctorService.GetPrescriptionCredentialByCredentialOfferId(credentialOfferId)
-
+		credentialId, err := h.doctorService.GetCredentialIdByOfferId(credentialOfferId)
 		if err == nil {
+			credential, err := h.vcService.GetCredentialById(credentialId)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
 			return ctx.JSONBlob(http.StatusOK, credential.RawCredential)
 		}
 
