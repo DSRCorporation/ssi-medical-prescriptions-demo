@@ -20,46 +20,11 @@
 
 package domain
 
-type Drug struct {
-	DrugName           *string
-	DrugNumber         *float32
-	DrugType           *string
-	RefillAvailability *bool
-
-	TabletDrugInfo *struct {
-		DaysOfMedication     *float32
-		NumberOfDoses        *string
-		NumberOfDrug         *float32
-		TimingToTakeMedicine *string
-	}
-
-	OintmentDrugInfo *struct {
-		AmountOfMedicine     *float32
-		ApplicationFrequency *string
-		Usage                *string
-		UseArea              *string
-	}
-}
+import "encoding/json"
 
 type Prescription struct {
-	Drugs        *[]Drug
-	HospitalInfo *struct {
-		DoctorName               *string
-		DoctorSignatureStamp     *string
-		HospitalName             *string
-		Location                 *string
-		MedicalInstitutionNumber *float32
-		Phone                    *string
-		PrefectureNumber         *float32
-		ScoreVoteNumber          *float32
-	}
-	IssuanceInfo *struct {
-		ExpirationDate *string
-		IssuanceDate   *string
-	}
-	PatientInfo *struct {
-		Birthday *string
-		Name     *string
-		Sex      *string
-	}
+	CredentialOfferId string
+	DoctorId          string
+
+	RawPrescription json.RawMessage
 }
