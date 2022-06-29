@@ -41,6 +41,6 @@ func (s *PatientService) SaveCredentialId(patientId string, credentialId string)
 	return s.storage.AddCredentialIdByPatientId(patientId, credentialId)
 }
 
-func (s *PatientService) GetCredentialById(patientId string, credentialId string) (credential domain.Credential, err error) {
-	return s.storage.GetCredentialById(patientId, credentialId)
+func (s *PatientService) GetCredentialIdsByPatientId(patientId string) (credentialIds []string, err error) {
+	return s.storage.GetCredentialIdsByPatientId(patientId)
 }

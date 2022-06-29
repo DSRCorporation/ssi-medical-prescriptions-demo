@@ -26,5 +26,5 @@ type PatientStorage interface {
 	GetDIDs(patientId string) (dids []string, err error)
 	GetCredentials(patientId string) (credentials []domain.Credential, err error)
 	AddCredentialIdByPatientId(patientId string, credentialId string) (err error)
-	GetCredentialById(patientId string, credentialId string) (credential domain.Credential, err error)
+	GetCredentialIdsByPatientId(patientId string) (credentialIds []string, err error)
 }
