@@ -34,13 +34,13 @@ func (s *PatientService) GetDIDs(patientId string) (dids []string, err error) {
 }
 
 func (s *PatientService) GetPrescriptionCredentials(patientId string) (credentials []domain.Credential, err error) {
-	return s.storage.GetPrescriptionCredentials(patientId)
+	return s.storage.GetCredentials(patientId)
 }
 
-func (s *PatientService) AddPrescriptionCredential(patientId string, credential domain.Credential) (err error) {
-	return s.storage.AddPrescriptionCredential(patientId, credential)
+func (s *PatientService) SaveCredentialId(patientId string, credential domain.Credential) (err error) {
+	return s.storage.AddCredentialIdByPatientId(patientId, credential)
 }
 
-func (s *PatientService) GetPrescriptionCredentialById(patientId string, credentialId string) (credential domain.Credential, err error) {
-	return s.storage.GetPrescriptionCredentialById(patientId, credentialId)
+func (s *PatientService) GetCredentialById(patientId string, credentialId string) (credential domain.Credential, err error) {
+	return s.storage.GetCredentialById(patientId, credentialId)
 }
