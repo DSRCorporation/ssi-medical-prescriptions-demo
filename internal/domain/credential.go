@@ -20,10 +20,13 @@
 
 package domain
 
+import "encoding/json"
+
 type Credential struct {
-	CredentialId  string
-	IssuerDID     string
-	HolderDID     string
-	Prescription  Prescription
-	RawCredential []byte
+	CredentialId string
+	IssuerDID    string
+	HolderDID    string
+	Prescription Prescription
+
+	RawCredential json.RawMessage
 }

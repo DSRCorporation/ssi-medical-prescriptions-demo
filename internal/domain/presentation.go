@@ -20,9 +20,12 @@
 
 package domain
 
+import "encoding/json"
+
 type Presentation struct {
-	PresentationId  string
-	Credential      Credential
-	HolderDID       string
-	RawPresentation []byte
+	PresentationId string
+	Credential     Credential
+	HolderDID      string
+
+	RawPresentation json.RawMessage
 }

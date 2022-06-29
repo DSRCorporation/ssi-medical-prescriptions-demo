@@ -20,7 +20,10 @@
 
 package domain
 
+import "encoding/json"
+
 type DID struct {
-	id     string
-	rawDoc []byte
+	Id string
+
+	RawDoc json.RawMessage
 }
