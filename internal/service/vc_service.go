@@ -62,6 +62,11 @@ func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string,
 		return domain.Credential{}, err
 	}
 
+	err = s.storage.SaveCredential(credential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
 	return credential, nil
 }
 
@@ -92,7 +97,20 @@ func (s *VCService) SendPresentation(verifierId string, holderId string, holderK
 		return domain.Presentation{}, err
 	}
 
+	err = s.storage.SavePresentation(presentation)
+	if err != nil {
+		return domain.Presentation{}, err
+	}
+
 	return presentation, nil
+}
+
+func (s *VCService) GetCredentialById(credentialId string) (domain.Credential, error) {
+	return s.storage.GetCredentialById(credentialId)
+}
+
+func (s *VCService) GetPresentationById(presentationId string) (domain.Presentation, error) {
+	return s.storage.GetPresentationById(presentationId)
 }
 
 func (s *VCService) getOrCreateConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {
