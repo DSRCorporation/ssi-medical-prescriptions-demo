@@ -28,7 +28,7 @@ type DoctorStorage interface {
 	CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error)
 	GetPrescriptionByOfferId(offerId string) (prescription domain.Prescription, err error)
 	GetCredentialIdByOfferId(offerId string) (credentialId string, err error)
-	GetCredentialIdsByDoctorId(doctorId string) (credentialId []string, err error)
+	GetCredentialIdsByDoctorId(doctorId string) (credentialIds []string, err error)
 	AddCredentialIdByDoctorId(doctorId string, credentialId string) (err error)
 	AddCredentialIdByOfferId(offerId string, credentialId string) (err error)
 	GetKMSPassphrase(doctorId string) (kmspassphrase string, err error)

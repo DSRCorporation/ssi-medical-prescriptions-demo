@@ -55,7 +55,7 @@ func (s *DoctorService) GetCredentialIdByOfferId(offerId string) (credentialId s
 	return s.storage.GetCredentialIdByOfferId(offerId)
 }
 
-func (s *DoctorService) GetCredentialIdsByDoctorId(offerId string) (credentialId []string, err error) {
+func (s *DoctorService) GetCredentialIdsByDoctorId(offerId string) (credentialIds []string, err error) {
 	return s.storage.GetCredentialIdsByDoctorId(offerId)
 }
 
