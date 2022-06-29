@@ -34,7 +34,7 @@ type VCService struct {
 	storage       storage.VCStorage
 }
 
-func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
+func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
 	conn, err := s.getOrCreateConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Credential{}, err
@@ -70,7 +70,7 @@ func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string,
 	return credential, nil
 }
 
-func (s *VCService) SendPresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
+func (s *VCService) ExchangePresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
 	conn, err := s.getOrCreateConnection(verifierId, s.verifierAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Presentation{}, err
