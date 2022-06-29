@@ -40,6 +40,10 @@ func (s *PharmacyService) GetPresentationIdsByPharmacyId(pharmacyId string) (pre
 	return s.storage.GetPresentationIdsByPharmacyId(pharmacyId)
 }
 
+func (s *PharmacyService) GetPharmacyIdByRequestId(requestId string) (pharmacyId string, err error) {
+	return s.storage.GetPharmacyIdByRequestId(requestId)
+}
+
 func (s *PharmacyService) SavePresentationId(pharmacyId string, requestId string, presentationId string) (err error) {
 	err = s.storage.AddPresentationIdByRequestId(requestId, presentationId)
 	if err != nil {

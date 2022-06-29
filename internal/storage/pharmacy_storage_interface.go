@@ -22,6 +22,7 @@ package storage
 
 type PharmacyStorage interface {
 	CreatePresentationRequest(pharmacyId string, presentationId string) (err error)
+	GetPharmacyIdByRequestId(requestId string) (pharmacyId string, err error)
 	GetPresentationIdByRequestId(requestId string) (presentationId string, err error)
 	GetPresentationIdsByPharmacyId(pharmacyId string) (presentationIds []string, err error)
 	AddPresentationIdByRequestId(requestId string, presentationId string) (err error)
