@@ -20,7 +20,11 @@
 
 package vc
 
-import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+import (
+	"encoding/json"
+
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+)
 
 type Holder interface {
 	SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error)
@@ -28,5 +32,5 @@ type Holder interface {
 	AcceptCredential(piid string, name string) error
 	AcceptPresentationRequest(piid string, presentation domain.Presentation) error
 
-	AcceptOOBInvitation(invitation []byte) (connectionId string, err error)
+	AcceptOOBInvitation(invitation json.RawMessage) (connectionId string, err error)
 }

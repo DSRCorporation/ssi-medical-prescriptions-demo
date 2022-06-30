@@ -20,9 +20,13 @@
 
 package vc
 
-import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+import (
+	"encoding/json"
+
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+)
 
 type OOBInviter interface {
-	CreateOOBInvitation() (invitation []byte, err error)
+	CreateOOBInvitation() (invitation json.RawMessage, err error)
 	AcceptOOBRequest(connectionId string) (connection domain.Connection, err error)
 }
