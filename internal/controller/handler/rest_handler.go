@@ -22,6 +22,7 @@ package handler
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -355,12 +356,44 @@ func (h *RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequests
 
 // Verify Credential
 // (POST /v1/vc/verify-credential)
-func (*RestHandler) PostV1VcVerifyCredential(ctx echo.Context) error {
+func (h *RestHandler) PostV1VcVerifyCredential(ctx echo.Context) error {
+	rawCredential, err := ioutil.ReadAll(ctx.Request().Body) // c <= echo.Context
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	defer ctx.Request().Body.Close()
+
+	err = h.vcService.VerifyCredential(rawCredential)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = ctx.NoContent(http.StatusOK)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	return nil
 }
 
 // Verify Credential
 // (POST /v1/vc/verify-presentation)
-func (*RestHandler) PostV1VcVerifyPresentation(ctx echo.Context) error {
+func (h *RestHandler) PostV1VcVerifyPresentation(ctx echo.Context) error {
+	rawPresentation, err := ioutil.ReadAll(ctx.Request().Body) // c <= echo.Context
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	defer ctx.Request().Body.Close()
+
+	err = h.vcService.VerifyPresentation(rawPresentation)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = ctx.NoContent(http.StatusOK)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	return nil
 }

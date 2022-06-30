@@ -21,6 +21,8 @@
 package service
 
 import (
+	"encoding/json"
+
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/vc"
@@ -111,6 +113,24 @@ func (s *VCService) GetCredentialById(credentialId string) (domain.Credential, e
 
 func (s *VCService) GetPresentationById(presentationId string) (domain.Presentation, error) {
 	return s.storage.GetPresentationById(presentationId)
+}
+
+func (s *VCService) VerifyCredential(rawCredential json.RawMessage) error {
+	userId, passphrase, err := s.storage.GetWalletCredentialsForVerification()
+	if err != nil {
+		return err
+	}
+
+	return s.wallet.VerifyCredential(userId, passphrase, rawCredential)
+}
+
+func (s *VCService) VerifyPresentation(rawPresentation json.RawMessage) error {
+	userId, passphrase, err := s.storage.GetWalletCredentialsForVerification()
+	if err != nil {
+		return err
+	}
+
+	return s.wallet.VerifyPresentation(userId, passphrase, rawPresentation)
 }
 
 func (s *VCService) getOrCreateConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {

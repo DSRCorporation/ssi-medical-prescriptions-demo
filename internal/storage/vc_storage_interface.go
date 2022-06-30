@@ -29,4 +29,7 @@ type VCStorage interface {
 	GetPresentationById(presentationId string) (presentation domain.Presentation, err error)
 	SaveCredential(credential domain.Credential) error
 	SavePresentation(presentation domain.Presentation) (err error)
+
+	// Gets wallet credentials used internally for credential/presentation verification using wallet interface
+	GetWalletCredentialsForVerification() (userId string, passphrase string, err error)
 }

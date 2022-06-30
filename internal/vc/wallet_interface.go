@@ -21,6 +21,8 @@
 package vc
 
 import (
+	"encoding/json"
+
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
@@ -30,6 +32,6 @@ type ProofOptions struct {
 type Wallet interface {
 	SignCredential(userId string, passphrase string, proofOptions ProofOptions, credential domain.Credential) (domain.Credential, error)
 	SignPresentation(userId string, passphrase string, proofOptions ProofOptions, presentaion domain.Presentation) (domain.Presentation, error)
-	VerifyCredential(userId string, passphrase string, credential domain.Credential) error
-	VerifyPresentation(userId string, passphrase string, presentation domain.Presentation) error
+	VerifyCredential(userId string, passphrase string, rawCredential json.RawMessage) error
+	VerifyPresentation(userId string, passphrase string, rawPresentation json.RawMessage) error
 }
