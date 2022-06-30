@@ -32,7 +32,7 @@ func (s *PharmacyService) CreatePresentationRequest(pharmacyId string, requestId
 	return s.storage.CreatePresentationRequest(pharmacyId, requestId)
 }
 
-func (s *PharmacyService) GetPresentaionIdByRequestId(pharmacyId string, requestId string) (presentationId string, err error) {
+func (s *PharmacyService) GetPresentaionIdByRequestId(requestId string) (presentationId string, err error) {
 	return s.storage.GetPresentationIdByRequestId(requestId)
 }
 
