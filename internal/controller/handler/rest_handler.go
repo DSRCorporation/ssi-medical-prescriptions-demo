@@ -282,20 +282,75 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 
 // Creates presentation request for prescription (generates link for a QR code)
 // (POST /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests)
-func (*RestHandler) PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context, pharmacyId string) error {
+func (h *RestHandler) PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context, pharmacyId string) error {
+	requestId := uuid.New().String()
+	err := h.pharmacyService.CreatePresentationRequest(pharmacyId, requestId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	response := rest.CreatePresentationRequestResponse{
+		PresentationRequestId: &requestId,
+	}
+
+	err = ctx.JSON(http.StatusCreated, response)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	return nil
 }
 
 // Gets presentation request for prescription by request id
 // (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId})
-func (*RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx echo.Context, pharmacyId string, presentationRequestId string) error {
+func (h *RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestId(ctx echo.Context, pharmacyId string, presentationRequestId string) error {
+	pharmacyIdByRequestId, err := h.pharmacyService.GetPharmacyIdByRequestId(presentationRequestId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	if pharmacyIdByRequestId != pharmacyId {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid presentation request id")
+	}
+
+	response := rest.GetPresentationRequestResponse{
+		PresentationRequestId: &presentationRequestId,
+	}
+
+	err = ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 
 // Gets verifiable presentation for given presentation request
 // (GET /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests/{presentationRequestId}/presentation)
-func (*RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error {
-	return nil
+func (h *RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequestsPresentationRequestIdPresentation(ctx echo.Context, pharmacyId string, presentationRequestId string) error {
+	// long polling
+	for i := 0; i < LONG_POLLING_TIMEOUT_SECONDS; i++ {
+		presentationId, err := h.pharmacyService.GetPresentaionIdByRequestId(presentationRequestId)
+		if err == nil {
+			presentation, err := h.vcService.GetPresentationById(presentationId)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+
+			response := struct {
+				Presentation        *json.RawMessage `json:"presentation"`
+				VerificationComment string           `json:"verificationComment"`
+				VerificationStatus  bool             `json:"verificationStatus"`
+			}{
+				Presentation: &presentation.RawPresentation,
+				// @TODO: verify presentation is valid
+				VerificationComment: "Verification successful",
+				VerificationStatus:  true,
+			}
+			return ctx.JSON(http.StatusOK, response)
+		}
+		time.Sleep(time.Second)
+	}
+	return echo.NewHTTPError(http.StatusInternalServerError, "Presentation not found")
 }
 
 // Verify Credential
