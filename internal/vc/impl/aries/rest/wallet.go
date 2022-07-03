@@ -18,28 +18,29 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package aries
+package rest
 
 import (
 	"encoding/json"
 
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/vc"
 )
 
-type Issuer struct{}
+type Wallet struct{}
 
-func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error) {
-	return "", nil
+func (w *Wallet) SignCredential(userId string, passphrase string, proofOptions vc.ProofOptions, credential domain.Credential) (domain.Credential, error) {
+	return domain.Credential{}, nil
 }
 
-func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credential) error {
+func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions vc.ProofOptions, presentaion domain.Presentation) (domain.Presentation, error) {
+	return domain.Presentation{}, nil
+}
+
+func (w *Wallet) VerifyCredential(userId string, passphrase string, rawCredential json.RawMessage) error {
 	return nil
 }
 
-func (i *Issuer) CreateOOBInvitation() (invitation json.RawMessage, err error) {
-	return nil, nil
-}
-
-func (i *Issuer) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return domain.Connection{}, nil
+func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresentation json.RawMessage) error {
+	return nil
 }

@@ -18,7 +18,7 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package aries
+package rest
 
 import (
 	"encoding/json"
