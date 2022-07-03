@@ -38,6 +38,7 @@ type Verifier struct {
 func NewVerifier(endpoint string) (*Verifier, error) {
 	return &Verifier{client: resty.New(), endpoint: endpoint}, nil
 }
+
 func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid string, err error) {
 	var res map[string]interface{}
 	resp, err := v.client.R().
