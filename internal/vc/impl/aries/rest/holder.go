@@ -68,7 +68,7 @@ func (h *Holder) SendCredentialRequest(connection domain.Connection, credential 
 			RequestCredential: &requestCredential,
 		}).
 		SetResult(&res).
-		Post(i.endpoint + "/issuecredential/send-request")
+		Post(h.endpoint + "/issuecredential/send-request")
 
 	if err != nil {
 		return "", err
