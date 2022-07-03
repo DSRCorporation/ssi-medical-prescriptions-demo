@@ -115,59 +115,9 @@ func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credenti
 }
 
 func (i *Issuer) CreateOOBInvitation() (invitation json.RawMessage, err error) {
-	resp, err := i.client.R().
-		SetBody(struct {
-			Label string `json:"label"`
-		}{Label: "Issuer"}).
-		Post(i.endpoint + "/outofband/create-invitation")
-
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode() == http.StatusOK {
-		return resp.Body(), nil
-	} else {
-		return nil, errors.New(string(resp.Body()))
-	}
+	return CreateOOBInvitation(i.client, i.endpoint)
 }
 
 func (i *Issuer) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	resp, err := i.client.R().
-		SetPathParam("connectionId", connectionId).
-		Post(i.endpoint + "/{connectionId}/accept-request")
-
-	if err != nil {
-		return domain.Connection{}, err
-	}
-
-	if resp.StatusCode() == http.StatusOK {
-		var res map[string]interface{}
-		resp, err := i.client.R().
-			SetPathParam("connectionId", connectionId).
-			SetResult(res).
-			Get(i.endpoint + "/{connectionId}")
-
-		if err != nil {
-			return domain.Connection{}, err
-		}
-
-		if resp.StatusCode() == http.StatusOK {
-			inviterDID := res["result"].(map[string]interface{})["MyDID"].(string)
-			inviteeDID := res["result"].(map[string]interface{})["TheirDID"].(string)
-
-			conn := domain.Connection{
-				InviterDID:   inviterDID,
-				InviteeDID:   inviteeDID,
-				ConnectionId: connectionId,
-			}
-
-			return conn, nil
-		} else {
-			return domain.Connection{}, errors.New(string(resp.Body()))
-		}
-
-	} else {
-		return domain.Connection{}, errors.New(string(resp.Body()))
-	}
+	return AcceptOOBRequest(i.client, i.endpoint, connectionId)
 }
