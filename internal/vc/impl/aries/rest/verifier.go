@@ -22,24 +22,67 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
+	"net/http"
 
+	"github.com/go-resty/resty/v2"
+	presentproofcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/presentproof"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
-type Verifier struct{}
+type Verifier struct {
+	client   *resty.Client
+	endpoint string
+}
 
+func NewVerifier(endpoint string) (*Verifier, error) {
+	return &Verifier{client: resty.New(), endpoint: endpoint}, nil
+}
 func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid string, err error) {
-	return "", nil
+	var res map[string]interface{}
+	resp, err := v.client.R().
+		SetBody(presentproofcmd.SendRequestPresentationV2Args{
+			MyDID:               connection.InviterDID,
+			TheirDID:            connection.InviteeDID,
+			RequestPresentation: nil,
+		}).
+		SetResult(&res).
+		Post(v.endpoint + "/presentproof/send-request-presentation")
+
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return res["piid"].(string), nil
+	} else {
+		return "", errors.New(string(resp.Body()))
+	}
 }
 
 func (v *Verifier) AcceptPresentation(piid string, name string) error {
-	return nil
+	resp, err := v.client.R().
+		SetPathParam("piid", piid).
+		SetBody(presentproofcmd.AcceptPresentationArgs{
+			Names: []string{name},
+		}).
+		Post(v.endpoint + "/presentproof/{piid}/accept-presentation")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return nil
+	} else {
+		return errors.New(string(resp.Body()))
+	}
 }
 
 func (v *Verifier) CreateOOBInvitation() (invitation json.RawMessage, err error) {
-	return nil, nil
+	return CreateOOBInvitation(v.client, v.endpoint)
 }
 
 func (v *Verifier) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return domain.Connection{}, nil
+	return AcceptOOBRequest(v.client, v.endpoint, connectionId)
 }
