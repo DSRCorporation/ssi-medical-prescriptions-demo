@@ -22,28 +22,147 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
+	"net/http"
 
+	"github.com/go-resty/resty/v2"
+	client "github.com/hyperledger/aries-framework-go/pkg/client/issuecredential"
+	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
+	issuecredentialcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/issuecredential"
+	presentproofcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/presentproof"
+	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
-type Holder struct{}
+type Holder struct {
+	client   *resty.Client
+	endpoint string
+}
+
+func NewHolder(endpoint string) (*Holder, error) {
+	return &Holder{client: resty.New(), endpoint: endpoint}, nil
+}
 
 func (h *Holder) SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error) {
-	return "", nil
+	var cred verifiable.Credential
+	err = json.Unmarshal(credential.RawCredential, &cred)
+
+	if err != nil {
+		return "", err
+	}
+
+	requestCredential := client.RequestCredentialV2{
+		RequestsAttach: []decorator.Attachment{{
+			Data: decorator.AttachmentData{
+				JSON: cred,
+			},
+		}},
+	}
+
+	var res map[string]interface{}
+	resp, err := h.client.R().
+		SetBody(issuecredentialcmd.SendRequestArgsV2{
+			MyDID:             connection.InviterDID,
+			TheirDID:          connection.InviteeDID,
+			RequestCredential: &requestCredential,
+		}).
+		SetResult(&res).
+		Post(i.endpoint + "/issuecredential/send-request")
+
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return res["piid"].(string), nil
+	} else {
+		return "", errors.New(string(resp.Body()))
+	}
 }
 
 func (h *Holder) AcceptOffer(piid string) error {
-	return nil
+	resp, err := h.client.R().
+		SetPathParam("piid", piid).
+		Post(h.endpoint + "/issuecredential/{piid}/accept-offer")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return nil
+	} else {
+		return errors.New(string(resp.Body()))
+	}
 }
 
 func (h *Holder) AcceptCredential(piid string, name string) error {
-	return nil
+	resp, err := h.client.R().
+		SetPathParam("piid", piid).
+		SetBody(issuecredentialcmd.AcceptCredentialArgs{
+			Names: []string{name},
+		}).
+		Post(h.endpoint + "/issuecredential/{piid}/accept-credential")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return nil
+	} else {
+		return errors.New(string(resp.Body()))
+	}
 }
 
-func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Presentation) error {
-	return nil
+func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Presentation) (err error) {
+	var pres verifiable.Presentation
+	err = json.Unmarshal(presentation.RawPresentation, &pres)
+
+	if err != nil {
+		return err
+	}
+
+	presentationV2 := presentproof.PresentationV2{
+		PresentationsAttach: []decorator.Attachment{{
+			Data: decorator.AttachmentData{
+				JSON: presentation,
+			},
+		}},
+	}
+
+	resp, err := h.client.R().
+		SetBody(presentproofcmd.AcceptRequestPresentationV2Args{
+			Presentation: &presentationV2,
+		}).
+		Post(h.endpoint + "/presentproof/{piid}/accept-request-presentation")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return nil
+	} else {
+		return errors.New(string(resp.Body()))
+	}
 }
 
 func (h *Holder) AcceptOOBInvitation(invitation json.RawMessage) (connectionId string, err error) {
-	return "", nil
+	var res map[string]interface{}
+	resp, err := h.client.R().
+		SetBody(invitation).
+		SetResult(&res).
+		Post(h.endpoint + "/outofband/accept-invitation")
+
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return res["connection_id"].(string), nil
+	} else {
+		return "", errors.New(string(resp.Body()))
+	}
 }
