@@ -25,4 +25,11 @@ import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain
 type VCStorage interface {
 	GetConnection(inviterId string, inviteeId string) (connection domain.Connection, err error)
 	SaveConnection(inviterId string, inviteeId string, connection domain.Connection) (err error)
+	GetCredentialById(credentialId string) (credential domain.Credential, err error)
+	GetPresentationById(presentationId string) (presentation domain.Presentation, err error)
+	SaveCredential(credential domain.Credential) error
+	SavePresentation(presentation domain.Presentation) (err error)
+
+	// Gets wallet credentials used internally for credential/presentation verification using wallet interface
+	GetWalletCredentialsForVerification() (userId string, passphrase string, err error)
 }

@@ -21,7 +21,6 @@
 package service
 
 import (
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
 )
 
@@ -29,14 +28,30 @@ type PharmacyService struct {
 	storage storage.PharmacyStorage
 }
 
-func (s *PharmacyService) CreatePresscriptionPresentationRequest(pharmacyId string) (presentationRequestId string, err error) {
-	return s.storage.CreatePrescriptionPresentationRequest(pharmacyId)
+func (s *PharmacyService) CreatePresentationRequest(pharmacyId string, requestId string) (err error) {
+	return s.storage.CreatePresentationRequest(pharmacyId, requestId)
 }
 
-func (s *PharmacyService) GetPrescriptionPresentaionByPresentationRequestId(pharmacyId string, presentationRequestId string) (presentation domain.Presentation, err error) {
-	return s.storage.GetPrescriptionPresentationByPresentationRequestId(pharmacyId, presentationRequestId)
+func (s *PharmacyService) GetPresentaionIdByRequestId(requestId string) (presentationId string, err error) {
+	return s.storage.GetPresentationIdByRequestId(requestId)
 }
 
-func (s *PharmacyService) AddPrescriptionPresentation(pharmacyId string, presentationRequestId string, presentation domain.Presentation) (err error) {
-	return s.storage.AddPrescriptionPresentation(pharmacyId, presentationRequestId, presentation)
+func (s *PharmacyService) GetPresentationIdsByPharmacyId(pharmacyId string) (presentationIds []string, err error) {
+	return s.storage.GetPresentationIdsByPharmacyId(pharmacyId)
+}
+
+func (s *PharmacyService) GetPharmacyIdByRequestId(requestId string) (pharmacyId string, err error) {
+	return s.storage.GetPharmacyIdByRequestId(requestId)
+}
+
+func (s *PharmacyService) SavePresentationId(pharmacyId string, requestId string, presentationId string) (err error) {
+	err = s.storage.AddPresentationIdByRequestId(requestId, presentationId)
+	if err != nil {
+		return err
+	}
+	err = s.storage.AddPresentationIdByPharmacyId(pharmacyId, presentationId)
+	if err != nil {
+		return err
+	}
+	return
 }

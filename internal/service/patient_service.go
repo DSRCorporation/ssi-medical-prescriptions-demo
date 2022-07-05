@@ -21,7 +21,6 @@
 package service
 
 import (
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
 )
 
@@ -29,18 +28,14 @@ type PatientService struct {
 	storage storage.PatientStorage
 }
 
-func (s *PatientService) GetDIDs(patientId string) (dids []domain.DID, err error) {
+func (s *PatientService) GetDIDs(patientId string) (dids []string, err error) {
 	return s.storage.GetDIDs(patientId)
 }
 
-func (s *PatientService) GetPrescriptionCredentials(patientId string) (credentials []domain.Credential, err error) {
-	return s.storage.GetPrescriptionCredentials(patientId)
+func (s *PatientService) SaveCredentialId(patientId string, credentialId string) (err error) {
+	return s.storage.AddCredentialIdByPatientId(patientId, credentialId)
 }
 
-func (s *PatientService) AddPrescriptionCredential(patientId string, credential domain.Credential) (err error) {
-	return s.storage.AddPrescriptionCredential(patientId, credential)
-}
-
-func (s *PatientService) GetPrescriptionCredentialById(patientId string, credentialId string) (credential domain.Credential, err error) {
-	return s.storage.GetPrescriptionCredentialById(patientId, credentialId)
+func (s *PatientService) GetCredentialIdsByPatientId(patientId string) (credentialIds []string, err error) {
+	return s.storage.GetCredentialIdsByPatientId(patientId)
 }

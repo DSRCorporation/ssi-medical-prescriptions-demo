@@ -20,6 +20,10 @@
 
 package mock
 
+import (
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
+)
+
 // Credential offer response info
 var credentialOfferResponse string = "some credential offer"
 
@@ -96,7 +100,7 @@ var verificationStatus bool = true
 var verificationComment string = "some verification comment"
 
 // Ointment drug info
-var OintmentDrugInfoI interface{} = OintmentDrugInfo{
+var OintmentDrugInfoI interface{} = rest.OintmentDrugInfo{
 	AmountOfMedicine:     &amountOfMedicine,
 	UseArea:              &useArea,
 	ApplicationFrequency: &applicationFrequency,
@@ -104,7 +108,7 @@ var OintmentDrugInfoI interface{} = OintmentDrugInfo{
 }
 
 // Tablet drug info
-var TabletDrugInfoI interface{} = TabletDrugInfo{
+var TabletDrugInfoI interface{} = rest.TabletDrugInfo{
 	NumberOfDrug:         &numberOfDrug,
 	NumberOfDoses:        &numberOfDoses,
 	DaysOfMedication:     &daysOfMedication,
@@ -112,13 +116,13 @@ var TabletDrugInfoI interface{} = TabletDrugInfo{
 }
 
 // Credential offer response info
-var CredentialOfferResponseInfo = CredentialOfferResponse{
+var CredentialOfferResponseInfo = rest.CredentialOfferResponse{
 	CredentialOfferId: &credentialOfferResponse,
 }
 
 // Get credential offer response info
-var GetCredentialOfferResponseInfo = GetCredentialOfferResponse{
-	Prescription: &Prescription{
+var GetCredentialOfferResponseInfo = rest.GetCredentialOfferResponse{
+	Prescription: &rest.Prescription{
 		PatientInfo: &struct {
 			Birthday *string "json:\"birthday,omitempty\""
 			Name     *string "json:\"name,omitempty\""
@@ -154,7 +158,7 @@ var GetCredentialOfferResponseInfo = GetCredentialOfferResponse{
 			PrefectureNumber:         &prefectureNumber,
 			ScoreVoteNumber:          &scoreVoteNumber,
 		},
-		Drugs: &[]Drug{
+		Drugs: &[]rest.Drug{
 			{
 				DrugName:           &drugName,
 				DrugNumber:         &drugNumber,
@@ -175,7 +179,7 @@ var GetCredentialOfferResponseInfo = GetCredentialOfferResponse{
 }
 
 // Credential response info
-var CredentialResponseInfo = Credential{
+var CredentialResponseInfo = rest.Credential{
 	Context: &[]string{
 		context1,
 		context2,
@@ -195,15 +199,15 @@ var CredentialResponseInfo = Credential{
 	IssuanceDate:   &issuanceDate,
 	ExpirationDate: &expirationDate,
 	CredentialSubject: &struct {
-		Id           *string       "json:\"id,omitempty\""
-		Name         *string       "json:\"name,omitempty\""
-		Prescription *Prescription "json:\"prescription,omitempty\""
+		Id           *string            "json:\"id,omitempty\""
+		Name         *string            "json:\"name,omitempty\""
+		Prescription *rest.Prescription "json:\"prescription,omitempty\""
 	}{
 		Id:           &patientID,
 		Name:         &patientName,
 		Prescription: GetCredentialOfferResponseInfo.Prescription,
 	},
-	Proof: &CredentialProof{
+	Proof: &rest.CredentialProof{
 		Created:            &created,
 		Jws:                &jws,
 		ProofPurpose:       &proofPurpose,
@@ -213,7 +217,7 @@ var CredentialResponseInfo = Credential{
 }
 
 // Get all DIDs response info
-var GetAllDidsResponseInfo = GetAllDidsResponse{
+var GetAllDidsResponseInfo = rest.GetAllDidsResponse{
 	Dids: &[]string{
 		dids1,
 		dids2,
@@ -222,7 +226,7 @@ var GetAllDidsResponseInfo = GetAllDidsResponse{
 }
 
 // Get all prescription credential response info
-var GetAllPrescriptionCredentialResponseInfo = GetAllPrescriptionCredentialResponse{
+var GetAllPrescriptionCredentialResponseInfo = rest.GetAllPrescriptionCredentialResponse{
 	Credentials: &[]map[string]interface{}{
 		{
 			"first": CredentialResponseInfo,
@@ -231,22 +235,22 @@ var GetAllPrescriptionCredentialResponseInfo = GetAllPrescriptionCredentialRespo
 }
 
 // Get prescription credential response info
-var GetPrescriptionCredentialResponseInfo = GetPrescriptionCredentialResponse{
+var GetPrescriptionCredentialResponseInfo = rest.GetPrescriptionCredentialResponse{
 	Credentials: &map[string]interface{}{"first": CredentialResponseInfo},
 }
 
 // Presentation info
-var PresentationInfo = Presentation{
+var PresentationInfo = rest.Presentation{
 	Context: &[]string{
 		context1,
 		context2,
 		context3,
 	},
 	Type: &type1,
-	VerifiableCredential: &[]Credential{
+	VerifiableCredential: &[]rest.Credential{
 		CredentialResponseInfo,
 	},
-	Proof: &[]PresentationProof{
+	Proof: &[]rest.PresentationProof{
 		{
 			Type:               &typeSignature,
 			Created:            &created,
@@ -259,18 +263,18 @@ var PresentationInfo = Presentation{
 }
 
 // Create presentation request response info
-var CreatePresentationRequestResponseInfo = CreatePresentationRequestResponse{
+var CreatePresentationRequestResponseInfo = rest.CreatePresentationRequestResponse{
 	PresentationRequestId: &presentationRequestId,
 }
 
 // Get presentation request response info
-var GetPresentationRequestResponseInfo = GetPresentationRequestResponse{
+var GetPresentationRequestResponseInfo = rest.GetPresentationRequestResponse{
 	Challenge:             &challenge,
 	PresentationRequestId: &presentationRequestId,
 }
 
 // Get verifiable presentation response info
-var GetVerifiablePresentationResponseInfo = GetVerifiablePresentationResponse{
+var GetVerifiablePresentationResponseInfo = rest.GetVerifiablePresentationResponse{
 	Presentation:        &PresentationInfo,
 	VerificationComment: &verificationComment,
 	VerificationStatus:  &verificationStatus,

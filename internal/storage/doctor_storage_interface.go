@@ -25,9 +25,12 @@ import (
 )
 
 type DoctorStorage interface {
-	CreatePrescriptionCredentialOffer(doctorId string, prescription domain.Prescription) (credentialOfferId string, err error)
-	GetPrescriptionByCredentialOfferId(doctorId string, credentialOfferId string) (prescription domain.Prescription, err error)
-	GetPrescriptionCredentialByCredentialId(doctorId string, credentialId string) (credential domain.Credential, err error)
-	GetPrescriptionCredentialByCredentialOfferId(doctorId string, credentialOfferId string) (credential domain.Credential, err error)
-	SavePrescriptionCredential(doctorId string, credentialOfferId string, credential domain.Credential) (err error)
+	CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error)
+	GetPrescriptionByOfferId(offerId string) (prescription domain.Prescription, err error)
+	GetCredentialIdByOfferId(offerId string) (credentialId string, err error)
+	GetCredentialIdsByDoctorId(doctorId string) (credentialIds []string, err error)
+	AddCredentialIdByDoctorId(doctorId string, credentialId string) (err error)
+	AddCredentialIdByOfferId(offerId string, credentialId string) (err error)
+	GetKMSPassphrase(doctorId string) (kmspassphrase string, err error)
+	GetDID(doctorId string) (did string, err error)
 }

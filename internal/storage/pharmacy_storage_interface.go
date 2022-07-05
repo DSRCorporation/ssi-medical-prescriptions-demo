@@ -20,10 +20,11 @@
 
 package storage
 
-import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
-
 type PharmacyStorage interface {
-	CreatePrescriptionPresentationRequest(pharmacyId string) (presentationRequestId string, err error)
-	GetPrescriptionPresentationByPresentationRequestId(pharmacyId string, presentationRequestId string) (presentation domain.Presentation, err error)
-	AddPrescriptionPresentation(pharmacyId string, presentationRequestId string, presentation domain.Presentation) (err error)
+	CreatePresentationRequest(pharmacyId string, presentationId string) (err error)
+	GetPharmacyIdByRequestId(requestId string) (pharmacyId string, err error)
+	GetPresentationIdByRequestId(requestId string) (presentationId string, err error)
+	GetPresentationIdsByPharmacyId(pharmacyId string) (presentationIds []string, err error)
+	AddPresentationIdByRequestId(requestId string, presentationId string) (err error)
+	AddPresentationIdByPharmacyId(pharmacyId string, presentationId string) (err error)
 }

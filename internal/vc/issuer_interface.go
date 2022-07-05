@@ -20,12 +20,16 @@
 
 package vc
 
-import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+import (
+	"encoding/json"
+
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+)
 
 type Issuer interface {
 	SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error)
 	AcceptCredentialRequest(piid string, credential domain.Credential) error
 
-	CreateOOBInvitation() (invitation []byte, err error)
+	CreateOOBInvitation() (invitation json.RawMessage, err error)
 	AcceptOOBRequest(connectionId string) (connection domain.Connection, err error)
 }

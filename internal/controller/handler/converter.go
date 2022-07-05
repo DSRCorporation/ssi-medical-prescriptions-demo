@@ -18,4 +18,19 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package doctor
+package handler
+
+import (
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+)
+
+func ConvertToPrescription(in rest.Prescription, doctorId string) (out domain.Prescription) {
+	// @TODO
+	return domain.Prescription{}
+}
+
+func ConvertFromPrescription(in domain.Prescription) (out rest.Prescription) {
+	// @TODO
+	return rest.Prescription{}
+}

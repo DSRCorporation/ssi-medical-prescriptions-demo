@@ -21,6 +21,8 @@
 package service
 
 import (
+	"encoding/json"
+
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/vc"
@@ -34,7 +36,7 @@ type VCService struct {
 	storage       storage.VCStorage
 }
 
-func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
+func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
 	conn, err := s.getOrCreateConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Credential{}, err
@@ -62,10 +64,15 @@ func (s *VCService) IssueCredential(issuerId string, issuerKMSPassphrase string,
 		return domain.Credential{}, err
 	}
 
+	err = s.storage.SaveCredential(credential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
 	return credential, nil
 }
 
-func (s *VCService) SendPresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
+func (s *VCService) ExchangePresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
 	conn, err := s.getOrCreateConnection(verifierId, s.verifierAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Presentation{}, err
@@ -92,7 +99,38 @@ func (s *VCService) SendPresentation(verifierId string, holderId string, holderK
 		return domain.Presentation{}, err
 	}
 
+	err = s.storage.SavePresentation(presentation)
+	if err != nil {
+		return domain.Presentation{}, err
+	}
+
 	return presentation, nil
+}
+
+func (s *VCService) GetCredentialById(credentialId string) (domain.Credential, error) {
+	return s.storage.GetCredentialById(credentialId)
+}
+
+func (s *VCService) GetPresentationById(presentationId string) (domain.Presentation, error) {
+	return s.storage.GetPresentationById(presentationId)
+}
+
+func (s *VCService) VerifyCredential(rawCredential json.RawMessage) error {
+	userId, passphrase, err := s.storage.GetWalletCredentialsForVerification()
+	if err != nil {
+		return err
+	}
+
+	return s.wallet.VerifyCredential(userId, passphrase, rawCredential)
+}
+
+func (s *VCService) VerifyPresentation(rawPresentation json.RawMessage) error {
+	userId, passphrase, err := s.storage.GetWalletCredentialsForVerification()
+	if err != nil {
+		return err
+	}
+
+	return s.wallet.VerifyPresentation(userId, passphrase, rawPresentation)
 }
 
 func (s *VCService) getOrCreateConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {
