@@ -21,188 +21,150 @@
 package leveldb
 
 import (
-	"encoding/json"
 	"fmt"
 
-	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
 type DoctorStorage struct {
-	LeveldbPath string
+	levelDB *LevelDB
 }
 
 func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
-	return &DoctorStorage{LeveldbPath: dbPath}, nil
+	levelDB, err := NewLevelDB(dbPath)
+	if err != nil {
+		return nil, err
+	}
+	return &DoctorStorage{levelDB: levelDB}, nil
 }
 
 func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return fmt.Errorf("error opening database file: %v", err)
-	}
-	defer db.Close()
-
-	exist, _ := db.Has([]byte(offerId), nil)
-	if exist {
-		return fmt.Errorf("offer already exists: %v", offerId)
+		return err
 	}
 
-	data := &Prescription{
+	prescriptionOffer := &PrescriptionOffer{
 		OfferId:      &offerId,
 		Prescription: &prescription,
 		CredentialId: nil,
 	}
 
-	value, err := json.Marshal(data)
+	exist, err := db.Has(offerId)
 	if err != nil {
-		return fmt.Errorf("error converting type Prescription to json bytes: %v", err)
+		return err
 	}
 
-	if err = db.Put([]byte(offerId), value, nil); err != nil {
-		return fmt.Errorf("error writing to database: %v", err)
+	if exist {
+		return fmt.Errorf("offerId already exists: %v", offerId)
+	}
+
+	if err = db.WriteAsJson(offerId, prescriptionOffer); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (s *DoctorStorage) GetPrescriptionByOfferId(offerId string) (prescription domain.Prescription, err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return prescription, fmt.Errorf("error opening database file: %v", err)
-	}
-	defer db.Close()
-
-	value, err := db.Get([]byte(offerId), nil)
-	if err != nil {
-		return prescription, fmt.Errorf("error reading from database: %v", err)
+		return prescription, err
 	}
 
-	var data Prescription
+	var prescriptionOffer PrescriptionOffer
 
-	if err = json.Unmarshal(value, &data); err != nil {
-		return prescription, fmt.Errorf("error unmarshalling data: %v", err)
+	if err = db.ReadFromJson(offerId, &prescriptionOffer); err != nil {
+		return prescription, err
 	}
 
-	prescription = *data.Prescription
+	prescription = *prescriptionOffer.Prescription
 
 	return prescription, nil
 }
 
 func (s *DoctorStorage) AddCredentialIdByOfferId(offerId string, credentialId string) (err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return fmt.Errorf("error opening database file: %v", err)
-	}
-	defer db.Close()
-
-	value, err := db.Get([]byte(offerId), nil)
-	if err != nil {
-		return fmt.Errorf("error not found prescription offer: %v", err)
+		return err
 	}
 
-	var prescription Prescription
+	var prescriptionOffer PrescriptionOffer
 
-	if err = json.Unmarshal(value, &prescription); err != nil {
-		return fmt.Errorf("error unmarshalling data: %v", err)
+	if err = db.ReadFromJson(offerId, &prescriptionOffer); err != nil {
+		return err
 	}
 
-	if prescription.CredentialId != nil {
+	if prescriptionOffer.CredentialId != nil {
 		return fmt.Errorf("offerId already exists: %v", offerId)
 	}
 
-	prescription.CredentialId = &credentialId
+	prescriptionOffer.CredentialId = &credentialId
 
-	value, err = json.Marshal(prescription)
-	if err != nil {
-		return fmt.Errorf("error marshalling data: %v", err)
-	}
-
-	if err = db.Put([]byte(offerId), value, nil); err != nil {
-		return fmt.Errorf("error writing to database: %v", err)
+	if err = db.WriteAsJson(offerId, prescriptionOffer); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (s *DoctorStorage) GetCredentialIdByOfferId(offerId string) (credentialId string, err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return credentialId, fmt.Errorf("error opening database file: %v", err)
-	}
-	defer db.Close()
-
-	value, err := db.Get([]byte(offerId), nil)
-	if err != nil {
-		return credentialId, fmt.Errorf("error reading from database: %v", err)
+		return credentialId, err
 	}
 
-	var prescription Prescription
+	var prescriptionOffer PrescriptionOffer
 
-	if err := json.Unmarshal(value, &prescription); err != nil {
-		return credentialId, fmt.Errorf("error unmarshalling data: %v", err)
+	if err = db.ReadFromJson(offerId, &prescriptionOffer); err != nil {
+		return credentialId, err
 	}
 
-	if prescription.CredentialId == nil {
+	if prescriptionOffer.CredentialId == nil {
 		return credentialId, fmt.Errorf("no credential id for offer id: %s", offerId)
 	}
 
-	return *prescription.CredentialId, nil
+	credentialId = *prescriptionOffer.CredentialId
+
+	return credentialId, nil
 }
 
 func (s *DoctorStorage) AddCredentialIdByDoctorId(doctorId string, credentials string) (err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return fmt.Errorf("error opening database file: %v", err)
+		return err
 	}
-	defer db.Close()
 
 	var credentialIds []string
 
-	exist, err := db.Has([]byte(doctorId), nil)
+	exist, err := db.Has(doctorId)
 	if err != nil {
-		return fmt.Errorf("error reading from database: %v", err)
+		return err
 	}
 
 	if exist {
-		value, err := db.Get([]byte(doctorId), nil)
-		if err != nil {
-			return fmt.Errorf("error reading from database: %v", err)
-		}
-
-		if err = json.Unmarshal(value, &credentialIds); err != nil {
-			return fmt.Errorf("error unmarshalling credentials ids: %v", err)
+		if err = db.ReadFromJson(doctorId, &credentialIds); err != nil {
+			return err
 		}
 	}
 
 	credentialIds = append(credentialIds, credentials)
 
-	value, err := json.Marshal(credentialIds)
-	if err != nil {
-		return fmt.Errorf("error marshalling credential ids: %v", err)
-	}
-
-	if err = db.Put([]byte(doctorId), value, nil); err != nil {
-		return fmt.Errorf("error writing to database: %v", err)
+	if err = db.WriteAsJson(doctorId, credentialIds); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (s *DoctorStorage) GetCredentialIdsByDoctorId(doctorId string) (credentialIds []string, err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return credentialIds, fmt.Errorf("error opening database file: %v", err)
-	}
-	defer db.Close()
-
-	value, err := db.Get([]byte(doctorId), nil)
-	if err != nil {
-		return credentialIds, fmt.Errorf("error reading from database: %v", err)
+		return credentialIds, err
 	}
 
-	if err = json.Unmarshal(value, &credentialIds); err != nil {
-		return credentialIds, fmt.Errorf("error unmarshalling credential ids: %v", err)
+	if err = db.ReadFromJson(doctorId, &credentialIds); err != nil {
+		return credentialIds, err
 	}
 
 	return credentialIds, nil
@@ -216,7 +178,7 @@ func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
 	return did, fmt.Errorf("not implemented!")
 }
 
-type Prescription struct {
+type PrescriptionOffer struct {
 	OfferId      *string
 	Prescription *domain.Prescription
 	CredentialId *string
