@@ -38,12 +38,12 @@ func NewPatientStorage(path string) (*PatientStorage, error) {
 }
 
 func (s *PatientStorage) AddCredentialIdByPatientId(patientId string, credentialId string) (err error) {
-	var credentialIds []string
-
 	exist, err := s.levelDB.Has(patientId)
 	if err != nil {
 		return err
 	}
+
+	var credentialIds []string
 
 	if exist {
 		if err = s.levelDB.ReadFromJson(patientId, &credentialIds); err != nil {

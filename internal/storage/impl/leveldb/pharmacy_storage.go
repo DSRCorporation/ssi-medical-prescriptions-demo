@@ -36,12 +36,6 @@ func NewPharmacyStorage(dbPath string) (*PharmacyStorage, error) {
 }
 
 func (s *PharmacyStorage) CreatePresentationRequest(pharmacyId string, requestId string) (err error) {
-	presentationRequest := PresentationRequest{
-		RequestId:      &requestId,
-		PharmacyId:     &pharmacyId,
-		PresentationId: nil,
-	}
-
 	exist, err := s.levelDB.Has(requestId)
 	if err != nil {
 		return err
@@ -49,6 +43,12 @@ func (s *PharmacyStorage) CreatePresentationRequest(pharmacyId string, requestId
 
 	if exist {
 		return fmt.Errorf("pharmacyId already exists: %v", requestId)
+	}
+
+	presentationRequest := PresentationRequest{
+		RequestId:      &requestId,
+		PharmacyId:     &pharmacyId,
+		PresentationId: nil,
 	}
 
 	if err = s.levelDB.WriteAsJson(requestId, presentationRequest); err != nil {
@@ -107,12 +107,12 @@ func (s *PharmacyStorage) GetPresentationIdByRequestId(requestId string) (presen
 }
 
 func (s *PharmacyStorage) AddPresentationIdByPharmacyId(pharmacyId string, presentationId string) (err error) {
-	var presentationIds []string
-
 	exist, err := s.levelDB.Has(pharmacyId)
 	if err != nil {
 		return err
 	}
+
+	var presentationIds []string
 
 	if exist {
 		if err = s.levelDB.ReadFromJson(pharmacyId, &presentationIds); err != nil {
