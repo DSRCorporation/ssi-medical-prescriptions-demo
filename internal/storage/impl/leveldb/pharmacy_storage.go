@@ -36,18 +36,13 @@ func NewPharmacyStorage(dbPath string) (*PharmacyStorage, error) {
 }
 
 func (s *PharmacyStorage) CreatePresentationRequest(pharmacyId string, requestId string) (err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return err
-	}
-
 	presentationRequest := PresentationRequest{
 		RequestId:      &requestId,
 		PharmacyId:     &pharmacyId,
 		PresentationId: nil,
 	}
 
-	exist, err := db.Has(requestId)
+	exist, err := s.levelDB.Has(requestId)
 	if err != nil {
 		return err
 	}
@@ -56,7 +51,7 @@ func (s *PharmacyStorage) CreatePresentationRequest(pharmacyId string, requestId
 		return fmt.Errorf("pharmacyId already exists: %v", requestId)
 	}
 
-	if err = db.WriteAsJson(requestId, presentationRequest); err != nil {
+	if err = s.levelDB.WriteAsJson(requestId, presentationRequest); err != nil {
 		return err
 	}
 
@@ -64,14 +59,9 @@ func (s *PharmacyStorage) CreatePresentationRequest(pharmacyId string, requestId
 }
 
 func (s *PharmacyStorage) GetPharmacyIdByRequestId(requestId string) (pharmacyId string, err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return pharmacyId, err
-	}
-
 	var presentationRequest PresentationRequest
 
-	if err = db.ReadFromJson(requestId, &presentationRequest); err != nil {
+	if err = s.levelDB.ReadFromJson(requestId, &presentationRequest); err != nil {
 		return pharmacyId, err
 	}
 
@@ -81,14 +71,9 @@ func (s *PharmacyStorage) GetPharmacyIdByRequestId(requestId string) (pharmacyId
 }
 
 func (s *PharmacyStorage) AddPresentationIdByRequestId(requestId string, presentationId string) (err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return err
-	}
-
 	var presentationRequest PresentationRequest
 
-	if err = db.ReadFromJson(requestId, &presentationRequest); err != nil {
+	if err = s.levelDB.ReadFromJson(requestId, &presentationRequest); err != nil {
 		return err
 	}
 
@@ -98,7 +83,7 @@ func (s *PharmacyStorage) AddPresentationIdByRequestId(requestId string, present
 
 	presentationRequest.PresentationId = &presentationId
 
-	if err = db.WriteAsJson(requestId, presentationRequest); err != nil {
+	if err = s.levelDB.WriteAsJson(requestId, presentationRequest); err != nil {
 		return err
 	}
 
@@ -106,14 +91,9 @@ func (s *PharmacyStorage) AddPresentationIdByRequestId(requestId string, present
 }
 
 func (s *PharmacyStorage) GetPresentationIdByRequestId(requestId string) (presentationId string, err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return presentationId, err
-	}
-
 	var presentationRequest PresentationRequest
 
-	if err = db.ReadFromJson(requestId, &presentationRequest); err != nil {
+	if err = s.levelDB.ReadFromJson(requestId, &presentationRequest); err != nil {
 		return presentationId, err
 	}
 
@@ -127,27 +107,22 @@ func (s *PharmacyStorage) GetPresentationIdByRequestId(requestId string) (presen
 }
 
 func (s *PharmacyStorage) AddPresentationIdByPharmacyId(pharmacyId string, presentationId string) (err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return err
-	}
-
 	var presentationIds []string
 
-	exist, err := db.Has(pharmacyId)
+	exist, err := s.levelDB.Has(pharmacyId)
 	if err != nil {
 		return err
 	}
 
 	if exist {
-		if err = db.ReadFromJson(pharmacyId, &presentationIds); err != nil {
+		if err = s.levelDB.ReadFromJson(pharmacyId, &presentationIds); err != nil {
 			return err
 		}
 	}
 
 	presentationIds = append(presentationIds, presentationId)
 
-	if err = db.WriteAsJson(pharmacyId, presentationIds); err != nil {
+	if err = s.levelDB.WriteAsJson(pharmacyId, presentationIds); err != nil {
 		return err
 	}
 
@@ -155,12 +130,7 @@ func (s *PharmacyStorage) AddPresentationIdByPharmacyId(pharmacyId string, prese
 }
 
 func (s *PharmacyStorage) GetPresentationIdsByPharmacyId(pharmacyId string) (presentationIds []string, err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return presentationIds, err
-	}
-
-	if err = db.ReadFromJson(pharmacyId, &presentationIds); err != nil {
+	if err = s.levelDB.ReadFromJson(pharmacyId, &presentationIds); err != nil {
 		return presentationIds, err
 	}
 
