@@ -33,31 +33,27 @@ func NewPatientStorage(path string) (*PatientStorage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &PatientStorage{levelDB: levelDB}, nil
 }
 
 func (s *PatientStorage) AddCredentialIdByPatientId(patientId string, credentialId string) (err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return err
-	}
-
 	var credentialIds []string
 
-	exist, err := db.Has(patientId)
+	exist, err := s.levelDB.Has(patientId)
 	if err != nil {
 		return err
 	}
 
 	if exist {
-		if err = db.ReadFromJson(patientId, &credentialIds); err != nil {
+		if err = s.levelDB.ReadFromJson(patientId, &credentialIds); err != nil {
 			return err
 		}
 	}
 
 	credentialIds = append(credentialIds, credentialId)
 
-	if err = db.WriteAsJson(patientId, credentialIds); err != nil {
+	if err = s.levelDB.WriteAsJson(patientId, credentialIds); err != nil {
 		return err
 	}
 
@@ -65,12 +61,7 @@ func (s *PatientStorage) AddCredentialIdByPatientId(patientId string, credential
 }
 
 func (s *PatientStorage) GetCredentialIdsByPatientId(patientId string) (credentialIds []string, err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return credentialIds, err
-	}
-
-	if err = db.ReadFromJson(patientId, &credentialIds); err != nil {
+	if err = s.levelDB.ReadFromJson(patientId, &credentialIds); err != nil {
 		return credentialIds, err
 	}
 

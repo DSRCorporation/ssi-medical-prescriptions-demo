@@ -35,22 +35,18 @@ func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &DoctorStorage{levelDB: levelDB}, nil
 }
 
 func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return err
-	}
-
 	prescriptionOffer := &PrescriptionOffer{
 		OfferId:      &offerId,
 		Prescription: &prescription,
 		CredentialId: nil,
 	}
 
-	exist, err := db.Has(offerId)
+	exist, err := s.levelDB.Has(offerId)
 	if err != nil {
 		return err
 	}
@@ -59,7 +55,7 @@ func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription dom
 		return fmt.Errorf("offerId already exists: %v", offerId)
 	}
 
-	if err = db.WriteAsJson(offerId, prescriptionOffer); err != nil {
+	if err = s.levelDB.WriteAsJson(offerId, prescriptionOffer); err != nil {
 		return err
 	}
 
@@ -67,14 +63,9 @@ func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription dom
 }
 
 func (s *DoctorStorage) GetPrescriptionByOfferId(offerId string) (prescription domain.Prescription, err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return prescription, err
-	}
-
 	var prescriptionOffer PrescriptionOffer
 
-	if err = db.ReadFromJson(offerId, &prescriptionOffer); err != nil {
+	if err = s.levelDB.ReadFromJson(offerId, &prescriptionOffer); err != nil {
 		return prescription, err
 	}
 
@@ -84,14 +75,9 @@ func (s *DoctorStorage) GetPrescriptionByOfferId(offerId string) (prescription d
 }
 
 func (s *DoctorStorage) AddCredentialIdByOfferId(offerId string, credentialId string) (err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return err
-	}
-
 	var prescriptionOffer PrescriptionOffer
 
-	if err = db.ReadFromJson(offerId, &prescriptionOffer); err != nil {
+	if err = s.levelDB.ReadFromJson(offerId, &prescriptionOffer); err != nil {
 		return err
 	}
 
@@ -101,7 +87,7 @@ func (s *DoctorStorage) AddCredentialIdByOfferId(offerId string, credentialId st
 
 	prescriptionOffer.CredentialId = &credentialId
 
-	if err = db.WriteAsJson(offerId, prescriptionOffer); err != nil {
+	if err = s.levelDB.WriteAsJson(offerId, prescriptionOffer); err != nil {
 		return err
 	}
 
@@ -109,14 +95,9 @@ func (s *DoctorStorage) AddCredentialIdByOfferId(offerId string, credentialId st
 }
 
 func (s *DoctorStorage) GetCredentialIdByOfferId(offerId string) (credentialId string, err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return credentialId, err
-	}
-
 	var prescriptionOffer PrescriptionOffer
 
-	if err = db.ReadFromJson(offerId, &prescriptionOffer); err != nil {
+	if err = s.levelDB.ReadFromJson(offerId, &prescriptionOffer); err != nil {
 		return credentialId, err
 	}
 
@@ -130,27 +111,22 @@ func (s *DoctorStorage) GetCredentialIdByOfferId(offerId string) (credentialId s
 }
 
 func (s *DoctorStorage) AddCredentialIdByDoctorId(doctorId string, credentials string) (err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return err
-	}
-
 	var credentialIds []string
 
-	exist, err := db.Has(doctorId)
+	exist, err := s.levelDB.Has(doctorId)
 	if err != nil {
 		return err
 	}
 
 	if exist {
-		if err = db.ReadFromJson(doctorId, &credentialIds); err != nil {
+		if err = s.levelDB.ReadFromJson(doctorId, &credentialIds); err != nil {
 			return err
 		}
 	}
 
 	credentialIds = append(credentialIds, credentials)
 
-	if err = db.WriteAsJson(doctorId, credentialIds); err != nil {
+	if err = s.levelDB.WriteAsJson(doctorId, credentialIds); err != nil {
 		return err
 	}
 
@@ -158,12 +134,7 @@ func (s *DoctorStorage) AddCredentialIdByDoctorId(doctorId string, credentials s
 }
 
 func (s *DoctorStorage) GetCredentialIdsByDoctorId(doctorId string) (credentialIds []string, err error) {
-	db, err := NewLevelDB(s.levelDB.path)
-	if err != nil {
-		return credentialIds, err
-	}
-
-	if err = db.ReadFromJson(doctorId, &credentialIds); err != nil {
+	if err = s.levelDB.ReadFromJson(doctorId, &credentialIds); err != nil {
 		return credentialIds, err
 	}
 
