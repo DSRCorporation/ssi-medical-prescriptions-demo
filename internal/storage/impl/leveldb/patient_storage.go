@@ -33,6 +33,7 @@ func NewPatientStorage(path string) (*PatientStorage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &PatientStorage{levelDB: levelDB}, nil
 }
 

@@ -35,6 +35,7 @@ func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &DoctorStorage{levelDB: levelDB}, nil
 }
 
