@@ -21,78 +21,62 @@
 package leveldb
 
 import (
-	"encoding/json"
 	"fmt"
-
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
 type PatientStorage struct {
-	LeveldbPath string
+	levelDB *LevelDB
 }
 
 func NewPatientStorage(path string) (*PatientStorage, error) {
-	return &PatientStorage{LeveldbPath: path}, nil
+	levelDB, err := NewLevelDB(path)
+	if err != nil {
+		return nil, err
+	}
+	return &PatientStorage{levelDB: levelDB}, nil
 }
 
 func (s *PatientStorage) AddCredentialIdByPatientId(patientId string, credentialId string) (err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return fmt.Errorf("error opening database file: %v", err)
+		return err
 	}
-	defer db.Close()
 
 	var credentialIds []string
 
-	exist, err := db.Has([]byte(patientId), nil)
+	exist, err := db.Has(patientId)
 	if err != nil {
-		return fmt.Errorf("error reading from database: %v", err)
+		return err
 	}
 
 	if exist {
-		value, err := db.Get([]byte(patientId), nil)
-		if err != nil {
-			return fmt.Errorf("error reading from database: %v", err)
-		}
-
-		if err = json.Unmarshal(value, &credentialIds); err != nil {
-			return fmt.Errorf("error unmarshalling credentialIds: %v", err)
+		if err = db.ReadFromJson(patientId, &credentialIds); err != nil {
+			return err
 		}
 	}
 
 	credentialIds = append(credentialIds, credentialId)
 
-	value, err := json.Marshal(credentialIds)
-	if err != nil {
-		return fmt.Errorf("error marshalling credential ids: %v", err)
-	}
-
-	if err = db.Put([]byte(patientId), value, nil); err != nil {
-		return fmt.Errorf("error writing to database: %v", err)
+	if err = db.WriteAsJson(patientId, credentialIds); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (s *PatientStorage) GetCredentialIdsByPatientId(patientId string) (credentialIds []string, err error) {
-	db, err := leveldb.OpenFile(s.LeveldbPath, nil)
+	db, err := NewLevelDB(s.levelDB.path)
 	if err != nil {
-		return credentialIds, fmt.Errorf("error opening database file: %v", err)
-	}
-	defer db.Close()
-
-	value, err := db.Get([]byte(patientId), nil)
-	if err != nil {
-		return credentialIds, fmt.Errorf("error reading from database: %v", err)
+		return credentialIds, err
 	}
 
-	if err = json.Unmarshal(value, &credentialIds); err != nil {
-		return credentialIds, fmt.Errorf("error unmarshalling credential ids: %v", err)
+	if err = db.ReadFromJson(patientId, &credentialIds); err != nil {
+		return credentialIds, err
 	}
 
 	return credentialIds, nil
 }
 
 func (s *PatientStorage) GetDIDs(patientId string) (dids []string, err error) {
-	return dids, fmt.Errorf("not implemented!")
+	return dids, fmt.Errorf("not implemented")
 }
