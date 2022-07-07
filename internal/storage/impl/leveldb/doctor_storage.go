@@ -171,11 +171,11 @@ func (s *DoctorStorage) GetCredentialIdsByDoctorId(doctorId string) (credentialI
 }
 
 func (s *DoctorStorage) GetKMSPassphrase(doctorId string) (kmspassphrase string, err error) {
-	return kmspassphrase, fmt.Errorf("not implemented!")
+	return kmspassphrase, fmt.Errorf("not implemented")
 }
 
 func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
-	return did, fmt.Errorf("not implemented!")
+	return did, fmt.Errorf("not implemented")
 }
 
 type PrescriptionOffer struct {
