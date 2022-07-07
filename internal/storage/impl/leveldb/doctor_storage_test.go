@@ -154,7 +154,30 @@ func TestGetExistCredentialIDByOfferID(t *testing.T) {
 	require.Equal(t, credentialId, credential)
 }
 
-func TestGetNotExistCredentialsIDByOfferId(t *testing.T) {
+func TestAlreadyCreatedPrescriptionOfferAndGetNotExistCredentialsIDByOfferID(t *testing.T) {
+	var offerId = tmrand.Str(6)
+	var prescriptions = domain.Prescription{
+		DoctorId:        tmrand.Str(6),
+		RawPrescription: []byte(`{"some":"some"}`),
+	}
+
+	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	defer cleanUp(dbPath)
+
+	doctorStorage, err := NewDoctorStorage(dbPath)
+	require.NoError(t, err)
+
+	// Create Prescription Offer
+	err = doctorStorage.CreatePrescriptionOffer(offerId, prescriptions)
+	require.NoError(t, err)
+
+	// We don't create Credential ID by Offer ID and
+	// Get not exist Credential ID by Offer ID, it should be error.
+	_, err = doctorStorage.GetCredentialIdByOfferId(offerId)
+	require.Error(t, err)
+}
+
+func TestNotCreatePrescriptionOfferAndGetNotExistCredentialsIDByOfferId(t *testing.T) {
 	var offerId = tmrand.Str(6)
 
 	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
