@@ -39,7 +39,7 @@ func NewVCStorage(dbPath string) (*VCStorage, error) {
 }
 
 func (s *VCStorage) SaveConnection(inviterId string, inviteeId string, connection domain.Connection) (err error) {
-	key := inviterId + inviteeId
+	key := makeKey(inviterId, inviteeId)
 
 	exist, err := s.levelDB.Has(key)
 	if err != nil {
@@ -58,7 +58,7 @@ func (s *VCStorage) SaveConnection(inviterId string, inviteeId string, connectio
 }
 
 func (s *VCStorage) GetConnection(inviterId string, inviteeId string) (connection domain.Connection, err error) {
-	key := inviterId + inviteeId
+	key := makeKey(inviterId, inviteeId)
 
 	if err = s.levelDB.ReadFromJson(key, &connection); err != nil {
 		return connection, err
@@ -68,6 +68,10 @@ func (s *VCStorage) GetConnection(inviterId string, inviteeId string) (connectio
 }
 
 func (s *VCStorage) SaveCredential(credential domain.Credential) error {
+	if credential.CredentialId == "" {
+		return fmt.Errorf("credentialId is empty")
+	}
+
 	key := credential.CredentialId
 
 	exist, err := s.levelDB.Has(key)
@@ -95,6 +99,10 @@ func (s *VCStorage) GetCredentialById(credentialId string) (credential domain.Cr
 }
 
 func (s *VCStorage) SavePresentation(presentation domain.Presentation) (err error) {
+	if presentation.PresentationId == "" {
+		return fmt.Errorf("presentationId is empty")
+	}
+
 	key := presentation.PresentationId
 
 	exist, err := s.levelDB.Has(key)
@@ -119,4 +127,10 @@ func (s *VCStorage) GetPresentationById(presentationId string) (presentation dom
 	}
 
 	return presentation, nil
+}
+
+func makeKey(inviterId string, inviteeId string) (key string) {
+	key = inviterId + inviteeId
+
+	return key
 }
