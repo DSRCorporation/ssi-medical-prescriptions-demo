@@ -21,7 +21,6 @@
 package leveldb
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -32,7 +31,7 @@ func TestDoubleTimeCreatePresentationRequest(t *testing.T) {
 	var pharmacyId = tmrand.Str(6)
 	var requestId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -49,7 +48,7 @@ func TestGetExistPharmacyIDByRequestID(t *testing.T) {
 	var pharmacyId = tmrand.Str(6)
 	var requestId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -66,7 +65,7 @@ func TestGetExistPharmacyIDByRequestID(t *testing.T) {
 func TestGetNotExistPharmacyIDByRequestID(t *testing.T) {
 	var requestId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -80,7 +79,7 @@ func TestAddPresentationIDByRequestIDWithoutPresentationRequest(t *testing.T) {
 	var requestId = tmrand.Str(6)
 	var presentationId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -95,7 +94,7 @@ func TestDoubleTimeAddPresentationIDByRequestID(t *testing.T) {
 	var requestId = tmrand.Str(6)
 	var presentationId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -116,7 +115,7 @@ func TestGetExistPresentationIDByRequestID(t *testing.T) {
 	var requestId = tmrand.Str(6)
 	var presentationId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -137,7 +136,7 @@ func TestAlreadyCreatePresentationRequestAndGetNotExistPresentationIDByRequestID
 	var pharmacyId = tmrand.Str(6)
 	var requestId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -156,7 +155,7 @@ func TestAlreadyCreatePresentationRequestAndGetNotExistPresentationIDByRequestID
 func TestNotCreatePresentationRequestAndGetNotExistPresentationIDByRequestID(t *testing.T) {
 	var requestId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -172,7 +171,7 @@ func TestGetExistPresentationIDByPharmacyID(t *testing.T) {
 	var presentationId2 = tmrand.Str(10)
 	var presentationId3 = tmrand.Str(10)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
@@ -209,7 +208,7 @@ func TestGetExistPresentationIDByPharmacyID(t *testing.T) {
 func TestGetNotExistPresentationIDByPharmacyID(t *testing.T) {
 	var pharmacyId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = GenerateDBPath()
 	defer cleanUp(dbPath)
 
 	pharmacyStorage, err := NewPharmacyStorage(dbPath)
