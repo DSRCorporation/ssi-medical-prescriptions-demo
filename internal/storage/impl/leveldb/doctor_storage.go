@@ -40,10 +40,8 @@ func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 }
 
 func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
-	prescriptionOffer := &PrescriptionOffer{
-		OfferId:      &offerId,
-		Prescription: &prescription,
-		CredentialId: nil,
+	if offerId == "" {
+		return fmt.Errorf("offerId cannot be empty")
 	}
 
 	exist, err := s.levelDB.Has(offerId)
@@ -53,6 +51,12 @@ func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription dom
 
 	if exist {
 		return fmt.Errorf("offerId already exists: %v", offerId)
+	}
+
+	prescriptionOffer := &PrescriptionOffer{
+		OfferId:      &offerId,
+		Prescription: &prescription,
+		CredentialId: nil,
 	}
 
 	if err = s.levelDB.WriteAsJson(offerId, prescriptionOffer); err != nil {
@@ -75,6 +79,10 @@ func (s *DoctorStorage) GetPrescriptionByOfferId(offerId string) (prescription d
 }
 
 func (s *DoctorStorage) AddCredentialIdByOfferId(offerId string, credentialId string) (err error) {
+	if offerId == "" {
+		return fmt.Errorf("offerId cannot be empty")
+	}
+
 	var prescriptionOffer PrescriptionOffer
 
 	if err = s.levelDB.ReadFromJson(offerId, &prescriptionOffer); err != nil {
@@ -111,12 +119,16 @@ func (s *DoctorStorage) GetCredentialIdByOfferId(offerId string) (credentialId s
 }
 
 func (s *DoctorStorage) AddCredentialIdByDoctorId(doctorId string, credentials string) (err error) {
-	var credentialIds []string
+	if doctorId == "" {
+		return fmt.Errorf("doctor id cannot be empty")
+	}
 
 	exist, err := s.levelDB.Has(doctorId)
 	if err != nil {
 		return err
 	}
+
+	var credentialIds []string
 
 	if exist {
 		if err = s.levelDB.ReadFromJson(doctorId, &credentialIds); err != nil {

@@ -21,8 +21,6 @@
 package leveldb
 
 import (
-	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -38,7 +36,7 @@ func TestDoubleTimeCreatePrescriptionOfferWithSameOfferID(t *testing.T) {
 		RawPrescription: []byte(`{"some":"some"}`),
 	}
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -58,7 +56,7 @@ func TestGetExistPrescription(t *testing.T) {
 		RawPrescription: []byte(`{"some":"some"}`),
 	}
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -76,7 +74,7 @@ func TestGetExistPrescription(t *testing.T) {
 func TestGetNotExistPrescription(t *testing.T) {
 	var offerId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -90,7 +88,7 @@ func TestCreateCredentialIDByOfferIDWithoutPrescriptionOfferID(t *testing.T) {
 	var offerId = tmrand.Str(6)
 	var credentialId = tmrand.Str(10)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -108,7 +106,7 @@ func TestDoubleTimeCreateCredentialIDByOfferID(t *testing.T) {
 	}
 	var credentialId = tmrand.Str(10)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -132,7 +130,7 @@ func TestGetExistCredentialIDByOfferID(t *testing.T) {
 	}
 	var credentialId = tmrand.Str(10)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -161,7 +159,7 @@ func TestAlreadyCreatedPrescriptionOfferAndGetNotExistCredentialsIDByOfferID(t *
 		RawPrescription: []byte(`{"some":"some"}`),
 	}
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -180,7 +178,7 @@ func TestAlreadyCreatedPrescriptionOfferAndGetNotExistCredentialsIDByOfferID(t *
 func TestNotCreatePrescriptionOfferAndGetNotExistCredentialsIDByOfferId(t *testing.T) {
 	var offerId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -196,7 +194,7 @@ func TestGetExistCredentialIDByDoctorID(t *testing.T) {
 	var credential2 = tmrand.Str(10)
 	var credential3 = tmrand.Str(10)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -233,7 +231,7 @@ func TestGetExistCredentialIDByDoctorID(t *testing.T) {
 func TestGetNotExistCredentialsIDByDoctorID(t *testing.T) {
 	var doctorId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	doctorStorage, err := NewDoctorStorage(dbPath)
@@ -241,8 +239,4 @@ func TestGetNotExistCredentialsIDByDoctorID(t *testing.T) {
 
 	_, err = doctorStorage.GetCredentialIdsByDoctorId(doctorId)
 	require.Error(t, leveldb.ErrNotFound, err)
-}
-
-func cleanUp(dbPath string) {
-	os.RemoveAll(dbPath)
 }

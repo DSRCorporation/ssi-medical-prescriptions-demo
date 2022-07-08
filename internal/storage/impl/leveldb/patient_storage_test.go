@@ -21,7 +21,6 @@
 package leveldb
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -34,7 +33,7 @@ func TestGetExistCredentialIDsByPatientID(t *testing.T) {
 	var credential2 = tmrand.Str(10)
 	var credential3 = tmrand.Str(10)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	patientStorage, err := NewPatientStorage(dbPath)
@@ -71,7 +70,7 @@ func TestGetExistCredentialIDsByPatientID(t *testing.T) {
 func TestGetNotExistCredentialIDsByPatientID(t *testing.T) {
 	var patientId = tmrand.Str(6)
 
-	var dbPath = fmt.Sprintf("tmp/%s", tmrand.Str(5))
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	patientStorage, err := NewPatientStorage(dbPath)
