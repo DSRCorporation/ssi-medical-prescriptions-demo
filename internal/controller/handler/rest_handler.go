@@ -44,6 +44,15 @@ type RestHandler struct {
 	vcService       *service.VCService
 }
 
+func New(doctorService *service.DoctorService, patientService *service.PatientService, pharmacyService *service.PharmacyService, vcService *service.VCService) *RestHandler {
+	return &RestHandler{
+		doctorService:   doctorService,
+		patientService:  patientService,
+		pharmacyService: pharmacyService,
+		vcService:       vcService,
+	}
+}
+
 // Creates credential offer for prescription (generates a link for QR code)
 // (POST /v1/doctors/{doctorId}/prescriptions/credential-offers/)
 func (h *RestHandler) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context, doctorId string) error {
