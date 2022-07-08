@@ -38,7 +38,7 @@ func TestDoubleTimeCreateConnection(t *testing.T) {
 		ConnectionId: tmrand.Str(10),
 	}
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -60,7 +60,7 @@ func TestGetExistConnection(t *testing.T) {
 		ConnectionId: tmrand.Str(10),
 	}
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -80,7 +80,7 @@ func TestGetNotExistConnection(t *testing.T) {
 	var inviterId = tmrand.Str(3)
 	var inviteeId = tmrand.Str(3)
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -103,7 +103,7 @@ func TestDoubleTimeSaveCredential(t *testing.T) {
 		RawCredential: []byte(`{"someCredential":"someValue"}`),
 	}
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -129,7 +129,7 @@ func TestGetExistCredentialByID(t *testing.T) {
 		RawCredential: []byte(`{"someCredential":"someValue"}`),
 	}
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -152,7 +152,7 @@ func TestGetExistCredentialByID(t *testing.T) {
 func TestGetNotExistCredentialByID(t *testing.T) {
 	var credentialId = tmrand.Str(6)
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -181,7 +181,7 @@ func TestDoubleTimeSavePresentation(t *testing.T) {
 		RawPresentation: []byte(`{"somePresentation":"someValue"}`),
 	}
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -213,7 +213,7 @@ func TestGetExistPresentationByID(t *testing.T) {
 		RawPresentation: []byte(`{"somePresentation":"someValue"}`),
 	}
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)
@@ -240,7 +240,7 @@ func TestGetExistPresentationByID(t *testing.T) {
 func TestGetNotExistPresentationByID(t *testing.T) {
 	var presentationId = tmrand.Str(6)
 
-	var dbPath = GenerateDBPath()
+	var dbPath = generateDBPath()
 	defer cleanUp(dbPath)
 
 	vcStorage, err := NewVCStorage(dbPath)

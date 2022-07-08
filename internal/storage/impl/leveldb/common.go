@@ -23,6 +23,7 @@ package leveldb
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
@@ -36,8 +37,12 @@ func NewLevelDB(path string) (*LevelDB, error) {
 	return &LevelDB{path: path}, nil
 }
 
-func GenerateDBPath() string {
+func generateDBPath() string {
 	return fmt.Sprintf("tmp/%s", tmrand.Str(5))
+}
+
+func cleanUp(dbPath string) {
+	os.RemoveAll(dbPath)
 }
 
 func (s *LevelDB) WriteAsJson(key string, value any) error {
