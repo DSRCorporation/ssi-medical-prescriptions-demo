@@ -36,6 +36,16 @@ type VCService struct {
 	storage       storage.VCStorage
 }
 
+func NewVCService(storage storage.VCStorage, issuerAgent vc.Issuer, holderAgent vc.Holder, verifierAgent vc.Verifier, wallet vc.Wallet) *VCService {
+	return &VCService{
+		storage:       storage,
+		issuerAgent:   issuerAgent,
+		holderAgent:   holderAgent,
+		verifierAgent: verifierAgent,
+		wallet:        wallet,
+	}
+}
+
 func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
 	conn, err := s.getOrCreateConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
 	if err != nil {

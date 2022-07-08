@@ -28,6 +28,12 @@ type PatientService struct {
 	storage storage.PatientStorage
 }
 
+func NewPatientService(storage storage.PatientStorage) *PatientService {
+	return &PatientService{
+		storage: storage,
+	}
+}
+
 func (s *PatientService) GetDIDs(patientId string) (dids []string, err error) {
 	return s.storage.GetDIDs(patientId)
 }
