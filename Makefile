@@ -29,9 +29,9 @@ MOCK_SERVER_IMAGE_TAG 	?= latest
 # Tool commands (overridable)
 DOCKER_CMD ?= docker
 GO_CMD     ?= go
-ALPINE_VER ?= 3.12
+ALPINE_VER ?= 3.16
 GO_TAGS    ?=
-GO_VER ?= 1.16
+GO_VER ?= 1.18.3
 
 .PHONY: mock-server
 mock-server:
