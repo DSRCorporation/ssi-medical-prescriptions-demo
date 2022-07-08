@@ -69,7 +69,7 @@ func (s *VCStorage) GetConnection(inviterId string, inviteeId string) (connectio
 
 func (s *VCStorage) SaveCredential(credential domain.Credential) error {
 	if credential.CredentialId == "" {
-		return fmt.Errorf("credentialId is empty")
+		return fmt.Errorf("credentialId cannot be empty")
 	}
 
 	key := credential.CredentialId
@@ -100,7 +100,7 @@ func (s *VCStorage) GetCredentialById(credentialId string) (credential domain.Cr
 
 func (s *VCStorage) SavePresentation(presentation domain.Presentation) (err error) {
 	if presentation.PresentationId == "" {
-		return fmt.Errorf("presentationId is empty")
+		return fmt.Errorf("presentationId cannot be empty")
 	}
 
 	key := presentation.PresentationId

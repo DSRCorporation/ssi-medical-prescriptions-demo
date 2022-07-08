@@ -36,13 +36,17 @@ func NewPharmacyStorage(dbPath string) (*PharmacyStorage, error) {
 }
 
 func (s *PharmacyStorage) CreatePresentationRequest(pharmacyId string, requestId string) (err error) {
+	if requestId == "" {
+		return fmt.Errorf("requestId cannot be empty")
+	}
+
 	exist, err := s.levelDB.Has(requestId)
 	if err != nil {
 		return err
 	}
 
 	if exist {
-		return fmt.Errorf("pharmacyId already exists: %v", requestId)
+		return fmt.Errorf("requestId already exists: %v", requestId)
 	}
 
 	presentationRequest := PresentationRequest{
@@ -71,6 +75,10 @@ func (s *PharmacyStorage) GetPharmacyIdByRequestId(requestId string) (pharmacyId
 }
 
 func (s *PharmacyStorage) AddPresentationIdByRequestId(requestId string, presentationId string) (err error) {
+	if requestId == "" {
+		return fmt.Errorf("requestId cannot be empty")
+	}
+
 	var presentationRequest PresentationRequest
 
 	if err = s.levelDB.ReadFromJson(requestId, &presentationRequest); err != nil {
@@ -107,6 +115,10 @@ func (s *PharmacyStorage) GetPresentationIdByRequestId(requestId string) (presen
 }
 
 func (s *PharmacyStorage) AddPresentationIdByPharmacyId(pharmacyId string, presentationId string) (err error) {
+	if pharmacyId == "" {
+		return fmt.Errorf("pharmacy id cannot be empty")
+	}
+
 	exist, err := s.levelDB.Has(pharmacyId)
 	if err != nil {
 		return err

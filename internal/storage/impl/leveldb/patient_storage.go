@@ -38,6 +38,10 @@ func NewPatientStorage(path string) (*PatientStorage, error) {
 }
 
 func (s *PatientStorage) AddCredentialIdByPatientId(patientId string, credentialId string) (err error) {
+	if patientId == "" {
+		return fmt.Errorf("patientId cannot be empty")
+	}
+
 	exist, err := s.levelDB.Has(patientId)
 	if err != nil {
 		return err
