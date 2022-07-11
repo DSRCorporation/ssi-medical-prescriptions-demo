@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  demo-server:
+    container_name: ssi-medical-prescriptions-demo.demo-server.com
+    image: ${DEMO_SERVER_IMAGE}:${DEMO_SERVER_IMAGE_TAG}
+    environment:
+      - SSIMP_LEVELDB_STORAGE_PATH=${SSIMP_LEVELDB_STORAGE_PATH}
+      - SSIMP_ISSUER_REST_ENDPOINT=${SSIMP_ISSUER_REST_ENDPOINT}
+      - SSIMP_HOLDER_REST_ENDPOINT=${SSIMP_HOLDER_REST_ENDPOINT}
+      - SSIMP_VERIFIER_REST_ENDPOINT=${SSIMP_VERIFIER_REST_ENDPOINT}
+      - SSIMP_VC_WALLET_REST_ENDPOINT=${SSIMP_VC_WALLET_REST_ENDPOINT}
+    
+    command: "start"
+    ports:
+      - 8888:8888

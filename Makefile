@@ -19,11 +19,14 @@
 #
 
 GO_CMD ?= go
+DEMO_SERVER_PATH = cmd/app
 MOCK_SERVER_PATH=cmd/mock-server
 
 # Namespace for the images
 DOCKER_OUTPUT_NS   ?= ssi-medical-prescriptions-demo
+DEMO_SERVER_IMAGE_NAME 	?= demo-server
 MOCK_SERVER_IMAGE_NAME 	?= mock-server
+DEMO_SERVER_IMAGE_TAG 	?= latest
 MOCK_SERVER_IMAGE_TAG 	?= latest
 
 # Tool commands (overridable)
@@ -33,6 +36,13 @@ ALPINE_VER ?= 3.16
 GO_TAGS    ?=
 GO_VER ?= 1.18.3
 
+.PHONY: demo-server
+demo-server:
+	@echo "Building demo-server"
+	@mkdir -p ./build/bin
+	@cd ${DEMO_SERVER_PATH} && go build -o ../../build/bin/demo-server main.go
+
+
 .PHONY: mock-server
 mock-server:
 	@echo "Building mock-server"
@@ -40,14 +50,32 @@ mock-server:
 	@cd ${MOCK_SERVER_PATH} && go build -o ../../build/bin/mock-server main.go
 
 
-.PHONY: mock-server-docker
-mock-server-docker:
-	@echo "Building mock-server docker image"
-	@docker build -f ./images/mock-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(MOCK_SERVER_IMAGE_NAME):latest \
+.PHONY: demo-server-docker
+demo-server-docker:
+	@echo "Building demo-server docker image"
+	@docker build -f ./images/demo-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(DEMO_SERVER_IMAGE_NAME):$(DEMO_SERVER_IMAGE_TAG) \
 	--build-arg GO_VER=$(GO_VER) \
 	--build-arg ALPINE_VER=$(ALPINE_VER) \
 	--build-arg GO_TAGS=$(GO_TAGS) \
 	--build-arg GOPROXY=$(GOPROXY) .
+
+
+.PHONY: mock-server-docker
+mock-server-docker:
+	@echo "Building mock-server docker image"
+	@docker build -f ./images/mock-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(MOCK_SERVER_IMAGE_NAME):$(MOCK_SERVER_IMAGE_TAG) \
+	--build-arg GO_VER=$(GO_VER) \
+	--build-arg ALPINE_VER=$(ALPINE_VER) \
+	--build-arg GO_TAGS=$(GO_TAGS) \
+	--build-arg GOPROXY=$(GOPROXY) .
+
+
+.PHONY: run-demo-server
+run-demo-server:
+	@echo "Starting demo server containers ..."
+	@docker-compose -f deployment/demo-server/docker-compose.yml up --force-recreate -d
+	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
+
 
 
 .PHONY: run-mock-server
