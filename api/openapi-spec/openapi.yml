@@ -3,6 +3,7 @@ info:
   title: SSI medical prescriptions DEMO API
   version: '1.0'
 servers:
+  - url: http://localhost:8888
   - url: http://localhost:8989
 
 paths:
