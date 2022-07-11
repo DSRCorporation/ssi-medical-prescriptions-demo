@@ -77,15 +77,22 @@ run-demo-server:
 	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
 
 
-
 .PHONY: run-mock-server
 run-mock-server:
 	@echo "Starting mock server containers ..."
 	@docker-compose -f deployment/mock-server/docker-compose.yml up --force-recreate -d
 	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
 
+
 .PHONY: stop-mock-server
 stop-mock-server:
 	@echo "Stopping mock server containers ..."
 	@docker-compose -f deployment/mock-server/docker-compose.yml down
+	@docker-compose -f deployment/openapi/docker-compose.yml down
+
+
+.PHONY: stop-demo-server
+stop-demo-server:
+	@echo "Stopping demo server containers ..."
+	@docker-compose -f deployment/demo-server/docker-compose.yml down
 	@docker-compose -f deployment/openapi/docker-compose.yml down
