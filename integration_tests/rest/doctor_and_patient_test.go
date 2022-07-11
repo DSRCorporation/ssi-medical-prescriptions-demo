@@ -61,7 +61,8 @@ func TestGetExistCredentialByOfferID(t *testing.T) {
 	resp, err = client.R().
 		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedCredentialOfferResponse).
-		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s", doctorId, *receivedCredentialID.CredentialOfferId))
+		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s",
+			doctorId, *receivedCredentialID.CredentialOfferId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 	require.True(t, reflect.DeepEqual(prescription, receivedCredentialOfferResponse))
@@ -114,7 +115,8 @@ func TestGetExistCredentialIssuedForGivenCredentialOffer(t *testing.T) {
 	resp, err = client.R().
 		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedCredential).
-		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s}/credential", doctorId, *receivedCredentialID.CredentialOfferId))
+		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s/credential",
+			doctorId, *receivedCredentialID.CredentialOfferId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 	require.True(t, reflect.DeepEqual(credential, receivedCredential))
