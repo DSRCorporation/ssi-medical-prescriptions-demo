@@ -19,7 +19,7 @@
 #
 
 GO_CMD ?= go
-DEMO_SERVER_PATH = cmd/app
+DEMO_SERVER_PATH = cmd/demo-server
 MOCK_SERVER_PATH=cmd/mock-server
 
 # Namespace for the images

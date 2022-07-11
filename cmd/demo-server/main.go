@@ -25,7 +25,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/cmd/app/cmd"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/cmd/demo-server/cmd"
 )
 
 func main() {
