@@ -97,7 +97,7 @@ var presentationRequestId string = "some presentation request ID"
 
 // Get verifiable presentation response info
 var verificationStatus bool = true
-var verificationComment string = "some verification comment"
+var verificationComment string = "Verification Successful"
 
 // Ointment drug info
 var OintmentDrugInfoI interface{} = rest.OintmentDrugInfo{
