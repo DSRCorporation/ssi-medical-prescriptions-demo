@@ -26,8 +26,14 @@ MOCK_SERVER_PATH=cmd/mock-server
 DOCKER_OUTPUT_NS   ?= ssi-medical-prescriptions-demo
 DEMO_SERVER_IMAGE_NAME 	?= demo-server
 MOCK_SERVER_IMAGE_NAME 	?= mock-server
+
 DEMO_SERVER_IMAGE_TAG 	?= latest
 MOCK_SERVER_IMAGE_TAG 	?= latest
+
+ARIES_AGENT_IMAGE_NAME 	?= aries-agent
+ARIES_AGENT_IMAGE_TAG	?= latest
+ARIES_FRAMEWORK_GO_REPO ?= https://github.com/DSRCorporation/aries-framework-go.git
+ARIES_FRAMEWORK_GO_REPO_BRANCH ?= cheqd_resolver_workaround
 
 # Tool commands (overridable)
 DOCKER_CMD ?= docker
@@ -70,6 +76,18 @@ mock-server-docker:
 	--build-arg GOPROXY=$(GOPROXY) .
 
 
+.PHONY: aries-agent-docker
+aries-agent-docker:
+	@echo "Building aries-agent docker image"
+	@docker build -f ./images/aries-agent/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(ARIES_AGENT_IMAGE_NAME):$(ARIES_AGENT_IMAGE_TAG) \
+	--build-arg GO_VER=$(GO_VER) \
+	--build-arg ALPINE_VER=$(ALPINE_VER) \
+	--build-arg GO_TAGS=$(GO_TAGS) \
+	--build-arg GOPROXY=$(GOPROXY) \
+	--build-arg ARIES_FRAMEWORK_GO_REPO=$(ARIES_FRAMEWORK_GO_REPO) \
+	--build-arg ARIES_FRAMEWORK_GO_REPO_BRANCH=$(ARIES_FRAMEWORK_GO_REPO_BRANCH) .
+
+
 .PHONY: run-demo-server
 run-demo-server:
 	@echo "Starting demo server containers ..."
@@ -84,6 +102,12 @@ run-mock-server:
 	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
 
 
+.PHONY: run-aries-agent
+run-aries-agent:
+	@echo "Starting aries agent containers ..."
+	@docker-compose -f deployment/aries-agent/docker-compose.yml up --force-recreate -d
+
+
 .PHONY: stop-mock-server
 stop-mock-server:
 	@echo "Stopping mock server containers ..."
@@ -96,3 +120,9 @@ stop-demo-server:
 	@echo "Stopping demo server containers ..."
 	@docker-compose -f deployment/demo-server/docker-compose.yml down
 	@docker-compose -f deployment/openapi/docker-compose.yml down
+
+
+.PHONY: stop-aries-agent
+stop-aries-agent:
+	@echo "Stopping aries agent containers ..."
+	@docker-compose -f deployment/aries-agent/docker-compose.yml down
