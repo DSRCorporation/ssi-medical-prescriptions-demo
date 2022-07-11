@@ -14,3 +14,9 @@ services:
     command: "start"
     ports:
       - 8888:8888
+    
+    networks:
+      - aries-agent_ssimp_demo_net
+networks:
+  aries-agent_ssimp_demo_net:
+    external: true
