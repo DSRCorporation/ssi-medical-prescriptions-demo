@@ -24,83 +24,29 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/labstack/echo/v4"
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/handler"
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/service"
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage/impl/leveldb"
-	aries "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/vc/impl/aries/rest"
+	"github.com/spf13/cobra"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/cmd/app/cmd"
 )
 
 func main() {
 
-	// initialize rest handler
-	restHandler, err := initializeRestHandler()
+	rootCmd := &cobra.Command{
+		Use: "demo-server",
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.HelpFunc()(cmd, args)
+		},
+	}
+
+	startCmd, err := cmd.Cmd()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error initializing rest handler: %v\n", err)
+		fmt.Fprintf(os.Stderr, "error initializing cobra cmd: %v\n", err)
 		os.Exit(1)
 	}
 
-	// start echo server
-	e := echo.New()
-	rest.RegisterHandlers(e, restHandler)
+	rootCmd.AddCommand(startCmd)
 
-	e.Logger.Fatal(e.Start(":8888"))
-}
-
-func initializeRestHandler() (h *handler.RestHandler, err error) {
-	// initialize doctor service
-	doctorStorage, err := leveldb.NewDoctorStorage("path/to/doctorStorage")
-	if err != nil {
-		return nil, fmt.Errorf("error creating doctor storage: %v\n", err)
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to run rest server: %v\n", err)
+		os.Exit(1)
 	}
-	doctorService := service.NewDoctorService(doctorStorage)
-
-	// initialize patient service
-	patientStorage, err := leveldb.NewPatientStorage("path/to/patientStorage")
-	if err != nil {
-		return nil, fmt.Errorf("error creating patient storage: %v\n", err)
-	}
-	patientService := service.NewPatientService(patientStorage)
-
-	// initialize pharmacy service
-	pharmacyStorage, err := leveldb.NewPharmacyStorage("path/to/pharmacyStorage")
-	if err != nil {
-		return nil, fmt.Errorf("error creating pharmacy storage: %v\n", err)
-	}
-
-	pharmacyService := service.NewPharmacyService(pharmacyStorage)
-
-	// initialize vc service
-	vcStorage, err := leveldb.NewVCStorage("path/to/vcStorage")
-	if err != nil {
-		return nil, fmt.Errorf("error creating vc storage: %v\n", err)
-	}
-
-	holderAgent, err := aries.NewHolder("http://holder.endpoint")
-	if err != nil {
-		return nil, fmt.Errorf("error creating vc holder agent: %v\n", err)
-	}
-
-	issuerAgent, err := aries.NewIssuer("http://issuer.endpoint")
-	if err != nil {
-		return nil, fmt.Errorf("error creating vc issuer agent: %v\n", err)
-	}
-
-	verifierAgent, err := aries.NewVerifier("http://verifier.endpoint")
-	if err != nil {
-		return nil, fmt.Errorf("error creating vc verifier agent: %v\n", err)
-	}
-
-	wallet, err := aries.NewWallet("http://wallet.endpoint")
-	if err != nil {
-		return nil, fmt.Errorf("error creating vc wallet: %v\n", err)
-	}
-
-	vcService := service.NewVCService(vcStorage, issuerAgent, holderAgent, verifierAgent, wallet)
-
-	// initialize rest hander
-	h = handler.New(doctorService, patientService, pharmacyService, vcService)
-
-	return
 }
