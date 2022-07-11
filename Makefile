@@ -56,7 +56,7 @@ mock-server:
 	@cd ${MOCK_SERVER_PATH} && go build -o ../../build/bin/mock-server main.go
 
 
-.PHONY: demo-server-docker
+.PHONY: demo-server-docker aries-agent-docker run-demo-server run-aries-agent
 demo-server-docker:
 	@echo "Building demo-server docker image"
 	@docker build -f ./images/demo-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(DEMO_SERVER_IMAGE_NAME):$(DEMO_SERVER_IMAGE_TAG) \
@@ -65,18 +65,6 @@ demo-server-docker:
 	--build-arg GO_TAGS=$(GO_TAGS) \
 	--build-arg GOPROXY=$(GOPROXY) .
 
-
-.PHONY: mock-server-docker
-mock-server-docker:
-	@echo "Building mock-server docker image"
-	@docker build -f ./images/mock-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(MOCK_SERVER_IMAGE_NAME):$(MOCK_SERVER_IMAGE_TAG) \
-	--build-arg GO_VER=$(GO_VER) \
-	--build-arg ALPINE_VER=$(ALPINE_VER) \
-	--build-arg GO_TAGS=$(GO_TAGS) \
-	--build-arg GOPROXY=$(GOPROXY) .
-
-
-.PHONY: aries-agent-docker
 aries-agent-docker:
 	@echo "Building aries-agent docker image"
 	@docker build -f ./images/aries-agent/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(ARIES_AGENT_IMAGE_NAME):$(ARIES_AGENT_IMAGE_TAG) \
@@ -87,25 +75,41 @@ aries-agent-docker:
 	--build-arg ARIES_FRAMEWORK_GO_REPO=$(ARIES_FRAMEWORK_GO_REPO) \
 	--build-arg ARIES_FRAMEWORK_GO_REPO_BRANCH=$(ARIES_FRAMEWORK_GO_REPO_BRANCH) .
 
+run-aries-agent:
+	@echo "Starting aries agent containers ..."
+	@docker-compose -f deployment/aries-agent/docker-compose.yml up --force-recreate -d
 
-.PHONY: run-demo-server
-run-demo-server:
+run-demo-server: demo-server-docker aries-agent-docker run-aries-agent
 	@echo "Starting demo server containers ..."
 	@docker-compose -f deployment/demo-server/docker-compose.yml up --force-recreate -d
 	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
 
 
 .PHONY: run-mock-server
-run-mock-server:
+mock-server-docker:
+	@echo "Building mock-server docker image"
+	@docker build -f ./images/mock-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(MOCK_SERVER_IMAGE_NAME):$(MOCK_SERVER_IMAGE_TAG) \
+	--build-arg GO_VER=$(GO_VER) \
+	--build-arg ALPINE_VER=$(ALPINE_VER) \
+	--build-arg GO_TAGS=$(GO_TAGS) \
+	--build-arg GOPROXY=$(GOPROXY) .
+
+run-mock-server: mock-server-docker
 	@echo "Starting mock server containers ..."
 	@docker-compose -f deployment/mock-server/docker-compose.yml up --force-recreate -d
 	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
 
 
-.PHONY: run-aries-agent
-run-aries-agent:
-	@echo "Starting aries agent containers ..."
-	@docker-compose -f deployment/aries-agent/docker-compose.yml up --force-recreate -d
+.PHONY: stop-demo-server stop-aries-agent
+stop-aries-agent:
+	@echo "Stopping aries agent containers ..."
+	@docker-compose -f deployment/aries-agent/docker-compose.yml down
+
+stop-demo-server:
+	@echo "Stopping demo server containers ..."
+	@docker-compose -f deployment/demo-server/docker-compose.yml down
+	@docker-compose -f deployment/openapi/docker-compose.yml down
+	@docker-compose -f deployment/aries-agent/docker-compose.yml down
 
 
 .PHONY: stop-mock-server
@@ -113,16 +117,3 @@ stop-mock-server:
 	@echo "Stopping mock server containers ..."
 	@docker-compose -f deployment/mock-server/docker-compose.yml down
 	@docker-compose -f deployment/openapi/docker-compose.yml down
-
-
-.PHONY: stop-demo-server
-stop-demo-server:
-	@echo "Stopping demo server containers ..."
-	@docker-compose -f deployment/demo-server/docker-compose.yml down
-	@docker-compose -f deployment/openapi/docker-compose.yml down
-
-
-.PHONY: stop-aries-agent
-stop-aries-agent:
-	@echo "Stopping aries agent containers ..."
-	@docker-compose -f deployment/aries-agent/docker-compose.yml down
