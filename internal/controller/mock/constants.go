@@ -21,8 +21,14 @@
 package mock
 
 import (
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 )
+
+// Global constants for integration tests.
+var DoctorID = tmrand.Str(6)
+var PatientID = tmrand.Str(6)
+var PharmacyID = tmrand.Str(6)
 
 // Credential offer response info
 var credentialOfferResponse string = "some credential offer"

@@ -44,14 +44,13 @@ func TestGetExistCredentialByOfferID(t *testing.T) {
 	require.NoError(t, json.Unmarshal(body, &prescription))
 
 	var receivedCredentialID controllerRest.CredentialOfferResponse
-	var doctorId = tmrand.Str(6)
 
 	// Creates credential offer for prescription.
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(prescription).
 		SetResult(&receivedCredentialID).
-		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", doctorId))
+		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", testconstants.DoctorID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -62,7 +61,7 @@ func TestGetExistCredentialByOfferID(t *testing.T) {
 		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedCredentialOfferResponse).
 		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s",
-			doctorId, *receivedCredentialID.CredentialOfferId))
+			testconstants.DoctorID, *receivedCredentialID.CredentialOfferId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 	require.True(t, reflect.DeepEqual(prescription, receivedCredentialOfferResponse))
@@ -78,19 +77,17 @@ func TestGetExistCredentialIssuedForGivenCredentialOffer(t *testing.T) {
 	require.NoError(t, json.Unmarshal(body, &prescription))
 
 	var receivedCredentialID controllerRest.CredentialOfferResponse
-	var doctorId = tmrand.Str(6)
 
 	// Creates credential offer for prescription.
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(prescription).
 		SetResult(&receivedCredentialID).
-		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", doctorId))
+		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", testconstants.DoctorID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
 	var credential controllerRest.Credential
-	var patientId = tmrand.Str(6)
 
 	// Creates credential in response to credential offer from doctor.
 	resp, err = client.R().
@@ -100,12 +97,12 @@ func TestGetExistCredentialIssuedForGivenCredentialOffer(t *testing.T) {
 			did               string
 			kmsPassphrase     string
 		}{
-			credentialOfferId: tmrand.Str(6),
+			credentialOfferId: *receivedCredentialID.CredentialOfferId,
 			did:               fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
 			kmsPassphrase:     tmrand.Str(16),
 		}).
 		SetResult(&credential).
-		Post(fmt.Sprintf("http://localhost:8989/v1/patients/%s/prescriptions/credentials/", patientId))
+		Post(fmt.Sprintf("http://localhost:8989/v1/patients/%s/prescriptions/credentials/", testconstants.PatientID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -116,7 +113,7 @@ func TestGetExistCredentialIssuedForGivenCredentialOffer(t *testing.T) {
 		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedCredential).
 		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s/credential",
-			doctorId, *receivedCredentialID.CredentialOfferId))
+			testconstants.DoctorID, *receivedCredentialID.CredentialOfferId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 	require.True(t, reflect.DeepEqual(credential, receivedCredential))
