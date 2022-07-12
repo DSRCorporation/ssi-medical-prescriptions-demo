@@ -190,8 +190,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.C
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	credentialId := uuid.New().String()
-	unsignedCredential, err := domain.NewCredential(credentialId, doctorDID, *patientDID, domain.PRESCRRIPTION_CREDENTIAL_TYPE, prescription)
+	unsignedCredential, err := domain.NewCredential(doctorDID, *patientDID, domain.PRESCRRIPTION_CREDENTIAL_TYPE, prescription)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -270,8 +269,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 	patientDID := credential.HolderDID
 	patientKmsPassphrase := body.KmsPassphrase
 
-	presentationId := uuid.New().String()
-	unsignedPresentation, err := domain.NewPresentation(presentationId, patientDID, domain.PRESCRRIPTION_PRESENTATION_TYPE, credential)
+	unsignedPresentation, err := domain.NewPresentation(patientDID, domain.PRESCRRIPTION_PRESENTATION_TYPE, credential)
 
 	signedPresentation, err := h.vcService.ExchangePresentation(pharmacyId, patientId, *patientKmsPassphrase, *unsignedPresentation)
 	if err != nil {

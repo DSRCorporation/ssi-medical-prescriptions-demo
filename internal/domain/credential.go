@@ -20,7 +20,12 @@
 
 package domain
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/google/uuid"
+)
 
 const (
 	PRESCRRIPTION_CREDENTIAL_TYPE = "PrescriptionCredential"
@@ -36,13 +41,17 @@ type Credential struct {
 	RawCredentialWithProof json.RawMessage
 }
 
-func NewCredential(credentialId string, issuerDID string, holderDID string, credentialType string, prescription Prescription) (credential *Credential, err error) {
-	// @TODO: generate raw credential
+func NewCredential(issuerDID string, holderDID string, credentialType string, prescription Prescription) (credential *Credential, err error) {
 	return &Credential{
-		CredentialId: credentialId,
+		CredentialId: generateCredentialId(),
 		IssuerDID:    issuerDID,
 		HolderDID:    holderDID,
 		Type:         credentialType,
 		Prescription: prescription,
 	}, nil
+}
+
+func generateCredentialId() string {
+	credentialId := fmt.Sprintf("did:%s", uuid.New().String())
+	return credentialId
 }

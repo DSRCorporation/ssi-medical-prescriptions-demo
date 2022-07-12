@@ -20,7 +20,12 @@
 
 package domain
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/google/uuid"
+)
 
 type Presentation struct {
 	PresentationId string
@@ -31,12 +36,16 @@ type Presentation struct {
 	RawPresentationWithProof json.RawMessage
 }
 
-func NewPresentation(presentationId string, holderDID string, presentationType string, credential Credential) (presentation *Presentation, err error) {
-	// @TODO: generate raw presentation
+func NewPresentation(holderDID string, presentationType string, credential Credential) (presentation *Presentation, err error) {
 	return &Presentation{
-		PresentationId: presentationId,
+		PresentationId: generatePresentationId(),
 		HolderDID:      holderDID,
 		Type:           presentationType,
 		Credential:     credential,
 	}, nil
+}
+
+func generatePresentationId() string {
+	presentationId := fmt.Sprintf("did:%s", uuid.New().String())
+	return presentationId
 }
