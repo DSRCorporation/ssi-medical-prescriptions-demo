@@ -31,12 +31,13 @@ import (
 )
 
 type Verifier struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewVerifier(endpoint string) (*Verifier, error) {
-	return &Verifier{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Verifier{client: client}, nil
 }
 
 func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid string, err error) {
@@ -48,7 +49,7 @@ func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid s
 			RequestPresentation: nil,
 		}).
 		SetResult(&res).
-		Post(v.endpoint + "/presentproof/send-request-presentation")
+		Post("/presentproof/send-request-presentation")
 
 	if err != nil {
 		return "", err
@@ -67,7 +68,7 @@ func (v *Verifier) AcceptPresentation(piid string, name string) error {
 		SetBody(presentproofcmd.AcceptPresentationArgs{
 			Names: []string{name},
 		}).
-		Post(v.endpoint + "/presentproof/{piid}/accept-presentation")
+		Post("/presentproof/{piid}/accept-presentation")
 
 	if err != nil {
 		return err
@@ -81,9 +82,9 @@ func (v *Verifier) AcceptPresentation(piid string, name string) error {
 }
 
 func (v *Verifier) CreateOOBInvitation() (invitation json.RawMessage, err error) {
-	return CreateOOBInvitation(v.client, v.endpoint)
+	return CreateOOBInvitation(v.client)
 }
 
 func (v *Verifier) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return AcceptOOBRequest(v.client, v.endpoint, connectionId)
+	return AcceptOOBRequest(v.client, connectionId)
 }

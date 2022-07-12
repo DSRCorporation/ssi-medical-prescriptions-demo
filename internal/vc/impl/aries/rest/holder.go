@@ -36,12 +36,13 @@ import (
 )
 
 type Holder struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewHolder(endpoint string) (*Holder, error) {
-	return &Holder{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Holder{client: client}, nil
 }
 
 func (h *Holder) SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error) {
@@ -68,7 +69,7 @@ func (h *Holder) SendCredentialRequest(connection domain.Connection, credential 
 			RequestCredential: &requestCredential,
 		}).
 		SetResult(&res).
-		Post(h.endpoint + "/issuecredential/send-request")
+		Post("/issuecredential/send-request")
 
 	if err != nil {
 		return "", err
@@ -84,7 +85,7 @@ func (h *Holder) SendCredentialRequest(connection domain.Connection, credential 
 func (h *Holder) AcceptOffer(piid string) error {
 	resp, err := h.client.R().
 		SetPathParam("piid", piid).
-		Post(h.endpoint + "/issuecredential/{piid}/accept-offer")
+		Post("/issuecredential/{piid}/accept-offer")
 
 	if err != nil {
 		return err
@@ -103,7 +104,7 @@ func (h *Holder) AcceptCredential(piid string, name string) error {
 		SetBody(issuecredentialcmd.AcceptCredentialArgs{
 			Names: []string{name},
 		}).
-		Post(h.endpoint + "/issuecredential/{piid}/accept-credential")
+		Post("/issuecredential/{piid}/accept-credential")
 
 	if err != nil {
 		return err
@@ -136,7 +137,7 @@ func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Pres
 		SetBody(presentproofcmd.AcceptRequestPresentationV2Args{
 			Presentation: &presentationV2,
 		}).
-		Post(h.endpoint + "/presentproof/{piid}/accept-request-presentation")
+		Post("/presentproof/{piid}/accept-request-presentation")
 
 	if err != nil {
 		return err

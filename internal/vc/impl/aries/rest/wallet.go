@@ -35,12 +35,13 @@ import (
 )
 
 type Wallet struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewWallet(endpoint string) (*Wallet, error) {
-	return &Wallet{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Wallet{client: client}, nil
 }
 
 func (w *Wallet) SignCredential(userId string, passphrase string, did string, credential domain.Credential) (domain.Credential, error) {
@@ -67,7 +68,7 @@ func (w *Wallet) SignCredential(userId string, passphrase string, did string, cr
 				Controller: did,
 			}}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/issue")
+		Post("/vcwallet/issue")
 
 	if err != nil {
 		return domain.Credential{}, err
@@ -101,7 +102,7 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, did string, 
 				Controller: did,
 			}}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/prove")
+		Post("/vcwallet/prove")
 
 	if err != nil {
 		return domain.Presentation{}, err
@@ -133,7 +134,7 @@ func (w *Wallet) VerifyCredential(userId string, passphrase string, rawCredentia
 			Credential: rawCredential,
 			UsedId:     userId,
 		}).
-		Post(w.endpoint + "/vcwallet/verify")
+		Post("/vcwallet/verify")
 
 	if err != nil {
 		return err
@@ -164,7 +165,7 @@ func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresent
 			Presentation: rawPresentation,
 			UsedId:       userId,
 		}).
-		Post(w.endpoint + "/vcwallet/verify")
+		Post("/vcwallet/verify")
 
 	if err != nil {
 		return err
@@ -188,7 +189,7 @@ func (w *Wallet) open(userId string, passphrase string) (token string, err error
 			LocalKMSPassphrase: passphrase,
 		}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/open")
+		Post("/vcwallet/open")
 
 	if err != nil {
 		return "", err
@@ -212,7 +213,7 @@ func (w *Wallet) close(userId string, passphrase string) (err error) {
 			LocalKMSPassphrase: passphrase,
 		}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/close")
+		Post("/vcwallet/close")
 
 	if err != nil {
 		return err

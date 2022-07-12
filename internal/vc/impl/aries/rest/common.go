@@ -29,12 +29,12 @@ import (
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
-func CreateOOBInvitation(client *resty.Client, endpoint string) (invitation json.RawMessage, err error) {
+func CreateOOBInvitation(client *resty.Client) (invitation json.RawMessage, err error) {
 	resp, err := client.R().
 		SetBody(struct {
 			Label string `json:"label"`
 		}{Label: "Issuer"}).
-		Post(endpoint + "/outofband/create-invitation")
+		Post("/outofband/create-invitation")
 
 	if err != nil {
 		return nil, err
@@ -47,10 +47,10 @@ func CreateOOBInvitation(client *resty.Client, endpoint string) (invitation json
 	}
 }
 
-func AcceptOOBRequest(client *resty.Client, endpoint string, connectionId string) (connection domain.Connection, err error) {
+func AcceptOOBRequest(client *resty.Client, connectionId string) (connection domain.Connection, err error) {
 	resp, err := client.R().
 		SetPathParam("connectionId", connectionId).
-		Post(endpoint + "/{connectionId}/accept-request")
+		Post("/connections/{connectionId}/accept-request")
 
 	if err != nil {
 		return domain.Connection{}, err
@@ -61,7 +61,7 @@ func AcceptOOBRequest(client *resty.Client, endpoint string, connectionId string
 		resp, err := client.R().
 			SetPathParam("connectionId", connectionId).
 			SetResult(res).
-			Get(endpoint + "/{connectionId}")
+			Get("connections/{connectionId}")
 
 		if err != nil {
 			return domain.Connection{}, err

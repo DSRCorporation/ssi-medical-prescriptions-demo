@@ -35,12 +35,13 @@ import (
 )
 
 type Issuer struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewIssuer(endpoint string) (*Issuer, error) {
-	return &Issuer{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Issuer{client: client}, nil
 }
 
 func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error) {
@@ -68,7 +69,7 @@ func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential do
 			OfferCredential: &offerCredential,
 		}).
 		SetResult(&res).
-		Post(i.endpoint + "/issuecredential/send-offer")
+		Post("/issuecredential/send-offer")
 
 	if err != nil {
 		return "", err
@@ -101,7 +102,7 @@ func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credenti
 		SetBody(issuecredentialcmd.AcceptRequestArgsV2{
 			IssueCredential: &issueCredential,
 		}).
-		Post(i.endpoint + "/issuecredential/send-offer")
+		Post("/issuecredential/send-offer")
 
 	if err != nil {
 		return err
@@ -115,9 +116,9 @@ func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credenti
 }
 
 func (i *Issuer) CreateOOBInvitation() (invitation json.RawMessage, err error) {
-	return CreateOOBInvitation(i.client, i.endpoint)
+	return CreateOOBInvitation(i.client)
 }
 
 func (i *Issuer) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return AcceptOOBRequest(i.client, i.endpoint, connectionId)
+	return AcceptOOBRequest(i.client, connectionId)
 }
