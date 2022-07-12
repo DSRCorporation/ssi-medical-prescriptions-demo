@@ -24,12 +24,14 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command/vcwallet"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/util"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/hyperledger/aries-framework-go/pkg/wallet"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/vc"
 )
 
 type Wallet struct {
@@ -41,7 +43,7 @@ func NewWallet(endpoint string) (*Wallet, error) {
 	return &Wallet{client: resty.New(), endpoint: endpoint}, nil
 }
 
-func (w *Wallet) SignCredential(userId string, passphrase string, proofOptions vc.ProofOptions, credential domain.Credential) (domain.Credential, error) {
+func (w *Wallet) SignCredential(userId string, passphrase string, did string, credential domain.Credential) (domain.Credential, error) {
 	token, err := w.open(userId, passphrase)
 	if err != nil {
 		return domain.Credential{}, err
@@ -49,21 +51,20 @@ func (w *Wallet) SignCredential(userId string, passphrase string, proofOptions v
 
 	defer w.close(userId, passphrase)
 
+	rawCredential, err := makeRawCredential(credential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
 	var res struct {
-		RawCredential json.RawMessage
+		Credential json.RawMessage `json:"credential"`
 	}
 	resp, err := w.client.R().
 		SetBody(&vcwallet.IssueRequest{
 			WalletAuth: vcwallet.WalletAuth{UserID: userId, Auth: token},
-			Credential: credential.RawCredentialWithProof,
+			Credential: *rawCredential,
 			ProofOptions: &wallet.ProofOptions{
-				Controller:          proofOptions.Controller,
-				VerificationMethod:  proofOptions.VerificationMethod,
-				Created:             proofOptions.Created,
-				Domain:              proofOptions.Domain,
-				Challenge:           proofOptions.Challenge,
-				ProofType:           proofOptions.ProofType,
-				ProofRepresentation: proofOptions.ProofRepresentation,
+				Controller: did,
 			}}).
 		SetResult(&res).
 		Post(w.endpoint + "/vcwallet/issue")
@@ -73,14 +74,14 @@ func (w *Wallet) SignCredential(userId string, passphrase string, proofOptions v
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		credential.RawCredentialWithProof = res.RawCredential
+		credential.RawCredentialWithProof = res.Credential
 		return credential, nil
 	} else {
 		return domain.Credential{}, errors.New(string(resp.Body()))
 	}
 }
 
-func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions vc.ProofOptions, presentaion domain.Presentation) (domain.Presentation, error) {
+func (w *Wallet) SignPresentation(userId string, passphrase string, did string, presentation domain.Presentation) (domain.Presentation, error) {
 	token, err := w.open(userId, passphrase)
 	if err != nil {
 		return domain.Presentation{}, err
@@ -89,20 +90,15 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions
 	defer w.close(userId, passphrase)
 
 	var res struct {
-		RawPresentation json.RawMessage
+		Presentation json.RawMessage `json:"presentation"`
 	}
+
 	resp, err := w.client.R().
 		SetBody(&vcwallet.ProveRequest{
-			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
-			Presentation: presentaion.RawPresentationWithProof,
+			WalletAuth:     vcwallet.WalletAuth{UserID: userId, Auth: token},
+			RawCredentials: []json.RawMessage{presentation.Credential.RawCredentialWithProof},
 			ProofOptions: &wallet.ProofOptions{
-				Controller:          proofOptions.Controller,
-				VerificationMethod:  proofOptions.VerificationMethod,
-				Created:             proofOptions.Created,
-				Domain:              proofOptions.Domain,
-				Challenge:           proofOptions.Challenge,
-				ProofType:           proofOptions.ProofType,
-				ProofRepresentation: proofOptions.ProofRepresentation,
+				Controller: did,
 			}}).
 		SetResult(&res).
 		Post(w.endpoint + "/vcwallet/prove")
@@ -112,8 +108,8 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		presentaion.RawPresentationWithProof = res.RawPresentation
-		return presentaion, nil
+		presentation.RawPresentationWithProof = res.Presentation
+		return presentation, nil
 	} else {
 		return domain.Presentation{}, errors.New(string(resp.Body()))
 	}
@@ -227,4 +223,36 @@ func (w *Wallet) close(userId string, passphrase string) (err error) {
 	} else {
 		return errors.New(string(resp.Body()))
 	}
+}
+
+func makeRawCredential(credential domain.Credential) (rawCredential *json.RawMessage, err error) {
+	var cred verifiable.Credential
+
+	cred.ID = credential.CredentialId
+	cred.Issuer = verifiable.Issuer{
+		ID: credential.IssuerDID,
+	}
+	cred.Issued = util.NewTime(time.Now())
+	cred.Context = []string{"https://www.w3.org/2018/credentials/v1", "https://ssimp.s3.amazonaws.com/schemas/prescription"}
+	cred.Types = []string{"VerifiableCredential", credential.Type}
+
+	var prescription map[string]interface{}
+	err = json.Unmarshal(credential.Prescription.RawPrescription, &prescription)
+	if err != nil {
+		return nil, err
+	}
+
+	cred.Subject = verifiable.Subject{
+		ID: credential.HolderDID,
+		CustomFields: verifiable.CustomFields{
+			"prescription": prescription,
+		},
+	}
+
+	*rawCredential, err = cred.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+
+	return rawCredential, nil
 }
