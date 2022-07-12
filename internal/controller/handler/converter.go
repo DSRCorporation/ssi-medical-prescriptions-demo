@@ -21,16 +21,29 @@
 package handler
 
 import (
+	"encoding/json"
+
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
-func ConvertToPrescription(in rest.Prescription, doctorId string) (out domain.Prescription) {
-	// @TODO
-	return domain.Prescription{}
+func ConvertToPrescription(in rest.Prescription, doctorId string) (out *domain.Prescription, err error) {
+	rawPrescription, err := json.Marshal(in)
+	if err != nil {
+		return nil, err
+	}
+	return &domain.Prescription{
+		DoctorId:        doctorId,
+		RawPrescription: rawPrescription,
+	}, nil
 }
 
-func ConvertFromPrescription(in domain.Prescription) (out rest.Prescription) {
-	// @TODO
-	return rest.Prescription{}
+func ConvertFromPrescription(in domain.Prescription) (out *rest.Prescription, err error) {
+	var pres rest.Prescription
+	err = json.Unmarshal(in.RawPrescription, &pres)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pres, nil
 }
