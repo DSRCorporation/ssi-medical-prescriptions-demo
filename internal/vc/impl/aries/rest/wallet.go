@@ -94,7 +94,7 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions
 	resp, err := w.client.R().
 		SetBody(&vcwallet.ProveRequest{
 			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
-			Presentation: presentaion.RawPresentation,
+			Presentation: presentaion.RawPresentationWithProof,
 			ProofOptions: &wallet.ProofOptions{
 				Controller:          proofOptions.Controller,
 				VerificationMethod:  proofOptions.VerificationMethod,
@@ -112,7 +112,7 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		presentaion.RawPresentation = res.RawPresentation
+		presentaion.RawPresentationWithProof = res.RawPresentation
 		return presentaion, nil
 	} else {
 		return domain.Presentation{}, errors.New(string(resp.Body()))

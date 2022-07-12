@@ -283,7 +283,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	err = ctx.JSONBlob(http.StatusCreated, signedPresentation.RawPresentation)
+	err = ctx.JSONBlob(http.StatusCreated, signedPresentation.RawPresentationWithProof)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -351,7 +351,7 @@ func (h *RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequests
 				VerificationComment string           `json:"verificationComment"`
 				VerificationStatus  bool             `json:"verificationStatus"`
 			}{
-				Presentation: &presentation.RawPresentation,
+				Presentation: &presentation.RawPresentationWithProof,
 				// @TODO: verify presentation is valid
 				VerificationComment: "Verification successful",
 				VerificationStatus:  true,

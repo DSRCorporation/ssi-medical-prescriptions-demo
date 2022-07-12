@@ -118,7 +118,7 @@ func (h *Holder) AcceptCredential(piid string, name string) error {
 
 func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Presentation) (err error) {
 	var pres verifiable.Presentation
-	err = json.Unmarshal(presentation.RawPresentation, &pres)
+	err = json.Unmarshal(presentation.RawPresentationWithProof, &pres)
 
 	if err != nil {
 		return err
