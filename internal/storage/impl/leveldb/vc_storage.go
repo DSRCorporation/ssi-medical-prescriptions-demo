@@ -130,7 +130,7 @@ func (s *VCStorage) GetPresentationById(presentationId string) (presentation dom
 }
 
 func (s *VCStorage) GetWalletCredentialsForVerification() (userId string, passphrase string, err error) {
-	return "", "", fmt.Errorf("not implemented")
+	return "v0001", "Np6VR4Yg6PPL", nil
 }
 
 func makeKey(inviterId string, inviteeId string) (key string) {

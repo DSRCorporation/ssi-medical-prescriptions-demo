@@ -22,7 +22,9 @@ package leveldb
 
 import (
 	"fmt"
+	"net/http"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
@@ -154,11 +156,43 @@ func (s *DoctorStorage) GetCredentialIdsByDoctorId(doctorId string) (credentialI
 }
 
 func (s *DoctorStorage) GetKMSPassphrase(doctorId string) (kmspassphrase string, err error) {
-	return kmspassphrase, fmt.Errorf("not implemented")
+	return "Np6VR4Yg6PPL", nil
 }
 
 func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
-	return did, fmt.Errorf("not implemented")
+	type doctor struct {
+		DoctorId string   `json:"doctorId"`
+		Dids     []string `json:"dids"`
+	}
+
+	type doctors struct {
+		Doctors []doctor `json:"doctors"`
+	}
+
+	var res doctors
+	client := resty.New()
+	resp, err := client.R().
+		SetResult(&res).
+		Get("https://ssimp.s3.amazonaws.com/data/doctors.json")
+
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		for _, doctor := range res.Doctors {
+			if doctor.DoctorId == doctorId {
+				if len(doctor.Dids) > 0 {
+					return doctor.Dids[0], nil
+				} else {
+					return "", fmt.Errorf("doctor did not found")
+				}
+			}
+		}
+		return "", fmt.Errorf("doctor not found")
+	} else {
+		return "", fmt.Errorf(string(resp.Body()))
+	}
 }
 
 type PrescriptionOffer struct {
