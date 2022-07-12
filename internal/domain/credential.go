@@ -33,7 +33,7 @@ type Credential struct {
 	Type         string
 	Prescription Prescription
 
-	RawCredential json.RawMessage
+	RawCredentialWithProof json.RawMessage
 }
 
 func NewCredential(credentialId string, issuerDID string, holderDID string, credentialType string, prescription Prescription) (credential *Credential, err error) {

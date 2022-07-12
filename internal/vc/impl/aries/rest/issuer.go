@@ -46,7 +46,7 @@ func NewIssuer(endpoint string) (*Issuer, error) {
 func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error) {
 
 	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredential, &cred)
+	err = json.Unmarshal(credential.RawCredentialWithProof, &cred)
 
 	if err != nil {
 		return "", err
@@ -83,7 +83,7 @@ func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential do
 
 func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credential) (err error) {
 	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredential, &cred)
+	err = json.Unmarshal(credential.RawCredentialWithProof, &cred)
 
 	if err != nil {
 		return err

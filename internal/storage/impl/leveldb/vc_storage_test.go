@@ -100,7 +100,7 @@ func TestDoubleTimeSaveCredential(t *testing.T) {
 			DoctorId:        tmrand.Str(6),
 			RawPrescription: []byte(`{"somePrescription":"someValue"}`),
 		},
-		RawCredential: []byte(`{"someCredential":"someValue"}`),
+		RawCredentialWithProof: []byte(`{"someCredential":"someValue"}`),
 	}
 
 	var dbPath = generateDBPath()
@@ -126,7 +126,7 @@ func TestGetExistCredentialByID(t *testing.T) {
 			DoctorId:        tmrand.Str(6),
 			RawPrescription: []byte(`{"somePrescription":"someValue"}`),
 		},
-		RawCredential: []byte(`{"someCredential":"someValue"}`),
+		RawCredentialWithProof: []byte(`{"someCredential":"someValue"}`),
 	}
 
 	var dbPath = generateDBPath()
@@ -146,7 +146,7 @@ func TestGetExistCredentialByID(t *testing.T) {
 	require.Equal(t, credential.Type, receivedCredential.Type)
 	require.Equal(t, credential.Prescription.DoctorId, receivedCredential.Prescription.DoctorId)
 	require.Equal(t, credential.Prescription.RawPrescription, receivedCredential.Prescription.RawPrescription)
-	require.Equal(t, credential.RawCredential, receivedCredential.RawCredential)
+	require.Equal(t, credential.RawCredentialWithProof, receivedCredential.RawCredentialWithProof)
 }
 
 func TestGetNotExistCredentialByID(t *testing.T) {
@@ -176,7 +176,7 @@ func TestDoubleTimeSavePresentation(t *testing.T) {
 				DoctorId:        tmrand.Str(6),
 				RawPrescription: []byte(`{"somePrescription":"someValue"}`),
 			},
-			RawCredential: []byte(`{"someCredential":"someValue"}`),
+			RawCredentialWithProof: []byte(`{"someCredential":"someValue"}`),
 		},
 		RawPresentation: []byte(`{"somePresentation":"someValue"}`),
 	}
@@ -208,7 +208,7 @@ func TestGetExistPresentationByID(t *testing.T) {
 				DoctorId:        tmrand.Str(6),
 				RawPrescription: []byte(`{"somePrescription":"someValue"}`),
 			},
-			RawCredential: []byte(`{"someCredential":"someValue"}`),
+			RawCredentialWithProof: []byte(`{"someCredential":"someValue"}`),
 		},
 		RawPresentation: []byte(`{"somePresentation":"someValue"}`),
 	}
@@ -233,7 +233,7 @@ func TestGetExistPresentationByID(t *testing.T) {
 	require.Equal(t, presentation.Credential.Type, receivedPresentation.Credential.Type)
 	require.Equal(t, presentation.Credential.Prescription.DoctorId, receivedPresentation.Credential.Prescription.DoctorId)
 	require.Equal(t, presentation.Credential.Prescription.RawPrescription, receivedPresentation.Credential.Prescription.RawPrescription)
-	require.Equal(t, presentation.Credential.RawCredential, receivedPresentation.Credential.RawCredential)
+	require.Equal(t, presentation.Credential.RawCredentialWithProof, receivedPresentation.Credential.RawCredentialWithProof)
 	require.Equal(t, presentation.RawPresentation, receivedPresentation.RawPresentation)
 }
 

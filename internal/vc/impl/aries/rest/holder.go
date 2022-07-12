@@ -46,7 +46,7 @@ func NewHolder(endpoint string) (*Holder, error) {
 
 func (h *Holder) SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error) {
 	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredential, &cred)
+	err = json.Unmarshal(credential.RawCredentialWithProof, &cred)
 
 	if err != nil {
 		return "", err

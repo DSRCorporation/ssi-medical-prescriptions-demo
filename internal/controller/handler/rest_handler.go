@@ -110,7 +110,7 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
-			return ctx.JSONBlob(http.StatusOK, credential.RawCredential)
+			return ctx.JSONBlob(http.StatusOK, credential.RawCredentialWithProof)
 		}
 
 		time.Sleep(time.Second)
@@ -149,7 +149,7 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Co
 	for _, credentialId := range credentialIds {
 		credential, err := h.vcService.GetCredentialById(credentialId)
 		if err == nil {
-			rawCredentials = append(rawCredentials, credential.RawCredential)
+			rawCredentials = append(rawCredentials, credential.RawCredentialWithProof)
 		}
 	}
 
@@ -211,7 +211,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.C
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	err = ctx.JSONBlob(http.StatusCreated, signedCredential.RawCredential)
+	err = ctx.JSONBlob(http.StatusCreated, signedCredential.RawCredentialWithProof)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -235,7 +235,7 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId
 
 			response := struct {
 				Credentials *json.RawMessage `json:"credentials"`
-			}{Credentials: &credential.RawCredential}
+			}{Credentials: &credential.RawCredentialWithProof}
 
 			err = ctx.JSON(http.StatusOK, response)
 			if err != nil {
