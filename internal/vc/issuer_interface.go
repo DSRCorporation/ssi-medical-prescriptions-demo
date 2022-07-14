@@ -28,6 +28,7 @@ import (
 
 type Issuer interface {
 	SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error)
+	GetCredentialFromRequest(piid string) (credential *domain.Credential, err error)
 	AcceptCredentialRequest(piid string, credential domain.Credential) error
 
 	CreateOOBInvitation() (invitation json.RawMessage, err error)

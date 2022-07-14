@@ -52,18 +52,37 @@ func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase stri
 		return domain.Credential{}, err
 	}
 
-	var piid string
-	credential, err = s.wallet.SignCredential(issuerId, issuerKMSPassphrase, credential.HolderDID, unsignedCredential)
+	piid, err := s.issuerAgent.SendCredentialOffer(conn, unsignedCredential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	piid, err = s.holderAgent.SendCredentialRequest(conn, credential)
+	offeredCredential, err := s.holderAgent.GetCredentialFromOffer(piid)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	credential, err = s.wallet.SignCredential(issuerId, issuerKMSPassphrase, credential.IssuerDID, unsignedCredential)
+	err = s.holderAgent.AcceptOffer(piid)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	credential, err = s.wallet.SignCredential(holderId, holderKMSPassphrase, offeredCredential.HolderDID, *offeredCredential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	_, err = s.holderAgent.SendCredentialRequest(conn, credential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	requestedCredential, err := s.issuerAgent.GetCredentialFromRequest(piid)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	credential, err = s.wallet.SignCredential(issuerId, issuerKMSPassphrase, requestedCredential.IssuerDID, *requestedCredential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
@@ -73,12 +92,17 @@ func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase stri
 		return domain.Credential{}, err
 	}
 
-	err = s.holderAgent.AcceptCredential(piid, credential.CredentialId)
+	issuedCredential, err := s.holderAgent.GetIssuedCredential(piid)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	err = s.storage.SaveCredential(credential)
+	err = s.holderAgent.AcceptCredential(piid, issuedCredential.CredentialId)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	err = s.storage.SaveCredential(*issuedCredential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
@@ -87,7 +111,7 @@ func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase stri
 }
 
 func (s *VCService) ExchangePresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
-	conn, err := s.getOrCreateConnection(verifierId, s.verifierAgent, holderId, s.holderAgent)
+	conn, err := s.createConnection(verifierId, s.verifierAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Presentation{}, err
 	}

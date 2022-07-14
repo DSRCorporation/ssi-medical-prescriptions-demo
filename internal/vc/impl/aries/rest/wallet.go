@@ -24,12 +24,9 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command/vcwallet"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/util"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/hyperledger/aries-framework-go/pkg/wallet"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
@@ -224,36 +221,4 @@ func (w *Wallet) close(userId string, passphrase string) (err error) {
 	} else {
 		return errors.New(string(resp.Body()))
 	}
-}
-
-func makeRawCredential(credential domain.Credential) (rawCredential *json.RawMessage, err error) {
-	var cred verifiable.Credential
-
-	cred.ID = credential.CredentialId
-	cred.Issuer = verifiable.Issuer{
-		ID: credential.IssuerDID,
-	}
-	cred.Issued = util.NewTime(time.Now())
-	cred.Context = []string{"https://www.w3.org/2018/credentials/v1", "https://ssimp.s3.amazonaws.com/schemas/prescription"}
-	cred.Types = []string{"VerifiableCredential", credential.Type}
-
-	var prescription map[string]interface{}
-	err = json.Unmarshal(credential.Prescription.RawPrescription, &prescription)
-	if err != nil {
-		return nil, err
-	}
-
-	cred.Subject = verifiable.Subject{
-		ID: credential.HolderDID,
-		CustomFields: verifiable.CustomFields{
-			"prescription": prescription,
-		},
-	}
-
-	*rawCredential, err = cred.MarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-
-	return rawCredential, nil
 }

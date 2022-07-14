@@ -45,18 +45,24 @@ func NewHolder(endpoint string) (*Holder, error) {
 	return &Holder{client: client}, nil
 }
 
-func (h *Holder) SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error) {
-	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredentialWithProof, &cred)
+func (h *Holder) GetCredentialFromOffer(piid string) (credential *domain.Credential, err error) {
+	return getCredentialFromActions(h.client, piid)
+}
 
-	if err != nil {
-		return "", err
+func (h *Holder) GetIssuedCredential(piid string) (credential *domain.Credential, err error) {
+	return getCredentialFromActions(h.client, piid)
+}
+
+func (h *Holder) SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error) {
+
+	if credential.RawCredentialWithProof == nil {
+		return "", errors.New("raw credential cannot be nil")
 	}
 
 	requestCredential := client.RequestCredentialV2{
 		RequestsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: cred,
+				JSON: credential.RawCredentialWithProof,
 			},
 		}},
 	}
@@ -64,8 +70,8 @@ func (h *Holder) SendCredentialRequest(connection domain.Connection, credential 
 	var res map[string]interface{}
 	resp, err := h.client.R().
 		SetBody(issuecredentialcmd.SendRequestArgsV2{
-			MyDID:             connection.InviterDID,
-			TheirDID:          connection.InviteeDID,
+			MyDID:             connection.InviteeDID,
+			TheirDID:          connection.InviterDID,
 			RequestCredential: &requestCredential,
 		}).
 		SetResult(&res).

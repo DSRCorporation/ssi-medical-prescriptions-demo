@@ -27,6 +27,8 @@ import (
 )
 
 type Holder interface {
+	GetCredentialFromOffer(piid string) (credential *domain.Credential, err error)
+	GetIssuedCredential(piid string) (credential *domain.Credential, err error)
 	SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error)
 	AcceptOffer(piid string) error
 	AcceptCredential(piid string, name string) error

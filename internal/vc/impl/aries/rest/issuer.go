@@ -31,7 +31,6 @@ import (
 	client "github.com/hyperledger/aries-framework-go/pkg/client/issuecredential"
 	issuecredentialcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/issuecredential"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
-	verifiable "github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 )
 
 type Issuer struct {
@@ -46,9 +45,7 @@ func NewIssuer(endpoint string) (*Issuer, error) {
 
 func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error) {
 
-	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredentialWithProof, &cred)
-
+	rawCredential, err := makeRawCredential(credential)
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +53,7 @@ func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential do
 	offerCredential := client.OfferCredentialV2{
 		OffersAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: cred,
+				JSON: rawCredential,
 			},
 		}},
 	}
@@ -82,18 +79,19 @@ func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential do
 	}
 }
 
-func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credential) (err error) {
-	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredentialWithProof, &cred)
+func (i *Issuer) GetCredentialFromRequest(piid string) (credential *domain.Credential, err error) {
+	return getCredentialFromActions(i.client, piid)
+}
 
-	if err != nil {
-		return err
+func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credential) (err error) {
+	if credential.RawCredentialWithProof == nil {
+		return errors.New("raw credential cannot be nil")
 	}
 
 	issueCredential := client.IssueCredentialV2{
 		CredentialsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: cred,
+				JSON: credential.RawCredentialWithProof,
 			},
 		}},
 	}
@@ -102,7 +100,8 @@ func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credenti
 		SetBody(issuecredentialcmd.AcceptRequestArgsV2{
 			IssueCredential: &issueCredential,
 		}).
-		Post("/issuecredential/send-offer")
+		SetPathParam("piid", piid).
+		Post("/issuecredential/{piid}/accept-request")
 
 	if err != nil {
 		return err
