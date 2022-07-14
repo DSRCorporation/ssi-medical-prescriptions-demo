@@ -57,13 +57,15 @@ func New(doctorService *service.DoctorService, patientService *service.PatientSe
 // (POST /v1/doctors/{doctorId}/prescriptions/credential-offers/)
 func (h *RestHandler) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context, doctorId string) error {
 	var body rest.Prescription
-	ctx.Bind(body)
+	ctx.Bind(&body)
 
-	prescription := ConvertToPrescription(body, doctorId)
+	prescription, err := ConvertToPrescription(body, doctorId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
 	offerId := uuid.New().String()
-
-	err := h.doctorService.CreatePrescriptionOffer(offerId, prescription)
+	err = h.doctorService.CreatePrescriptionOffer(offerId, *prescription)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -87,9 +89,13 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	fromPrescription := ConvertFromPrescription(prescription)
+	fromPrescription, err := ConvertFromPrescription(prescription)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	response := rest.GetCredentialOfferResponse{
-		Prescription: &fromPrescription,
+		Prescription: fromPrescription,
 	}
 
 	err = ctx.JSON(http.StatusOK, response)
@@ -168,7 +174,7 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Co
 // (POST /v1/patients/{patientId}/prescriptions/credentials/)
 func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
 	var body rest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody
-	ctx.Bind(body)
+	ctx.Bind(&body)
 
 	credentialOfferId := *body.CredentialOfferId
 	patientDID := body.Did
