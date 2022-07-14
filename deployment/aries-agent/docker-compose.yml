@@ -7,17 +7,17 @@ version: '2'
 
 services:
 
-  ssimp.aries.agent.com:
-    container_name: ssimp.aries.agent.com
+  issuer.agent.ssimp.com:
+    container_name: issuer.agent.ssimp.com
     image: ${AGENT_REST_IMAGE}:${AGENT_REST_IMAGE_TAG}
     environment:
-      - ARIESD_API_HOST=${AGENT_HOST}:${AGENT_API_PORT}
-      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${AGENT_HOST}:${AGENT_INBOUND_PORT}
-      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://alice.aries.example.com:${AGENT_INBOUND_PORT}
+      - ARIESD_API_HOST=${ISSUER_AGENT_HOST}:${ISSUER_AGENT_API_PORT}
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${ISSUER_AGENT_HOST}:${ISSUER_AGENT_INBOUND_PORT}
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@http://issuer.agent.ssimp.com:${ISSUER_AGENT_INBOUND_PORT}
       - ARIESD_WEBHOOK_URL=http://example.webhook.com
-      - ARIESD_DEFAULT_LABEL=ssimp-aries-agent
+      - ARIESD_DEFAULT_LABEL=issuer-aries-agent
       - ARIESD_DATABASE_TYPE=leveldb
-      - ARIESD_DATABASE_PREFIX=ssimp
+      - ARIESD_DATABASE_PREFIX=issuer
       - ARIESD_DATABASE_TIMEOUT=60
       - ARIESD_HTTP_RESOLVER=${HTTP_DID_RESOLVER}
       - ARIESD_CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
@@ -25,8 +25,60 @@ services:
       - ARIESD_KEY_TYPE=${DEFAULT_KEY_TYPE}
       - ARIESD_KEY_AGREEMENT_TYPE=${DEFAULT_KEY_AGREEMENT_TYPE}
     ports:
-      - ${AGENT_INBOUND_PORT}:${AGENT_INBOUND_PORT}
-      - ${AGENT_API_PORT}:${AGENT_API_PORT}
+      - ${ISSUER_AGENT_INBOUND_PORT}:${ISSUER_AGENT_INBOUND_PORT}
+      - ${ISSUER_AGENT_API_PORT}:${ISSUER_AGENT_API_PORT}
+    command: "start"
+    networks:
+      - ssimp_demo_net
+    depends_on:
+      - file-server.example.com
+  
+  holder.agent.ssimp.com:
+    container_name: holder.agent.ssimp.com
+    image: ${AGENT_REST_IMAGE}:${AGENT_REST_IMAGE_TAG}
+    environment:
+      - ARIESD_API_HOST=${HOLDER_AGENT_HOST}:${HOLDER_AGENT_API_PORT}
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${HOLDER_AGENT_HOST}:${HOLDER_AGENT_INBOUND_PORT}
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@http://holder.agent.ssimp.com:${HOLDER_AGENT_INBOUND_PORT}
+      - ARIESD_WEBHOOK_URL=http://example.webhook.com
+      - ARIESD_DEFAULT_LABEL=holder-aries-agent
+      - ARIESD_DATABASE_TYPE=leveldb
+      - ARIESD_DATABASE_PREFIX=holder
+      - ARIESD_DATABASE_TIMEOUT=60
+      - ARIESD_HTTP_RESOLVER=${HTTP_DID_RESOLVER}
+      - ARIESD_CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+      - ARIESD_MEDIA_TYPE_PROFILES=${DEFAULT_MEDIA_TYPE_PROFILES}
+      - ARIESD_KEY_TYPE=${DEFAULT_KEY_TYPE}
+      - ARIESD_KEY_AGREEMENT_TYPE=${DEFAULT_KEY_AGREEMENT_TYPE}
+    ports:
+      - ${HOLDER_AGENT_INBOUND_PORT}:${HOLDER_AGENT_INBOUND_PORT}
+      - ${HOLDER_AGENT_API_PORT}:${HOLDER_AGENT_API_PORT}
+    command: "start"
+    networks:
+      - ssimp_demo_net
+    depends_on:
+      - file-server.example.com
+  
+  verifier.agent.ssimp.com:
+    container_name: verifier.agent.ssimp.com
+    image: ${AGENT_REST_IMAGE}:${AGENT_REST_IMAGE_TAG}
+    environment:
+      - ARIESD_API_HOST=${VERIFIER_AGENT_HOST}:${VERIFIER_AGENT_API_PORT}
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${VERIFIER_AGENT_HOST}:${VERIFIER_AGENT_INBOUND_PORT}
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@http://verifier.agent.ssimp.com:${VERIFIER_AGENT_INBOUND_PORT}
+      - ARIESD_WEBHOOK_URL=http://example.webhook.com
+      - ARIESD_DEFAULT_LABEL=holder-aries-agent
+      - ARIESD_DATABASE_TYPE=leveldb
+      - ARIESD_DATABASE_PREFIX=verifier
+      - ARIESD_DATABASE_TIMEOUT=60
+      - ARIESD_HTTP_RESOLVER=${HTTP_DID_RESOLVER}
+      - ARIESD_CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+      - ARIESD_MEDIA_TYPE_PROFILES=${DEFAULT_MEDIA_TYPE_PROFILES}
+      - ARIESD_KEY_TYPE=${DEFAULT_KEY_TYPE}
+      - ARIESD_KEY_AGREEMENT_TYPE=${DEFAULT_KEY_AGREEMENT_TYPE}
+    ports:
+      - ${VERIFIER_AGENT_INBOUND_PORT}:${VERIFIER_AGENT_INBOUND_PORT}
+      - ${VERIFIER_AGENT_API_PORT}:${VERIFIER_AGENT_API_PORT}
     command: "start"
     networks:
       - ssimp_demo_net

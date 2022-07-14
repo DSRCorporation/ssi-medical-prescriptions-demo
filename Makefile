@@ -56,7 +56,7 @@ mock-server:
 	@cd ${MOCK_SERVER_PATH} && go build -o ../../build/bin/mock-server main.go
 
 
-.PHONY: demo-server-docker aries-agent-docker run-demo-server run-aries-agent
+.PHONY: demo-server-docker aries-agent-docker run-demo-server run-aries-agents
 demo-server-docker:
 	@echo "Building demo-server docker image"
 	@docker build -f ./images/demo-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(DEMO_SERVER_IMAGE_NAME):$(DEMO_SERVER_IMAGE_TAG) \
@@ -75,11 +75,11 @@ aries-agent-docker:
 	--build-arg ARIES_FRAMEWORK_GO_REPO=$(ARIES_FRAMEWORK_GO_REPO) \
 	--build-arg ARIES_FRAMEWORK_GO_REPO_BRANCH=$(ARIES_FRAMEWORK_GO_REPO_BRANCH) .
 
-run-aries-agent:
+run-aries-agents:
 	@echo "Starting aries agent containers ..."
 	@docker-compose -f deployment/aries-agent/docker-compose.yml up --force-recreate -d
 
-run-demo-server: demo-server-docker aries-agent-docker run-aries-agent
+run-demo-server: demo-server-docker aries-agent-docker run-aries-agents
 	@echo "Starting demo server containers ..."
 	@docker-compose -f deployment/demo-server/docker-compose.yml up --force-recreate -d
 	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
@@ -100,8 +100,8 @@ run-mock-server: mock-server-docker
 	@docker-compose -f deployment/openapi/docker-compose.yml up --force-recreate -d
 
 
-.PHONY: stop-demo-server stop-aries-agent
-stop-aries-agent:
+.PHONY: stop-demo-server stop-aries-agents
+stop-aries-agents:
 	@echo "Stopping aries agent containers ..."
 	@docker-compose -f deployment/aries-agent/docker-compose.yml down
 
