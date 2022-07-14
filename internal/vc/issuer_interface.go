@@ -31,5 +31,5 @@ type Issuer interface {
 	AcceptCredentialRequest(piid string, credential domain.Credential) error
 
 	CreateOOBInvitation() (invitation json.RawMessage, err error)
-	AcceptOOBRequest(connectionId string) (connection domain.Connection, err error)
+	AcceptOOBRequest(invitation json.RawMessage) (connection domain.Connection, err error)
 }

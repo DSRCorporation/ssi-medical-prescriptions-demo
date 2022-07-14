@@ -150,20 +150,24 @@ func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Pres
 	}
 }
 
-func (h *Holder) AcceptOOBInvitation(invitation json.RawMessage) (connectionId string, err error) {
-	var res map[string]interface{}
+func (h *Holder) AcceptOOBInvitation(invitation json.RawMessage) (err error) {
 	resp, err := h.client.R().
-		SetBody(invitation).
-		SetResult(&res).
-		Post(h.endpoint + "/outofband/accept-invitation")
+		SetBody(struct {
+			Invitation json.RawMessage `json:"invitation"`
+			MyLabel    string          `json:"my_label"`
+		}{
+			Invitation: invitation,
+			MyLabel:    "Holder",
+		}).
+		Post("/outofband/accept-invitation")
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		return res["connection_id"].(string), nil
+		return nil
 	} else {
-		return "", errors.New(string(resp.Body()))
+		return errors.New(string(resp.Body()))
 	}
 }

@@ -47,7 +47,7 @@ func NewVCService(storage storage.VCStorage, issuerAgent vc.Issuer, holderAgent 
 }
 
 func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
-	conn, err := s.getOrCreateConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
+	conn, err := s.createConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Credential{}, err
 	}
@@ -147,30 +147,19 @@ func (s *VCService) VerifyPresentation(rawPresentation json.RawMessage) error {
 	return s.wallet.VerifyPresentation(userId, passphrase, rawPresentation)
 }
 
-func (s *VCService) getOrCreateConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {
-	conn, err = s.storage.GetConnection(inviterId, inviteeId)
-	if err == nil {
-		return conn, nil
-	}
+func (s *VCService) createConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {
 
-	var invitation []byte
-	invitation, err = inviter.CreateOOBInvitation()
+	invitation, err := inviter.CreateOOBInvitation()
 	if err != nil {
 		return domain.Connection{}, err
 	}
 
-	var connectionId string
-	connectionId, err = invitee.AcceptOOBInvitation(invitation)
+	err = invitee.AcceptOOBInvitation(invitation)
 	if err != nil {
 		return domain.Connection{}, err
 	}
 
-	conn, err = inviter.AcceptOOBRequest(connectionId)
-	if err != nil {
-		return domain.Connection{}, err
-	}
-
-	err = s.storage.SaveConnection(inviterId, inviteeId, conn)
+	conn, err = inviter.AcceptOOBRequest(invitation)
 	if err != nil {
 		return domain.Connection{}, err
 	}

@@ -32,5 +32,5 @@ type Holder interface {
 	AcceptCredential(piid string, name string) error
 	AcceptPresentationRequest(piid string, presentation domain.Presentation) error
 
-	AcceptOOBInvitation(invitation json.RawMessage) (connectionId string, err error)
+	AcceptOOBInvitation(invitation json.RawMessage) (err error)
 }

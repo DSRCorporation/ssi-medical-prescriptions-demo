@@ -119,6 +119,6 @@ func (i *Issuer) CreateOOBInvitation() (invitation json.RawMessage, err error) {
 	return CreateOOBInvitation(i.client)
 }
 
-func (i *Issuer) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return AcceptOOBRequest(i.client, connectionId)
+func (i *Issuer) AcceptOOBRequest(invitation json.RawMessage) (connection domain.Connection, err error) {
+	return AcceptOOBRequest(i.client, invitation)
 }

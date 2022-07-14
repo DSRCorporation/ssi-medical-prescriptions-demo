@@ -85,6 +85,6 @@ func (v *Verifier) CreateOOBInvitation() (invitation json.RawMessage, err error)
 	return CreateOOBInvitation(v.client)
 }
 
-func (v *Verifier) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return AcceptOOBRequest(v.client, connectionId)
+func (v *Verifier) AcceptOOBRequest(invitation json.RawMessage) (connection domain.Connection, err error) {
+	return AcceptOOBRequest(v.client, invitation)
 }

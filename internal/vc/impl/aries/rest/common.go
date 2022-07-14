@@ -30,7 +30,12 @@ import (
 )
 
 func CreateOOBInvitation(client *resty.Client) (invitation json.RawMessage, err error) {
+	var res struct {
+		Invitation json.RawMessage `json:"invitation"`
+	}
+
 	resp, err := client.R().
+		SetResult(&res).
 		SetBody(struct {
 			Label string `json:"label"`
 		}{Label: "Issuer"}).
@@ -41,47 +46,90 @@ func CreateOOBInvitation(client *resty.Client) (invitation json.RawMessage, err 
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		return resp.Body(), nil
+		return res.Invitation, nil
 	} else {
 		return nil, errors.New(string(resp.Body()))
 	}
 }
 
-func AcceptOOBRequest(client *resty.Client, connectionId string) (connection domain.Connection, err error) {
-	resp, err := client.R().
-		SetPathParam("connectionId", connectionId).
-		Post("/connections/{connectionId}/accept-request")
+func AcceptOOBRequest(client *resty.Client, invitation json.RawMessage) (connection domain.Connection, err error) {
+	var i struct {
+		InvitationId string `json:"@id"`
+	}
+
+	err = json.Unmarshal(invitation, &i)
+	if err != nil {
+		return domain.Connection{}, err
+	}
+
+	var c struct {
+		Results []struct {
+			ConnectionId string `json:"ConnectionID"`
+		} `json:"results"`
+	}
+
+	var attempts int = 0
+	var resp *resty.Response
+	for attempts <= 3 {
+		resp, err = client.R().
+			SetPathParam("state", "requested").
+			SetPathParam("invitationId", i.InvitationId).
+			SetResult(&c).
+			Get("/connections?state={state}&invitation_id={invitationId}")
+
+		if len(c.Results) > 0 {
+			break
+		}
+
+		time.Sleep(200 * time.Millisecond)
+	}
 
 	if err != nil {
 		return domain.Connection{}, err
 	}
 
-	if resp.StatusCode() == http.StatusOK {
-		var res map[string]interface{}
-		resp, err := client.R().
+	if resp.StatusCode() == http.StatusOK && len(c.Results) > 0 {
+		connectionId := c.Results[0].ConnectionId
+		resp, err = client.R().
 			SetPathParam("connectionId", connectionId).
-			SetResult(res).
-			Get("connections/{connectionId}")
+			Post("/connections/{connectionId}/accept-request")
 
 		if err != nil {
 			return domain.Connection{}, err
 		}
 
 		if resp.StatusCode() == http.StatusOK {
-			inviterDID := res["result"].(map[string]interface{})["MyDID"].(string)
-			inviteeDID := res["result"].(map[string]interface{})["TheirDID"].(string)
+			var res struct {
+				Result struct {
+					ConnectionID string `json:"ConnectionID"`
+					MyDID        string `json:"MyDID"`
+					TheirDID     string `json:"TheirDID"`
+				} `json:"result"`
+			}
+			resp, err := client.R().
+				SetPathParam("connectionId", connectionId).
+				SetResult(&res).
+				Get("/connections/{connectionId}")
 
-			conn := domain.Connection{
-				InviterDID:   inviterDID,
-				InviteeDID:   inviteeDID,
-				ConnectionId: connectionId,
+			if err != nil {
+				return domain.Connection{}, err
 			}
 
-			return conn, nil
+			if resp.StatusCode() == http.StatusOK {
+				conn := domain.Connection{
+					InviterDID:   res.Result.MyDID,
+					InviteeDID:   res.Result.TheirDID,
+					ConnectionId: res.Result.ConnectionID,
+				}
+
+				return conn, nil
+			} else {
+				return domain.Connection{}, errors.New(string(resp.Body()))
+			}
+
 		} else {
 			return domain.Connection{}, errors.New(string(resp.Body()))
 		}
-
 	} else {
 		return domain.Connection{}, errors.New(string(resp.Body()))
 	}

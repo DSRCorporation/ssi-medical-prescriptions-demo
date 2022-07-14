@@ -23,5 +23,5 @@ package vc
 import "encoding/json"
 
 type OOBInvitee interface {
-	AcceptOOBInvitation(invitation json.RawMessage) (connectionId string, err error)
+	AcceptOOBInvitation(invitation json.RawMessage) (err error)
 }
