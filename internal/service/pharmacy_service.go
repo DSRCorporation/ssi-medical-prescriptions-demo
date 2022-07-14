@@ -28,6 +28,12 @@ type PharmacyService struct {
 	storage storage.PharmacyStorage
 }
 
+func NewPharmacyService(storage storage.PharmacyStorage) *PharmacyService {
+	return &PharmacyService{
+		storage: storage,
+	}
+}
+
 func (s *PharmacyService) CreatePresentationRequest(pharmacyId string, requestId string) (err error) {
 	return s.storage.CreatePresentationRequest(pharmacyId, requestId)
 }

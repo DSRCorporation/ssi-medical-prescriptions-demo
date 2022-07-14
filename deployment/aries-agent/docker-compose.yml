@@ -1,0 +1,64 @@
+#
+# Copyright IBM Corp, SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+services:
+
+  ssimp.aries.agent.com:
+    container_name: ssimp.aries.agent.com
+    image: ${AGENT_REST_IMAGE}:${AGENT_REST_IMAGE_TAG}
+    environment:
+      - ARIESD_API_HOST=${AGENT_HOST}:${AGENT_API_PORT}
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${AGENT_HOST}:${AGENT_INBOUND_PORT}
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://alice.aries.example.com:${AGENT_INBOUND_PORT}
+      - ARIESD_WEBHOOK_URL=http://example.webhook.com
+      - ARIESD_DEFAULT_LABEL=ssimp-aries-agent
+      - ARIESD_DATABASE_TYPE=leveldb
+      - ARIESD_DATABASE_PREFIX=ssimp
+      - ARIESD_DATABASE_TIMEOUT=60
+      - ARIESD_HTTP_RESOLVER=${HTTP_DID_RESOLVER}
+      - ARIESD_CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+      - ARIESD_MEDIA_TYPE_PROFILES=${DEFAULT_MEDIA_TYPE_PROFILES}
+      - ARIESD_KEY_TYPE=${DEFAULT_KEY_TYPE}
+      - ARIESD_KEY_AGREEMENT_TYPE=${DEFAULT_KEY_AGREEMENT_TYPE}
+    ports:
+      - ${AGENT_INBOUND_PORT}:${AGENT_INBOUND_PORT}
+      - ${AGENT_API_PORT}:${AGENT_API_PORT}
+    command: "start"
+    networks:
+      - ssimp_demo_net
+    depends_on:
+      - file-server.example.com
+
+  couchdb.example.com:
+    container_name: couchdb.example.com
+    image: ${COUCHDB_IMAGE}:${COUCHDB_IMAGE_TAG}
+    ports:
+      - ${COUCHDB_PORT}:${COUCHDB_PORT}
+    environment:
+      - COUCHDB_USER=${COUCHDB_USERNAME}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    volumes:
+      - ./couchdb-config/10-single-node.ini:/opt/couchdb/etc/local.d/config.ini
+    networks:
+      - ssimp_demo_net
+
+  file-server.example.com: # file server for hosting static resources (e.g. JSON-LD contexts)
+      container_name: file-server.example.com
+      image: halverneus/static-file-server:latest
+      environment:
+        - PORT=9099
+        - FOLDER=/data
+      ports:
+        - "9099:9099"
+      volumes:
+        - ./data:/data
+      networks:
+        - ssimp_demo_net
+
+networks:
+  ssimp_demo_net:
+    driver: bridge

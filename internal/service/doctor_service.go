@@ -29,6 +29,12 @@ type DoctorService struct {
 	storage storage.DoctorStorage
 }
 
+func NewDoctorService(storage storage.DoctorStorage) *DoctorService {
+	return &DoctorService{
+		storage: storage,
+	}
+}
+
 func (s *DoctorService) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
 	// @TODO: check prescription data
 	return s.storage.CreatePrescriptionOffer(offerId, prescription)

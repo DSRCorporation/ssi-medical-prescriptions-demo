@@ -18,30 +18,35 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package service
+package main
 
 import (
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/cmd/demo-server/cmd"
 )
 
-type PatientService struct {
-	storage storage.PatientStorage
-}
+func main() {
 
-func NewPatientService(storage storage.PatientStorage) *PatientService {
-	return &PatientService{
-		storage: storage,
+	rootCmd := &cobra.Command{
+		Use: "demo-server",
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.HelpFunc()(cmd, args)
+		},
 	}
-}
 
-func (s *PatientService) GetDIDs(patientId string) (dids []string, err error) {
-	return s.storage.GetDIDs(patientId)
-}
+	startCmd, err := cmd.Cmd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error initializing cobra cmd: %v\n", err)
+		os.Exit(1)
+	}
 
-func (s *PatientService) SaveCredentialId(patientId string, credentialId string) (err error) {
-	return s.storage.AddCredentialIdByPatientId(patientId, credentialId)
-}
+	rootCmd.AddCommand(startCmd)
 
-func (s *PatientService) GetCredentialIdsByPatientId(patientId string) (credentialIds []string, err error) {
-	return s.storage.GetCredentialIdsByPatientId(patientId)
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to run rest server: %v\n", err)
+		os.Exit(1)
+	}
 }
