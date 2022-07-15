@@ -257,7 +257,7 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId
 // (POST /v1/patients/{patientId}/prescriptions/presentations/)
 func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error {
 	var body rest.PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody
-	ctx.Bind(body)
+	ctx.Bind(&body)
 
 	requestId := *body.PresentationRequestId
 	credentialId := *body.CredentialId
