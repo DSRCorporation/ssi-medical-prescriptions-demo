@@ -125,7 +125,7 @@ func (s *VCService) ExchangePresentation(verifierId string, holderId string, hol
 		return domain.Presentation{}, err
 	}
 
-	presentation, err = s.holderWallet.SignPresentation(holderId, holderKMSPassphrase, presentation.HolderDID, unsignedPresentation)
+	presentation, err = s.holderWallet.SignPresentation(holderId, holderKMSPassphrase, unsignedPresentation.HolderDID, unsignedPresentation)
 	if err != nil {
 		return domain.Presentation{}, err
 	}

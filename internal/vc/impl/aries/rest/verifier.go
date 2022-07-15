@@ -26,6 +26,7 @@ import (
 	"net/http"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
 	presentproofcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/presentproof"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
@@ -46,7 +47,7 @@ func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid s
 		SetBody(presentproofcmd.SendRequestPresentationV2Args{
 			MyDID:               connection.InviterDID,
 			TheirDID:            connection.InviteeDID,
-			RequestPresentation: nil,
+			RequestPresentation: &presentproof.RequestPresentationV2{},
 		}).
 		SetResult(&res).
 		Post("/presentproof/send-request-presentation")

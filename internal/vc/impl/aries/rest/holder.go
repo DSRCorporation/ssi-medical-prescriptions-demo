@@ -31,7 +31,6 @@ import (
 	issuecredentialcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/issuecredential"
 	presentproofcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/presentproof"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
@@ -124,22 +123,16 @@ func (h *Holder) AcceptCredential(piid string, name string) error {
 }
 
 func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Presentation) (err error) {
-	var pres verifiable.Presentation
-	err = json.Unmarshal(presentation.RawPresentationWithProof, &pres)
-
-	if err != nil {
-		return err
-	}
-
 	presentationV2 := presentproof.PresentationV2{
 		PresentationsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: presentation,
+				JSON: presentation.RawPresentationWithProof,
 			},
 		}},
 	}
 
 	resp, err := h.client.R().
+		SetPathParam("piid", piid).
 		SetBody(presentproofcmd.AcceptRequestPresentationV2Args{
 			Presentation: &presentationV2,
 		}).
