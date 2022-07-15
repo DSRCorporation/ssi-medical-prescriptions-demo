@@ -72,7 +72,7 @@ func (w *Wallet) SignCredential(userId string, passphrase string, did string, cr
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		credential.RawCredentialWithProof = res.Credential
+		credential.RawCredential = res.Credential
 		return credential, nil
 	} else {
 		return domain.Credential{}, errors.New(string(resp.Body()))
@@ -94,7 +94,7 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, did string, 
 	resp, err := w.client.R().
 		SetBody(&vcwallet.ProveRequest{
 			WalletAuth:     vcwallet.WalletAuth{UserID: userId, Auth: token},
-			RawCredentials: []json.RawMessage{presentation.Credential.RawCredentialWithProof},
+			RawCredentials: []json.RawMessage{presentation.Credential.RawCredential},
 			ProofOptions: &wallet.ProofOptions{
 				Controller: did,
 			}}).

@@ -84,14 +84,14 @@ func (i *Issuer) GetCredentialFromRequest(piid string) (credential *domain.Crede
 }
 
 func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credential) (err error) {
-	if credential.RawCredentialWithProof == nil {
+	if credential.RawCredential == nil {
 		return errors.New("raw credential cannot be nil")
 	}
 
 	issueCredential := client.IssueCredentialV2{
 		CredentialsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: credential.RawCredentialWithProof,
+				JSON: credential.RawCredential,
 			},
 		}},
 	}
