@@ -215,7 +215,7 @@ func makeRawCredential(credential domain.Credential) (rawCredential *json.RawMes
 }
 
 func makeCredential(rawCredential json.RawMessage) (credential *domain.Credential, err error) {
-	cred, err := verifiable.ParseCredential([]byte(rawCredential), verifiable.WithBaseContextExtendedValidation(prescriptionContext, []string{}))
+	cred, err := verifiable.ParseCredential([]byte(rawCredential), verifiable.WithBaseContextExtendedValidation(prescriptionContext, []string{}), verifiable.WithDisabledProofCheck())
 	if err != nil {
 		return nil, err
 	}
