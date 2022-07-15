@@ -33,12 +33,12 @@ type Credential struct {
 	RawCredential json.RawMessage
 }
 
-func NewCredential(CredentialId string, issuerDID string, holderDID string, prescription Prescription, rawCredential json.RawMessage) (credential *Credential, err error) {
+func NewCredential(CredentialId string, issuerDID string, holderDID string, prescription Prescription, rawCredential json.RawMessage) (credential *Credential) {
 	return &Credential{
 		CredentialId:  CredentialId,
 		IssuerDID:     issuerDID,
 		HolderDID:     holderDID,
 		Prescription:  prescription,
 		RawCredential: rawCredential,
-	}, nil
+	}
 }

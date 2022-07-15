@@ -33,11 +33,11 @@ type Presentation struct {
 	RawPresentation json.RawMessage
 }
 
-func NewPresentation(presentationId, holderDID string, credential Credential, rawPresentation json.RawMessage) (presentation *Presentation, err error) {
+func NewPresentation(presentationId, holderDID string, credential Credential, rawPresentation json.RawMessage) (presentation *Presentation) {
 	return &Presentation{
 		PresentationId:  presentationId,
 		HolderDID:       holderDID,
 		Credential:      credential,
 		RawPresentation: rawPresentation,
-	}, nil
+	}
 }
