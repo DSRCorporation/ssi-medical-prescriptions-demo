@@ -36,11 +36,12 @@ type Presentation struct {
 	RawPresentation json.RawMessage
 }
 
-func NewPresentation(holderDID string, credential Credential) (presentation *Presentation, err error) {
+func NewPresentation(holderDID string, credential Credential, rawPresentation json.RawMessage) (presentation *Presentation, err error) {
 	return &Presentation{
-		PresentationId: generatePresentationId(),
-		HolderDID:      holderDID,
-		Credential:     credential,
+		PresentationId:  generatePresentationId(),
+		HolderDID:       holderDID,
+		Credential:      credential,
+		RawPresentation: rawPresentation,
 	}, nil
 }
 

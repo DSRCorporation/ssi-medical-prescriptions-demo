@@ -275,7 +275,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 	patientDID := credential.HolderDID
 	patientKmsPassphrase := body.KmsPassphrase
 
-	unsignedPresentation, err := domain.NewPresentation(patientDID, credential)
+	unsignedPresentation, err := domain.NewPresentation(patientDID, credential, nil)
 
 	signedPresentation, err := h.vcService.ExchangePresentation(pharmacyId, patientId, *patientKmsPassphrase, *unsignedPresentation)
 	if err != nil {
