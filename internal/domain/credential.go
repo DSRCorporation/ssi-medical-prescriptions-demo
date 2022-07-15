@@ -27,26 +27,20 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	PRESCRRIPTION_CREDENTIAL_TYPE = "PrescriptionCredential"
-)
-
 type Credential struct {
 	CredentialId string
 	IssuerDID    string
 	HolderDID    string
-	Type         string
 	Prescription Prescription
 
 	RawCredentialWithProof json.RawMessage
 }
 
-func NewCredential(issuerDID string, holderDID string, credentialType string, prescription Prescription) (credential *Credential, err error) {
+func NewCredential(issuerDID string, holderDID string, prescription Prescription) (credential *Credential, err error) {
 	return &Credential{
 		CredentialId: generateCredentialId(),
 		IssuerDID:    issuerDID,
 		HolderDID:    holderDID,
-		Type:         credentialType,
 		Prescription: prescription,
 	}, nil
 }

@@ -196,7 +196,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.C
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	unsignedCredential, err := domain.NewCredential(doctorDID, *patientDID, domain.PRESCRRIPTION_CREDENTIAL_TYPE, prescription)
+	unsignedCredential, err := domain.NewCredential(doctorDID, *patientDID, prescription)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
