@@ -22,9 +22,6 @@ package domain
 
 import (
 	"encoding/json"
-	"fmt"
-
-	"github.com/google/uuid"
 )
 
 type Credential struct {
@@ -36,17 +33,12 @@ type Credential struct {
 	RawCredential json.RawMessage
 }
 
-func NewCredential(issuerDID string, holderDID string, prescription Prescription, rawCredential json.RawMessage) (credential *Credential, err error) {
+func NewCredential(CredentialId string, issuerDID string, holderDID string, prescription Prescription, rawCredential json.RawMessage) (credential *Credential, err error) {
 	return &Credential{
-		CredentialId:  generateCredentialId(),
+		CredentialId:  CredentialId,
 		IssuerDID:     issuerDID,
 		HolderDID:     holderDID,
 		Prescription:  prescription,
 		RawCredential: rawCredential,
 	}, nil
-}
-
-func generateCredentialId() string {
-	credentialId := fmt.Sprintf("did:%s", uuid.New().String())
-	return credentialId
 }

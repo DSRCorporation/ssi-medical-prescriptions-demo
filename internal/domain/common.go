@@ -21,23 +21,12 @@
 package domain
 
 import (
-	"encoding/json"
+	"fmt"
+
+	"github.com/google/uuid"
 )
 
-type Presentation struct {
-	PresentationId string
-	HolderDID      string
-	Type           string
-
-	Credential      Credential
-	RawPresentation json.RawMessage
-}
-
-func NewPresentation(presentationId, holderDID string, credential Credential, rawPresentation json.RawMessage) (presentation *Presentation, err error) {
-	return &Presentation{
-		PresentationId:  presentationId,
-		HolderDID:       holderDID,
-		Credential:      credential,
-		RawPresentation: rawPresentation,
-	}, nil
+func GenerateVerifiableId() string {
+	verifiableId := fmt.Sprintf("did:%s", uuid.New().String())
+	return verifiableId
 }
