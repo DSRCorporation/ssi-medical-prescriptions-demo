@@ -174,7 +174,7 @@ func TestDoubleTimeSavePresentation(t *testing.T) {
 			},
 			RawCredential: []byte(`{"someCredential":"someValue"}`),
 		},
-		RawPresentationWithProof: []byte(`{"somePresentation":"someValue"}`),
+		RawPresentation: []byte(`{"somePresentation":"someValue"}`),
 	}
 
 	var dbPath = generateDBPath()
@@ -205,7 +205,7 @@ func TestGetExistPresentationByID(t *testing.T) {
 			},
 			RawCredential: []byte(`{"someCredential":"someValue"}`),
 		},
-		RawPresentationWithProof: []byte(`{"somePresentation":"someValue"}`),
+		RawPresentation: []byte(`{"somePresentation":"someValue"}`),
 	}
 
 	var dbPath = generateDBPath()
@@ -228,7 +228,7 @@ func TestGetExistPresentationByID(t *testing.T) {
 	require.Equal(t, presentation.Credential.Prescription.DoctorId, receivedPresentation.Credential.Prescription.DoctorId)
 	require.Equal(t, presentation.Credential.Prescription.RawPrescription, receivedPresentation.Credential.Prescription.RawPrescription)
 	require.Equal(t, presentation.Credential.RawCredential, receivedPresentation.Credential.RawCredential)
-	require.Equal(t, presentation.RawPresentationWithProof, receivedPresentation.RawPresentationWithProof)
+	require.Equal(t, presentation.RawPresentation, receivedPresentation.RawPresentation)
 }
 
 func TestGetNotExistPresentationByID(t *testing.T) {

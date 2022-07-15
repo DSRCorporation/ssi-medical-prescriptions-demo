@@ -32,8 +32,8 @@ type Presentation struct {
 	HolderDID      string
 	Type           string
 
-	Credential               Credential
-	RawPresentationWithProof json.RawMessage
+	Credential      Credential
+	RawPresentation json.RawMessage
 }
 
 func NewPresentation(holderDID string, presentationType string, credential Credential) (presentation *Presentation, err error) {

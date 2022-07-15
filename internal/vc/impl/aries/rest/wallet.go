@@ -106,7 +106,7 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, did string, 
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		presentation.RawPresentationWithProof = res.Presentation
+		presentation.RawPresentation = res.Presentation
 		return presentation, nil
 	} else {
 		return domain.Presentation{}, errors.New(string(resp.Body()))

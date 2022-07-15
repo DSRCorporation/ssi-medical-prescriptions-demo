@@ -126,7 +126,7 @@ func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Pres
 	presentationV2 := presentproof.PresentationV2{
 		PresentationsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: presentation.RawPresentationWithProof,
+				JSON: presentation.RawPresentation,
 			},
 		}},
 	}
