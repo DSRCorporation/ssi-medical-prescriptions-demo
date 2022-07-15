@@ -110,7 +110,7 @@ func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase stri
 		return domain.Credential{}, err
 	}
 
-	return credential, nil
+	return *issuedCredential, nil
 }
 
 func (s *VCService) ExchangePresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
