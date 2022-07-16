@@ -127,14 +127,9 @@ func (w *Wallet) VerifyCredential(userId string, passphrase string, rawCredentia
 	defer w.close(userId, passphrase)
 
 	resp, err := w.client.R().
-		SetBody(struct {
-			Auth       string          `json:"auth"`
-			Credential json.RawMessage `json:"credential"`
-			UsedId     string          `json:"usedId"`
-		}{
-			Auth:       token,
-			Credential: rawCredential,
-			UsedId:     userId,
+		SetBody(&vcwallet.VerifyRequest{
+			WalletAuth:    vcwallet.WalletAuth{UserID: userId, Auth: token},
+			RawCredential: rawCredential,
 		}).
 		Post("/vcwallet/verify")
 
@@ -158,14 +153,9 @@ func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresent
 	defer w.close(userId, passphrase)
 
 	resp, err := w.client.R().
-		SetBody(struct {
-			Auth         string          `json:"auth"`
-			Presentation json.RawMessage `json:"presentation"`
-			UsedId       string          `json:"usedId"`
-		}{
-			Auth:         token,
+		SetBody(&vcwallet.VerifyRequest{
+			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
 			Presentation: rawPresentation,
-			UsedId:       userId,
 		}).
 		Post("/vcwallet/verify")
 
@@ -183,11 +173,8 @@ func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresent
 func (w *Wallet) open(userId string, passphrase string) (token string, err error) {
 	var res map[string]interface{}
 	resp, err := w.client.R().
-		SetBody(struct {
-			UserId             string `json:"userId"`
-			LocalKMSPassphrase string `json:"localKMSPassphrase"`
-		}{
-			UserId:             userId,
+		SetBody(&vcwallet.UnlockWalletRequest{
+			UserID:             userId,
 			LocalKMSPassphrase: passphrase,
 		}).
 		SetResult(&res).
@@ -207,12 +194,8 @@ func (w *Wallet) open(userId string, passphrase string) (token string, err error
 func (w *Wallet) close(userId string, passphrase string) (err error) {
 	var res map[string]interface{}
 	resp, err := w.client.R().
-		SetBody(struct {
-			UserId             string `json:"userId"`
-			LocalKMSPassphrase string `json:"localKMSPassphrase"`
-		}{
-			UserId:             userId,
-			LocalKMSPassphrase: passphrase,
+		SetBody(&vcwallet.LockWalletRequest{
+			UserID: userId,
 		}).
 		SetResult(&res).
 		Post("/vcwallet/close")
