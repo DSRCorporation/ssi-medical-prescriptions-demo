@@ -26,17 +26,19 @@ import (
 	"net/http"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
 	presentproofcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/presentproof"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
 type Verifier struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewVerifier(endpoint string) (*Verifier, error) {
-	return &Verifier{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Verifier{client: client}, nil
 }
 
 func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid string, err error) {
@@ -45,10 +47,10 @@ func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid s
 		SetBody(presentproofcmd.SendRequestPresentationV2Args{
 			MyDID:               connection.InviterDID,
 			TheirDID:            connection.InviteeDID,
-			RequestPresentation: nil,
+			RequestPresentation: &presentproof.RequestPresentationV2{},
 		}).
 		SetResult(&res).
-		Post(v.endpoint + "/presentproof/send-request-presentation")
+		Post("/presentproof/send-request-presentation")
 
 	if err != nil {
 		return "", err
@@ -61,13 +63,17 @@ func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid s
 	}
 }
 
+func (v *Verifier) GetIssuedPresentation(piid string) (presentation *domain.Presentation, err error) {
+	return getPresentationFromActions(v.client, piid)
+}
+
 func (v *Verifier) AcceptPresentation(piid string, name string) error {
 	resp, err := v.client.R().
 		SetPathParam("piid", piid).
 		SetBody(presentproofcmd.AcceptPresentationArgs{
 			Names: []string{name},
 		}).
-		Post(v.endpoint + "/presentproof/{piid}/accept-presentation")
+		Post("/presentproof/{piid}/accept-presentation")
 
 	if err != nil {
 		return err
@@ -81,9 +87,9 @@ func (v *Verifier) AcceptPresentation(piid string, name string) error {
 }
 
 func (v *Verifier) CreateOOBInvitation() (invitation json.RawMessage, err error) {
-	return CreateOOBInvitation(v.client, v.endpoint)
+	return CreateOOBInvitation(v.client)
 }
 
-func (v *Verifier) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return AcceptOOBRequest(v.client, v.endpoint, connectionId)
+func (v *Verifier) AcceptOOBRequest(invitation json.RawMessage) (connection domain.Connection, err error) {
+	return AcceptOOBRequest(v.client, invitation)
 }

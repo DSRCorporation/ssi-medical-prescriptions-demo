@@ -22,10 +22,6 @@ package domain
 
 import "encoding/json"
 
-const (
-	PRESCRRIPTION_PRESENTATION_TYPE = "PrescriptionPresentation"
-)
-
 type Prescription struct {
 	DoctorId        string
 	RawPrescription json.RawMessage

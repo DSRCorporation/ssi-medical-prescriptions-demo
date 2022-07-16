@@ -18,10 +18,15 @@
   with ssi-medical-prescriptions-demo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package vc
+package domain
 
-import "encoding/json"
+import (
+	"fmt"
 
-type OOBInvitee interface {
-	AcceptOOBInvitation(invitation json.RawMessage) (err error)
+	"github.com/google/uuid"
+)
+
+func GenerateVerifiableId() string {
+	verifiableId := fmt.Sprintf("did:%s", uuid.New().String())
+	return verifiableId
 }

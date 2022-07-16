@@ -20,7 +20,9 @@
 
 package domain
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Presentation struct {
 	PresentationId string
@@ -31,12 +33,11 @@ type Presentation struct {
 	RawPresentation json.RawMessage
 }
 
-func NewPresentation(presentationId string, holderDID string, presentationType string, credential Credential) (presentation *Presentation, err error) {
-	// @TODO: generate raw presentation
+func NewPresentation(presentationId, holderDID string, credential Credential, rawPresentation json.RawMessage) (presentation *Presentation) {
 	return &Presentation{
-		PresentationId: presentationId,
-		HolderDID:      holderDID,
-		Type:           presentationType,
-		Credential:     credential,
-	}, nil
+		PresentationId:  presentationId,
+		HolderDID:       holderDID,
+		Credential:      credential,
+		RawPresentation: rawPresentation,
+	}
 }

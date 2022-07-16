@@ -29,37 +29,64 @@ import (
 )
 
 type VCService struct {
-	issuerAgent   vc.Issuer
-	holderAgent   vc.Holder
-	verifierAgent vc.Verifier
-	wallet        vc.Wallet
-	storage       storage.VCStorage
+	issuerAgent    vc.Issuer
+	holderAgent    vc.Holder
+	verifierAgent  vc.Verifier
+	issuerWallet   vc.Wallet
+	holderWallet   vc.Wallet
+	verifierWallet vc.Wallet
+	storage        storage.VCStorage
 }
 
-func NewVCService(storage storage.VCStorage, issuerAgent vc.Issuer, holderAgent vc.Holder, verifierAgent vc.Verifier, wallet vc.Wallet) *VCService {
+func NewVCService(storage storage.VCStorage, issuerAgent vc.Issuer, holderAgent vc.Holder, verifierAgent vc.Verifier, issuerWallet vc.Wallet, holderWallet vc.Wallet, verifierWallet vc.Wallet) *VCService {
 	return &VCService{
-		storage:       storage,
-		issuerAgent:   issuerAgent,
-		holderAgent:   holderAgent,
-		verifierAgent: verifierAgent,
-		wallet:        wallet,
+		storage:        storage,
+		issuerAgent:    issuerAgent,
+		holderAgent:    holderAgent,
+		verifierAgent:  verifierAgent,
+		issuerWallet:   issuerWallet,
+		holderWallet:   holderWallet,
+		verifierWallet: verifierWallet,
 	}
 }
 
 func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase string, holderId string, holderKMSPassphrase string, unsignedCredential domain.Credential) (credential domain.Credential, err error) {
-	conn, err := s.getOrCreateConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
+	conn, err := s.createConnection(issuerId, s.issuerAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	var piid string
-	var proofCredential domain.Credential // TODO signed unsignedCredential with key of holder
-	piid, err = s.holderAgent.SendCredentialRequest(conn, proofCredential)
+	piid, err := s.issuerAgent.SendCredentialOffer(conn, unsignedCredential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	credential, err = s.wallet.SignCredential(issuerId, issuerKMSPassphrase, vc.ProofOptions{}, unsignedCredential)
+	offeredCredential, err := s.holderAgent.GetCredentialFromOffer(piid)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	err = s.holderAgent.AcceptOffer(piid)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	credential, err = s.holderWallet.SignCredential(holderId, holderKMSPassphrase, offeredCredential.HolderDID, *offeredCredential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	_, err = s.holderAgent.SendCredentialRequest(conn, credential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	requestedCredential, err := s.issuerAgent.GetCredentialFromRequest(piid)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	credential, err = s.issuerWallet.SignCredential(issuerId, issuerKMSPassphrase, requestedCredential.IssuerDID, *requestedCredential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
@@ -69,21 +96,26 @@ func (s *VCService) ExchangeCredential(issuerId string, issuerKMSPassphrase stri
 		return domain.Credential{}, err
 	}
 
-	err = s.holderAgent.AcceptCredential(piid, credential.CredentialId)
+	issuedCredential, err := s.holderAgent.GetIssuedCredential(piid)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	err = s.storage.SaveCredential(credential)
+	err = s.holderAgent.AcceptCredential(piid, issuedCredential.CredentialId)
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
-	return credential, nil
+	err = s.storage.SaveCredential(*issuedCredential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
+	return *issuedCredential, nil
 }
 
 func (s *VCService) ExchangePresentation(verifierId string, holderId string, holderKMSPassphrase string, unsignedPresentation domain.Presentation) (presentation domain.Presentation, err error) {
-	conn, err := s.getOrCreateConnection(verifierId, s.verifierAgent, holderId, s.holderAgent)
+	conn, err := s.createConnection(verifierId, s.verifierAgent, holderId, s.holderAgent)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
@@ -94,7 +126,7 @@ func (s *VCService) ExchangePresentation(verifierId string, holderId string, hol
 		return domain.Presentation{}, err
 	}
 
-	presentation, err = s.wallet.SignPresentation(holderId, holderKMSPassphrase, vc.ProofOptions{}, unsignedPresentation)
+	presentation, err = s.holderWallet.SignPresentation(holderId, holderKMSPassphrase, unsignedPresentation.HolderDID, unsignedPresentation)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
@@ -104,17 +136,19 @@ func (s *VCService) ExchangePresentation(verifierId string, holderId string, hol
 		return domain.Presentation{}, err
 	}
 
-	err = s.verifierAgent.AcceptPresentation(piid, presentation.PresentationId)
+	issuedPresentation, err := s.verifierAgent.GetIssuedPresentation(piid)
+
+	err = s.verifierAgent.AcceptPresentation(piid, issuedPresentation.PresentationId)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
-	err = s.storage.SavePresentation(presentation)
+	err = s.storage.SavePresentation(*issuedPresentation)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
-	return presentation, nil
+	return *issuedPresentation, nil
 }
 
 func (s *VCService) GetCredentialById(credentialId string) (domain.Credential, error) {
@@ -126,47 +160,36 @@ func (s *VCService) GetPresentationById(presentationId string) (domain.Presentat
 }
 
 func (s *VCService) VerifyCredential(rawCredential json.RawMessage) error {
-	userId, passphrase, err := s.storage.GetWalletCredentialsForVerification()
+	userId, passphrase, err := s.storage.GetVerifierWalletCredentials()
 	if err != nil {
 		return err
 	}
 
-	return s.wallet.VerifyCredential(userId, passphrase, rawCredential)
+	return s.verifierWallet.VerifyCredential(userId, passphrase, rawCredential)
 }
 
 func (s *VCService) VerifyPresentation(rawPresentation json.RawMessage) error {
-	userId, passphrase, err := s.storage.GetWalletCredentialsForVerification()
+	userId, passphrase, err := s.storage.GetVerifierWalletCredentials()
 	if err != nil {
 		return err
 	}
 
-	return s.wallet.VerifyPresentation(userId, passphrase, rawPresentation)
+	return s.verifierWallet.VerifyPresentation(userId, passphrase, rawPresentation)
 }
 
-func (s *VCService) getOrCreateConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {
-	conn, err = s.storage.GetConnection(inviterId, inviteeId)
-	if err == nil {
-		return conn, nil
-	}
+func (s *VCService) createConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {
 
-	var invitation []byte
-	invitation, err = inviter.CreateOOBInvitation()
+	invitation, err := inviter.CreateOOBInvitation()
 	if err != nil {
 		return domain.Connection{}, err
 	}
 
-	var connectionId string
-	connectionId, err = invitee.AcceptOOBInvitation(invitation)
+	err = invitee.AcceptOOBInvitation(invitation)
 	if err != nil {
 		return domain.Connection{}, err
 	}
 
-	conn, err = inviter.AcceptOOBRequest(connectionId)
-	if err != nil {
-		return domain.Connection{}, err
-	}
-
-	err = s.storage.SaveConnection(inviterId, inviteeId, conn)
+	conn, err = inviter.AcceptOOBRequest(invitation)
 	if err != nil {
 		return domain.Connection{}, err
 	}

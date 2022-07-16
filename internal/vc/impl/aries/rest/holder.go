@@ -31,31 +31,37 @@ import (
 	issuecredentialcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/issuecredential"
 	presentproofcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/presentproof"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
 type Holder struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewHolder(endpoint string) (*Holder, error) {
-	return &Holder{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Holder{client: client}, nil
+}
+
+func (h *Holder) GetCredentialFromOffer(piid string) (credential *domain.Credential, err error) {
+	return getCredentialFromActions(h.client, piid)
+}
+
+func (h *Holder) GetIssuedCredential(piid string) (credential *domain.Credential, err error) {
+	return getCredentialFromActions(h.client, piid)
 }
 
 func (h *Holder) SendCredentialRequest(connection domain.Connection, credential domain.Credential) (piid string, err error) {
-	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredential, &cred)
 
-	if err != nil {
-		return "", err
+	if credential.RawCredential == nil {
+		return "", errors.New("raw credential cannot be nil")
 	}
 
 	requestCredential := client.RequestCredentialV2{
 		RequestsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: cred,
+				JSON: credential.RawCredential,
 			},
 		}},
 	}
@@ -63,12 +69,12 @@ func (h *Holder) SendCredentialRequest(connection domain.Connection, credential 
 	var res map[string]interface{}
 	resp, err := h.client.R().
 		SetBody(issuecredentialcmd.SendRequestArgsV2{
-			MyDID:             connection.InviterDID,
-			TheirDID:          connection.InviteeDID,
+			MyDID:             connection.InviteeDID,
+			TheirDID:          connection.InviterDID,
 			RequestCredential: &requestCredential,
 		}).
 		SetResult(&res).
-		Post(h.endpoint + "/issuecredential/send-request")
+		Post("/issuecredential/send-request")
 
 	if err != nil {
 		return "", err
@@ -84,7 +90,7 @@ func (h *Holder) SendCredentialRequest(connection domain.Connection, credential 
 func (h *Holder) AcceptOffer(piid string) error {
 	resp, err := h.client.R().
 		SetPathParam("piid", piid).
-		Post(h.endpoint + "/issuecredential/{piid}/accept-offer")
+		Post("/issuecredential/{piid}/accept-offer")
 
 	if err != nil {
 		return err
@@ -103,7 +109,7 @@ func (h *Holder) AcceptCredential(piid string, name string) error {
 		SetBody(issuecredentialcmd.AcceptCredentialArgs{
 			Names: []string{name},
 		}).
-		Post(h.endpoint + "/issuecredential/{piid}/accept-credential")
+		Post("/issuecredential/{piid}/accept-credential")
 
 	if err != nil {
 		return err
@@ -117,26 +123,20 @@ func (h *Holder) AcceptCredential(piid string, name string) error {
 }
 
 func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Presentation) (err error) {
-	var pres verifiable.Presentation
-	err = json.Unmarshal(presentation.RawPresentation, &pres)
-
-	if err != nil {
-		return err
-	}
-
 	presentationV2 := presentproof.PresentationV2{
 		PresentationsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: presentation,
+				JSON: presentation.RawPresentation,
 			},
 		}},
 	}
 
 	resp, err := h.client.R().
+		SetPathParam("piid", piid).
 		SetBody(presentproofcmd.AcceptRequestPresentationV2Args{
 			Presentation: &presentationV2,
 		}).
-		Post(h.endpoint + "/presentproof/{piid}/accept-request-presentation")
+		Post("/presentproof/{piid}/accept-request-presentation")
 
 	if err != nil {
 		return err
@@ -149,20 +149,24 @@ func (h *Holder) AcceptPresentationRequest(piid string, presentation domain.Pres
 	}
 }
 
-func (h *Holder) AcceptOOBInvitation(invitation json.RawMessage) (connectionId string, err error) {
-	var res map[string]interface{}
+func (h *Holder) AcceptOOBInvitation(invitation json.RawMessage) (err error) {
 	resp, err := h.client.R().
-		SetBody(invitation).
-		SetResult(&res).
-		Post(h.endpoint + "/outofband/accept-invitation")
+		SetBody(struct {
+			Invitation json.RawMessage `json:"invitation"`
+			MyLabel    string          `json:"my_label"`
+		}{
+			Invitation: invitation,
+			MyLabel:    "Holder",
+		}).
+		Post("/outofband/accept-invitation")
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		return res["connection_id"].(string), nil
+		return nil
 	} else {
-		return "", errors.New(string(resp.Body()))
+		return errors.New(string(resp.Body()))
 	}
 }

@@ -48,9 +48,6 @@ const (
 
 	verifierRestEndpointFlagName = "verifier-rest-endpoint"
 	verifierRestEndpointEnvKey   = "SSIMP_VERIFIER_REST_ENDPOINT"
-
-	vcWalletRestEndpointFlagName = "vc-wallet-rest-endpoint"
-	vcWalletRestEndpointEnvKey   = "SSIMP_VC_WALLET_REST_ENDPOINT"
 )
 
 type ServerParameters struct {
@@ -58,7 +55,6 @@ type ServerParameters struct {
 	issuerRestEndpoint   string
 	holderRestEndpoint   string
 	verifierRestEndpoint string
-	vcWalletRestEndpoint string
 }
 
 func Cmd() (*cobra.Command, error) {
@@ -75,7 +71,6 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().String(issuerRestEndpointFlagName, "", "")
 	startCmd.Flags().String(holderRestEndpointFlagName, "", "")
 	startCmd.Flags().String(verifierRestEndpointFlagName, "", "")
-	startCmd.Flags().String(vcWalletRestEndpointFlagName, "", "")
 }
 
 // NewServerParameters constructs ServerParameters with the given cobra command.
@@ -101,17 +96,11 @@ func NewServerParameters(cmd *cobra.Command) (*ServerParameters, error) { //noli
 		return nil, err
 	}
 
-	vcWalletRestEndpoint, err := getUserSetVar(cmd, vcWalletRestEndpointFlagName, vcWalletRestEndpointEnvKey, false)
-	if err != nil {
-		return nil, err
-	}
-
 	return &ServerParameters{
 		levelDBStoragePath:   levelDBStoragePath,
 		issuerRestEndpoint:   issuerRestEndpoint,
 		holderRestEndpoint:   holderRestEndpoint,
 		verifierRestEndpoint: verifierRestEndpoint,
-		vcWalletRestEndpoint: vcWalletRestEndpoint,
 	}, nil
 }
 
@@ -162,12 +151,22 @@ func initializeRestHandler(params *ServerParameters) (h *handler.RestHandler, er
 		return nil, fmt.Errorf("error creating vc verifier agent: %v\n", err)
 	}
 
-	wallet, err := aries.NewWallet(params.vcWalletRestEndpoint)
+	issuerWallet, err := aries.NewWallet(params.issuerRestEndpoint)
 	if err != nil {
-		return nil, fmt.Errorf("error creating vc wallet: %v\n", err)
+		return nil, fmt.Errorf("error creating issuer wallet: %v\n", err)
 	}
 
-	vcService := service.NewVCService(vcStorage, issuerAgent, holderAgent, verifierAgent, wallet)
+	holderWallet, err := aries.NewWallet(params.holderRestEndpoint)
+	if err != nil {
+		return nil, fmt.Errorf("error creating holder wallet: %v\n", err)
+	}
+
+	verifierWallet, err := aries.NewWallet(params.verifierRestEndpoint)
+	if err != nil {
+		return nil, fmt.Errorf("error creating holder wallet: %v\n", err)
+	}
+
+	vcService := service.NewVCService(vcStorage, issuerAgent, holderAgent, verifierAgent, issuerWallet, holderWallet, verifierWallet)
 
 	// initialize rest hander
 	h = handler.New(doctorService, patientService, pharmacyService, vcService)

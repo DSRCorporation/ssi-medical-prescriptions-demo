@@ -29,19 +29,19 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command/vcwallet"
 	"github.com/hyperledger/aries-framework-go/pkg/wallet"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/vc"
 )
 
 type Wallet struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewWallet(endpoint string) (*Wallet, error) {
-	return &Wallet{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Wallet{client: client}, nil
 }
 
-func (w *Wallet) SignCredential(userId string, passphrase string, proofOptions vc.ProofOptions, credential domain.Credential) (domain.Credential, error) {
+func (w *Wallet) SignCredential(userId string, passphrase string, did string, credential domain.Credential) (domain.Credential, error) {
 	token, err := w.open(userId, passphrase)
 	if err != nil {
 		return domain.Credential{}, err
@@ -49,38 +49,37 @@ func (w *Wallet) SignCredential(userId string, passphrase string, proofOptions v
 
 	defer w.close(userId, passphrase)
 
+	rawCredential, err := toRawCredential(credential)
+	if err != nil {
+		return domain.Credential{}, err
+	}
+
 	var res struct {
-		RawCredential json.RawMessage
+		Credential json.RawMessage `json:"credential"`
 	}
 	resp, err := w.client.R().
 		SetBody(&vcwallet.IssueRequest{
 			WalletAuth: vcwallet.WalletAuth{UserID: userId, Auth: token},
-			Credential: credential.RawCredential,
+			Credential: rawCredential,
 			ProofOptions: &wallet.ProofOptions{
-				Controller:          proofOptions.Controller,
-				VerificationMethod:  proofOptions.VerificationMethod,
-				Created:             proofOptions.Created,
-				Domain:              proofOptions.Domain,
-				Challenge:           proofOptions.Challenge,
-				ProofType:           proofOptions.ProofType,
-				ProofRepresentation: proofOptions.ProofRepresentation,
+				Controller: credential.HolderDID,
 			}}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/issue")
+		Post("/vcwallet/issue")
 
 	if err != nil {
 		return domain.Credential{}, err
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		credential.RawCredential = res.RawCredential
+		credential.RawCredential = res.Credential
 		return credential, nil
 	} else {
 		return domain.Credential{}, errors.New(string(resp.Body()))
 	}
 }
 
-func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions vc.ProofOptions, presentaion domain.Presentation) (domain.Presentation, error) {
+func (w *Wallet) SignPresentation(userId string, passphrase string, did string, presentation domain.Presentation) (domain.Presentation, error) {
 	token, err := w.open(userId, passphrase)
 	if err != nil {
 		return domain.Presentation{}, err
@@ -88,32 +87,32 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, proofOptions
 
 	defer w.close(userId, passphrase)
 
-	var res struct {
-		RawPresentation json.RawMessage
+	rawPresentation, err := toRawPresentation(presentation)
+	if err != nil {
+		return domain.Presentation{}, err
 	}
+
+	var res struct {
+		Presentation json.RawMessage `json:"presentation"`
+	}
+
 	resp, err := w.client.R().
 		SetBody(&vcwallet.ProveRequest{
 			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
-			Presentation: presentaion.RawPresentation,
+			Presentation: rawPresentation,
 			ProofOptions: &wallet.ProofOptions{
-				Controller:          proofOptions.Controller,
-				VerificationMethod:  proofOptions.VerificationMethod,
-				Created:             proofOptions.Created,
-				Domain:              proofOptions.Domain,
-				Challenge:           proofOptions.Challenge,
-				ProofType:           proofOptions.ProofType,
-				ProofRepresentation: proofOptions.ProofRepresentation,
+				Controller: presentation.HolderDID,
 			}}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/prove")
+		Post("/vcwallet/prove")
 
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		presentaion.RawPresentation = res.RawPresentation
-		return presentaion, nil
+		presentation.RawPresentation = res.Presentation
+		return presentation, nil
 	} else {
 		return domain.Presentation{}, errors.New(string(resp.Body()))
 	}
@@ -128,16 +127,11 @@ func (w *Wallet) VerifyCredential(userId string, passphrase string, rawCredentia
 	defer w.close(userId, passphrase)
 
 	resp, err := w.client.R().
-		SetBody(struct {
-			Auth       string          `json:"auth"`
-			Credential json.RawMessage `json:"credential"`
-			UsedId     string          `json:"usedId"`
-		}{
-			Auth:       token,
-			Credential: rawCredential,
-			UsedId:     userId,
+		SetBody(&vcwallet.VerifyRequest{
+			WalletAuth:    vcwallet.WalletAuth{UserID: userId, Auth: token},
+			RawCredential: rawCredential,
 		}).
-		Post(w.endpoint + "/vcwallet/verify")
+		Post("/vcwallet/verify")
 
 	if err != nil {
 		return err
@@ -159,16 +153,11 @@ func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresent
 	defer w.close(userId, passphrase)
 
 	resp, err := w.client.R().
-		SetBody(struct {
-			Auth         string          `json:"auth"`
-			Presentation json.RawMessage `json:"presentation"`
-			UsedId       string          `json:"usedId"`
-		}{
-			Auth:         token,
+		SetBody(&vcwallet.VerifyRequest{
+			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
 			Presentation: rawPresentation,
-			UsedId:       userId,
 		}).
-		Post(w.endpoint + "/vcwallet/verify")
+		Post("/vcwallet/verify")
 
 	if err != nil {
 		return err
@@ -184,15 +173,12 @@ func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresent
 func (w *Wallet) open(userId string, passphrase string) (token string, err error) {
 	var res map[string]interface{}
 	resp, err := w.client.R().
-		SetBody(struct {
-			UserId             string `json:"userId"`
-			LocalKMSPassphrase string `json:"localKMSPassphrase"`
-		}{
-			UserId:             userId,
+		SetBody(&vcwallet.UnlockWalletRequest{
+			UserID:             userId,
 			LocalKMSPassphrase: passphrase,
 		}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/open")
+		Post("/vcwallet/open")
 
 	if err != nil {
 		return "", err
@@ -208,15 +194,11 @@ func (w *Wallet) open(userId string, passphrase string) (token string, err error
 func (w *Wallet) close(userId string, passphrase string) (err error) {
 	var res map[string]interface{}
 	resp, err := w.client.R().
-		SetBody(struct {
-			UserId             string `json:"userId"`
-			LocalKMSPassphrase string `json:"localKMSPassphrase"`
-		}{
-			UserId:             userId,
-			LocalKMSPassphrase: passphrase,
+		SetBody(&vcwallet.LockWalletRequest{
+			UserID: userId,
 		}).
 		SetResult(&res).
-		Post(w.endpoint + "/vcwallet/close")
+		Post("/vcwallet/close")
 
 	if err != nil {
 		return err

@@ -31,23 +31,21 @@ import (
 	client "github.com/hyperledger/aries-framework-go/pkg/client/issuecredential"
 	issuecredentialcmd "github.com/hyperledger/aries-framework-go/pkg/controller/command/issuecredential"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
-	verifiable "github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 )
 
 type Issuer struct {
-	client   *resty.Client
-	endpoint string
+	client *resty.Client
 }
 
 func NewIssuer(endpoint string) (*Issuer, error) {
-	return &Issuer{client: resty.New(), endpoint: endpoint}, nil
+	client := resty.New()
+	client.SetBaseURL(endpoint)
+	return &Issuer{client: client}, nil
 }
 
 func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error) {
 
-	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredential, &cred)
-
+	rawCredential, err := toRawCredential(credential)
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +53,7 @@ func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential do
 	offerCredential := client.OfferCredentialV2{
 		OffersAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: cred,
+				JSON: rawCredential,
 			},
 		}},
 	}
@@ -68,7 +66,7 @@ func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential do
 			OfferCredential: &offerCredential,
 		}).
 		SetResult(&res).
-		Post(i.endpoint + "/issuecredential/send-offer")
+		Post("/issuecredential/send-offer")
 
 	if err != nil {
 		return "", err
@@ -81,18 +79,19 @@ func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential do
 	}
 }
 
-func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credential) (err error) {
-	var cred verifiable.Credential
-	err = json.Unmarshal(credential.RawCredential, &cred)
+func (i *Issuer) GetCredentialFromRequest(piid string) (credential *domain.Credential, err error) {
+	return getCredentialFromActions(i.client, piid)
+}
 
-	if err != nil {
-		return err
+func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credential) (err error) {
+	if credential.RawCredential == nil {
+		return errors.New("raw credential cannot be nil")
 	}
 
 	issueCredential := client.IssueCredentialV2{
 		CredentialsAttach: []decorator.Attachment{{
 			Data: decorator.AttachmentData{
-				JSON: cred,
+				JSON: credential.RawCredential,
 			},
 		}},
 	}
@@ -101,7 +100,8 @@ func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credenti
 		SetBody(issuecredentialcmd.AcceptRequestArgsV2{
 			IssueCredential: &issueCredential,
 		}).
-		Post(i.endpoint + "/issuecredential/send-offer")
+		SetPathParam("piid", piid).
+		Post("/issuecredential/{piid}/accept-request")
 
 	if err != nil {
 		return err
@@ -115,9 +115,9 @@ func (i *Issuer) AcceptCredentialRequest(piid string, credential domain.Credenti
 }
 
 func (i *Issuer) CreateOOBInvitation() (invitation json.RawMessage, err error) {
-	return CreateOOBInvitation(i.client, i.endpoint)
+	return CreateOOBInvitation(i.client)
 }
 
-func (i *Issuer) AcceptOOBRequest(connectionId string) (connection domain.Connection, err error) {
-	return AcceptOOBRequest(i.client, i.endpoint, connectionId)
+func (i *Issuer) AcceptOOBRequest(invitation json.RawMessage) (connection domain.Connection, err error) {
+	return AcceptOOBRequest(i.client, invitation)
 }

@@ -57,13 +57,15 @@ func New(doctorService *service.DoctorService, patientService *service.PatientSe
 // (POST /v1/doctors/{doctorId}/prescriptions/credential-offers/)
 func (h *RestHandler) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context, doctorId string) error {
 	var body rest.Prescription
-	ctx.Bind(body)
+	ctx.Bind(&body)
 
-	prescription := ConvertToPrescription(body, doctorId)
+	prescription, err := ConvertToPrescription(body, doctorId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
 	offerId := uuid.New().String()
-
-	err := h.doctorService.CreatePrescriptionOffer(offerId, prescription)
+	err = h.doctorService.CreatePrescriptionOffer(offerId, *prescription)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -87,9 +89,13 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	fromPrescription := ConvertFromPrescription(prescription)
+	fromPrescription, err := ConvertFromPrescription(prescription)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	response := rest.GetCredentialOfferResponse{
-		Prescription: &fromPrescription,
+		Prescription: fromPrescription,
 	}
 
 	err = ctx.JSON(http.StatusOK, response)
@@ -168,7 +174,7 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Co
 // (POST /v1/patients/{patientId}/prescriptions/credentials/)
 func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
 	var body rest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody
-	ctx.Bind(body)
+	ctx.Bind(&body)
 
 	credentialOfferId := *body.CredentialOfferId
 	patientDID := body.Did
@@ -190,11 +196,8 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.C
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	credentialId := uuid.New().String()
-	unsignedCredential, err := domain.NewCredential(credentialId, doctorDID, *patientDID, domain.PRESCRRIPTION_CREDENTIAL_TYPE, prescription)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	credentialId := domain.GenerateVerifiableId()
+	unsignedCredential := domain.NewCredential(credentialId, doctorDID, *patientDID, prescription, nil)
 
 	signedCredential, err := h.vcService.ExchangeCredential(doctorId, doctorKmsPassphrase, patientId, *patientKmsPassphrase, *unsignedCredential)
 	if err != nil {
@@ -252,7 +255,7 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId
 // (POST /v1/patients/{patientId}/prescriptions/presentations/)
 func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error {
 	var body rest.PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody
-	ctx.Bind(body)
+	ctx.Bind(&body)
 
 	requestId := *body.PresentationRequestId
 	credentialId := *body.CredentialId
@@ -270,8 +273,8 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 	patientDID := credential.HolderDID
 	patientKmsPassphrase := body.KmsPassphrase
 
-	presentationId := uuid.New().String()
-	unsignedPresentation, err := domain.NewPresentation(presentationId, patientDID, domain.PRESCRRIPTION_PRESENTATION_TYPE, credential)
+	presentationId := domain.GenerateVerifiableId()
+	unsignedPresentation := domain.NewPresentation(presentationId, patientDID, credential, nil)
 
 	signedPresentation, err := h.vcService.ExchangePresentation(pharmacyId, patientId, *patientKmsPassphrase, *unsignedPresentation)
 	if err != nil {

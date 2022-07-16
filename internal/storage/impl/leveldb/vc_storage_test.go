@@ -95,7 +95,6 @@ func TestDoubleTimeSaveCredential(t *testing.T) {
 		CredentialId: tmrand.Str(6),
 		IssuerDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
 		HolderDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
-		Type:         tmrand.Str(10),
 		Prescription: domain.Prescription{
 			DoctorId:        tmrand.Str(6),
 			RawPrescription: []byte(`{"somePrescription":"someValue"}`),
@@ -121,7 +120,6 @@ func TestGetExistCredentialByID(t *testing.T) {
 		CredentialId: tmrand.Str(6),
 		IssuerDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
 		HolderDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
-		Type:         tmrand.Str(10),
 		Prescription: domain.Prescription{
 			DoctorId:        tmrand.Str(6),
 			RawPrescription: []byte(`{"somePrescription":"someValue"}`),
@@ -143,7 +141,6 @@ func TestGetExistCredentialByID(t *testing.T) {
 	require.Equal(t, credential.CredentialId, receivedCredential.CredentialId)
 	require.Equal(t, credential.IssuerDID, receivedCredential.IssuerDID)
 	require.Equal(t, credential.HolderDID, receivedCredential.HolderDID)
-	require.Equal(t, credential.Type, receivedCredential.Type)
 	require.Equal(t, credential.Prescription.DoctorId, receivedCredential.Prescription.DoctorId)
 	require.Equal(t, credential.Prescription.RawPrescription, receivedCredential.Prescription.RawPrescription)
 	require.Equal(t, credential.RawCredential, receivedCredential.RawCredential)
@@ -171,7 +168,6 @@ func TestDoubleTimeSavePresentation(t *testing.T) {
 			CredentialId: tmrand.Str(6),
 			IssuerDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
 			HolderDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
-			Type:         tmrand.Str(10),
 			Prescription: domain.Prescription{
 				DoctorId:        tmrand.Str(6),
 				RawPrescription: []byte(`{"somePrescription":"someValue"}`),
@@ -203,7 +199,6 @@ func TestGetExistPresentationByID(t *testing.T) {
 			CredentialId: tmrand.Str(6),
 			IssuerDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
 			HolderDID:    fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
-			Type:         tmrand.Str(10),
 			Prescription: domain.Prescription{
 				DoctorId:        tmrand.Str(6),
 				RawPrescription: []byte(`{"somePrescription":"someValue"}`),
@@ -230,7 +225,6 @@ func TestGetExistPresentationByID(t *testing.T) {
 	require.Equal(t, presentation.Credential.CredentialId, receivedPresentation.Credential.CredentialId)
 	require.Equal(t, presentation.Credential.IssuerDID, receivedPresentation.Credential.IssuerDID)
 	require.Equal(t, presentation.Credential.HolderDID, receivedPresentation.Credential.HolderDID)
-	require.Equal(t, presentation.Credential.Type, receivedPresentation.Credential.Type)
 	require.Equal(t, presentation.Credential.Prescription.DoctorId, receivedPresentation.Credential.Prescription.DoctorId)
 	require.Equal(t, presentation.Credential.Prescription.RawPrescription, receivedPresentation.Credential.Prescription.RawPrescription)
 	require.Equal(t, presentation.Credential.RawCredential, receivedPresentation.Credential.RawCredential)

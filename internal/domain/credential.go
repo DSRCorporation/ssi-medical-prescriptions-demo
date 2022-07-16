@@ -20,29 +20,25 @@
 
 package domain
 
-import "encoding/json"
-
-const (
-	PRESCRRIPTION_CREDENTIAL_TYPE = "PrescriptionCredential"
+import (
+	"encoding/json"
 )
 
 type Credential struct {
 	CredentialId string
 	IssuerDID    string
 	HolderDID    string
-	Type         string
 	Prescription Prescription
 
 	RawCredential json.RawMessage
 }
 
-func NewCredential(credentialId string, issuerDID string, holderDID string, credentialType string, prescription Prescription) (credential *Credential, err error) {
-	// @TODO: generate raw credential
+func NewCredential(CredentialId string, issuerDID string, holderDID string, prescription Prescription, rawCredential json.RawMessage) (credential *Credential) {
 	return &Credential{
-		CredentialId: credentialId,
-		IssuerDID:    issuerDID,
-		HolderDID:    holderDID,
-		Type:         credentialType,
-		Prescription: prescription,
-	}, nil
+		CredentialId:  CredentialId,
+		IssuerDID:     issuerDID,
+		HolderDID:     holderDID,
+		Prescription:  prescription,
+		RawCredential: rawCredential,
+	}
 }
