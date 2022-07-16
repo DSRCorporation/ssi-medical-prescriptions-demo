@@ -63,6 +63,10 @@ func (v *Verifier) SendPresentationRequest(connection domain.Connection) (piid s
 	}
 }
 
+func (v *Verifier) GetIssuedPresentation(piid string) (presentation *domain.Presentation, err error) {
+	return getPresentationFromActions(v.client, piid)
+}
+
 func (v *Verifier) AcceptPresentation(piid string, name string) error {
 	resp, err := v.client.R().
 		SetPathParam("piid", piid).

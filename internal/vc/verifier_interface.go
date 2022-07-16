@@ -28,6 +28,7 @@ import (
 
 type Verifier interface {
 	SendPresentationRequest(connection domain.Connection) (piid string, err error)
+	GetIssuedPresentation(piid string) (presentation *domain.Presentation, err error)
 	AcceptPresentation(piid string, name string) error
 
 	CreateOOBInvitation() (invitation json.RawMessage, err error)

@@ -135,17 +135,19 @@ func (s *VCService) ExchangePresentation(verifierId string, holderId string, hol
 		return domain.Presentation{}, err
 	}
 
-	err = s.verifierAgent.AcceptPresentation(piid, presentation.PresentationId)
+	issuedPresentation, err := s.verifierAgent.GetIssuedPresentation(piid)
+
+	err = s.verifierAgent.AcceptPresentation(piid, issuedPresentation.PresentationId)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
-	err = s.storage.SavePresentation(presentation)
+	err = s.storage.SavePresentation(*issuedPresentation)
 	if err != nil {
 		return domain.Presentation{}, err
 	}
 
-	return presentation, nil
+	return *issuedPresentation, nil
 }
 
 func (s *VCService) GetCredentialById(credentialId string) (domain.Credential, error) {
