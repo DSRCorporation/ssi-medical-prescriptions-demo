@@ -161,7 +161,7 @@ func initializeRestHandler(params *ServerParameters) (h *handler.RestHandler, er
 		return nil, fmt.Errorf("error creating holder wallet: %v\n", err)
 	}
 
-	verifierWallet, err := aries.NewWallet(params.holderRestEndpoint)
+	verifierWallet, err := aries.NewWallet(params.verifierRestEndpoint)
 	if err != nil {
 		return nil, fmt.Errorf("error creating holder wallet: %v\n", err)
 	}

@@ -40,12 +40,13 @@ type VCService struct {
 
 func NewVCService(storage storage.VCStorage, issuerAgent vc.Issuer, holderAgent vc.Holder, verifierAgent vc.Verifier, issuerWallet vc.Wallet, holderWallet vc.Wallet, verifierWallet vc.Wallet) *VCService {
 	return &VCService{
-		storage:       storage,
-		issuerAgent:   issuerAgent,
-		holderAgent:   holderAgent,
-		verifierAgent: verifierAgent,
-		issuerWallet:  issuerWallet,
-		holderWallet:  holderWallet,
+		storage:        storage,
+		issuerAgent:    issuerAgent,
+		holderAgent:    holderAgent,
+		verifierAgent:  verifierAgent,
+		issuerWallet:   issuerWallet,
+		holderWallet:   holderWallet,
+		verifierWallet: verifierWallet,
 	}
 }
 
