@@ -45,7 +45,7 @@ func NewIssuer(endpoint string) (*Issuer, error) {
 
 func (i *Issuer) SendCredentialOffer(connection domain.Connection, credential domain.Credential) (piid string, err error) {
 
-	rawCredential, err := makeRawCredential(credential)
+	rawCredential, err := toRawCredential(credential)
 	if err != nil {
 		return "", err
 	}

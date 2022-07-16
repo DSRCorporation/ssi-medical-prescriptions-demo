@@ -49,7 +49,7 @@ func (w *Wallet) SignCredential(userId string, passphrase string, did string, cr
 
 	defer w.close(userId, passphrase)
 
-	rawCredential, err := makeRawCredential(credential)
+	rawCredential, err := toRawCredential(credential)
 	if err != nil {
 		return domain.Credential{}, err
 	}
@@ -60,9 +60,9 @@ func (w *Wallet) SignCredential(userId string, passphrase string, did string, cr
 	resp, err := w.client.R().
 		SetBody(&vcwallet.IssueRequest{
 			WalletAuth: vcwallet.WalletAuth{UserID: userId, Auth: token},
-			Credential: *rawCredential,
+			Credential: rawCredential,
 			ProofOptions: &wallet.ProofOptions{
-				Controller: did,
+				Controller: credential.HolderDID,
 			}}).
 		SetResult(&res).
 		Post("/vcwallet/issue")
@@ -87,16 +87,21 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, did string, 
 
 	defer w.close(userId, passphrase)
 
+	rawPresentation, err := toRawPresentation(presentation)
+	if err != nil {
+		return domain.Presentation{}, err
+	}
+
 	var res struct {
 		Presentation json.RawMessage `json:"presentation"`
 	}
 
 	resp, err := w.client.R().
 		SetBody(&vcwallet.ProveRequest{
-			WalletAuth:     vcwallet.WalletAuth{UserID: userId, Auth: token},
-			RawCredentials: []json.RawMessage{presentation.Credential.RawCredential},
+			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
+			Presentation: rawPresentation,
 			ProofOptions: &wallet.ProofOptions{
-				Controller: did,
+				Controller: presentation.HolderDID,
 			}}).
 		SetResult(&res).
 		Post("/vcwallet/prove")
