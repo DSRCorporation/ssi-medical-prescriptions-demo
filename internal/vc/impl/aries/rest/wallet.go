@@ -63,7 +63,7 @@ func (w *Wallet) SignCredential(userId string, passphrase string, did string, cr
 			WalletAuth: vcwallet.WalletAuth{UserID: userId, Auth: token},
 			Credential: rawCredential,
 			ProofOptions: &wallet.ProofOptions{
-				Controller: credential.HolderDID,
+				Controller: did,
 			}}).
 		SetResult(&res).
 		Post("/vcwallet/issue")
@@ -102,7 +102,7 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, did string, 
 			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
 			Presentation: rawPresentation,
 			ProofOptions: &wallet.ProofOptions{
-				Controller: presentation.HolderDID,
+				Controller: did,
 			}}).
 		SetResult(&res).
 		Post("/vcwallet/prove")
