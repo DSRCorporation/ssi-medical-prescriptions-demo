@@ -99,7 +99,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/credential'
+                $ref: '#/components/schemas/credentialResponse'
         default:
           description: unexpected error
           content:
@@ -140,7 +140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/credential'                
+                $ref: '#/components/schemas/credentialResponse'               
         default:
           description: unexpected error
           content:
@@ -229,8 +229,6 @@ paths:
                   type: string
                 credentialId:
                   type: string
-                challenge:
-                  type: string
                 kmsPassphrase:
                   type: string
         required: true
@@ -240,7 +238,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/presentation'
+                $ref: '#/components/schemas/presentationResponse'
         default:
           description: unexpected error
           content:
@@ -336,7 +334,7 @@ paths:
               application/json:
                 schema:
                   type: object
-                  $ref: '#/components/schemas/getPrescriptionCredentialResponse'
+                  $ref: '#/components/schemas/presentationResponse'
                   
           default:
             description: unexpected error
@@ -405,6 +403,11 @@ paths:
       responses:
           '200':
             description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/verificationResponse'
+
           default:
             description: unexpected error
             content:
@@ -508,16 +511,11 @@ components:
     presentationProof:
       allOf:
         - $ref: '#/components/schemas/credentialProof'
-        - type: object
-          properties:
-            challenge:
-              type: string
       example:
         type: JsonWebSignature2020
         created: '2021-10-02T17:58:00Z'
         proofPurpose: authentication
         verificationMethod: did:example:124#key-2
-        challenge: c0ae1c8e-c7e7-469f-b252-86e6a0e7387e
         jws: ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0VQqAghUT6AIVdHc8W8Q2aj12LOQjV_VZ1e134NU9Q20eBsNySPjNdmTWp2HkdquCnbRhBHxIbNeFEIOOhAg
 
     
@@ -611,14 +609,24 @@ components:
       properties:
         credentialOfferId:
           type: string
+    
+    credentialResponse:
+      type: object
+      properties:
+        credential:
+          $ref: '#/components/schemas/credential'
+    
+    presentationResponse:
+      type: object
+      properties:
+        presentation:
+          $ref: '#/components/schemas/presentation'
 
     getCredentialOfferResponse:
       type: object
       properties:
         prescription:
           $ref: '#/components/schemas/prescription'
-        challenge:
-          type: string
 
     createPresentationRequestResponse:
       type: object
@@ -658,13 +666,13 @@ components:
         credentials:
           type: array
           items:
-              type: object
-
-    getPrescriptionCredentialResponse:
+            $ref: '#/components/schemas/credential'
+    
+    verificationResponse:
       type: object
       properties:
-        credentials:
-            type: object
+        verified:
+          type: boolean
 
     error:
       type: object

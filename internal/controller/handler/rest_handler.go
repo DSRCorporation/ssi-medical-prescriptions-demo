@@ -116,7 +116,13 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
-			return ctx.JSONBlob(http.StatusOK, credential.RawCredential)
+
+			response := struct {
+				Credential json.RawMessage `json:"credential"`
+			}{
+				Credential: credential.RawCredential,
+			}
+			return ctx.JSON(http.StatusOK, response)
 		}
 
 		time.Sleep(time.Second)
@@ -214,7 +220,11 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.C
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	err = ctx.JSONBlob(http.StatusCreated, signedCredential.RawCredential)
+	response := struct {
+		Credential *json.RawMessage `json:"credential"`
+	}{Credential: &signedCredential.RawCredential}
+
+	err = ctx.JSON(http.StatusOK, response)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -237,8 +247,8 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId
 			}
 
 			response := struct {
-				Credentials *json.RawMessage `json:"credentials"`
-			}{Credentials: &credential.RawCredential}
+				Credential *json.RawMessage `json:"credential"`
+			}{Credential: &credential.RawCredential}
 
 			err = ctx.JSON(http.StatusOK, response)
 			if err != nil {
@@ -286,7 +296,13 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	err = ctx.JSONBlob(http.StatusCreated, signedPresentation.RawPresentation)
+	response := struct {
+		Presentation json.RawMessage `json:"presentation"`
+	}{
+		Presentation: signedPresentation.RawPresentation,
+	}
+
+	err = ctx.JSON(http.StatusCreated, response)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -380,7 +396,8 @@ func (h *RestHandler) PostV1VcVerifyCredential(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	err = ctx.NoContent(http.StatusOK)
+	verified := true
+	err = ctx.JSON(http.StatusOK, rest.VerificationResponse{Verified: &verified})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -402,7 +419,8 @@ func (h *RestHandler) PostV1VcVerifyPresentation(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	err = ctx.NoContent(http.StatusOK)
+	verified := true
+	err = ctx.JSON(http.StatusOK, rest.VerificationResponse{Verified: &verified})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
