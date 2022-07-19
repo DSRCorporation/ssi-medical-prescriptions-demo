@@ -18,6 +18,7 @@ make demo-server
     ```
     - Demo server api will be available at http://localhost:8888
     - OpenAPI will be available at http://localhost:8889/openapi
+    - To create DIDs and add private keys to wallet manually follow [how-to-add-dids-manually.md](./docs/how-to-add-dids-manually.md)
 
 2. Stop demo server
     ```bash
