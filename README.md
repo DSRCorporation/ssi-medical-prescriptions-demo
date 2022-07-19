@@ -1,4 +1,8 @@
-# SSI medical prescriptions-demo
+# SSI medical prescriptions demo
+
+Web application demonstrating usage of self-sovereign identity principles for issuance and verification of medical prescriptions.
+
+The application is based on [aries-framework-go](https://github.com/hyperledger/aries-framework-go) and [cheqd-node](https://github.com/cheqd/cheqd-node). It uses [W3C verifiable credentials](https://www.w3.org/TR/vc-data-model/) and Hyperledger Aries Issuance and Presentation protocols over DIDComm.
 
 ## Demo server
 
@@ -13,7 +17,7 @@ make demo-server
     make run-demo-server
     ```
     - Demo server api will be available at http://localhost:8888
-    - Openapi will be available at http://localhost:8889/openapi
+    - OpenAPI will be available at http://localhost:8889/openapi
 
 2. Stop demo server
     ```bash
@@ -45,9 +49,20 @@ make mock-server
     make run-mock-server
     ```
     - Mock server api will be available at http://localhost:8989
-    - Openapi will be available at http://localhost:8889/openapi
+    - OpenAPI will be available at http://localhost:8889/openapi
 
 2. Stop mock server
     ```bash
     make stop-mock-server
     ```
+
+## Components
+- [aries-framework-go][1] framework is used as an underlying verifiable credential engine
+- [cheqd][2] ledger is used to store and resolve Decentralized Identifiers (DIDs)
+
+## Architecture
+![Architecture diagram](./docs/static/architecture.drawio.png)
+
+
+[1]: https://github.com/hyperledger/aries-framework-go
+[2]: https://github.com/cheqd/cheqd-node
