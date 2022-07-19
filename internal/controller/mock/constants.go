@@ -181,7 +181,6 @@ var GetCredentialOfferResponseInfo = rest.GetCredentialOfferResponse{
 			},
 		},
 	},
-	Challenge: &challenge,
 }
 
 // Credential response info
@@ -233,16 +232,12 @@ var GetAllDidsResponseInfo = rest.GetAllDidsResponse{
 
 // Get all prescription credential response info
 var GetAllPrescriptionCredentialResponseInfo = rest.GetAllPrescriptionCredentialResponse{
-	Credentials: &[]map[string]interface{}{
-		{
-			"first": CredentialResponseInfo,
-		},
-	},
+	Credentials: &[]rest.Credential{CredentialResponseInfo},
 }
 
 // Get prescription credential response info
-var GetPrescriptionCredentialResponseInfo = rest.GetPrescriptionCredentialResponse{
-	Credentials: &map[string]interface{}{"first": CredentialResponseInfo},
+var GetPrescriptionCredentialResponseInfo = rest.CredentialResponse{
+	Credential: &CredentialResponseInfo,
 }
 
 // Presentation info
@@ -262,7 +257,6 @@ var PresentationInfo = rest.Presentation{
 			Created:            &created,
 			ProofPurpose:       &proofPurpose,
 			VerificationMethod: &verificationMethod,
-			Challenge:          &challenge,
 			Jws:                &jws,
 		},
 	},

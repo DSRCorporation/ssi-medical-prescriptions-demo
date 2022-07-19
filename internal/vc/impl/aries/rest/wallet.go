@@ -23,6 +23,7 @@ package rest
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-resty/resty/v2"
@@ -62,7 +63,7 @@ func (w *Wallet) SignCredential(userId string, passphrase string, did string, cr
 			WalletAuth: vcwallet.WalletAuth{UserID: userId, Auth: token},
 			Credential: rawCredential,
 			ProofOptions: &wallet.ProofOptions{
-				Controller: credential.HolderDID,
+				Controller: did,
 			}}).
 		SetResult(&res).
 		Post("/vcwallet/issue")
@@ -101,7 +102,7 @@ func (w *Wallet) SignPresentation(userId string, passphrase string, did string, 
 			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
 			Presentation: rawPresentation,
 			ProofOptions: &wallet.ProofOptions{
-				Controller: presentation.HolderDID,
+				Controller: did,
 			}}).
 		SetResult(&res).
 		Post("/vcwallet/prove")
@@ -126,22 +127,12 @@ func (w *Wallet) VerifyCredential(userId string, passphrase string, rawCredentia
 
 	defer w.close(userId, passphrase)
 
-	resp, err := w.client.R().
-		SetBody(&vcwallet.VerifyRequest{
-			WalletAuth:    vcwallet.WalletAuth{UserID: userId, Auth: token},
-			RawCredential: rawCredential,
-		}).
-		Post("/vcwallet/verify")
-
-	if err != nil {
-		return err
+	body := vcwallet.VerifyRequest{
+		WalletAuth:    vcwallet.WalletAuth{UserID: userId, Auth: token},
+		RawCredential: rawCredential,
 	}
 
-	if resp.StatusCode() == http.StatusOK {
-		return nil
-	} else {
-		return errors.New(string(resp.Body()))
-	}
+	return w.Verify(body)
 }
 
 func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresentation json.RawMessage) error {
@@ -152,11 +143,19 @@ func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresent
 
 	defer w.close(userId, passphrase)
 
+	body := vcwallet.VerifyRequest{
+		WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
+		Presentation: rawPresentation,
+	}
+
+	return w.Verify(body)
+}
+
+func (w *Wallet) Verify(body any) error {
+	var res vcwallet.VerifyResponse
 	resp, err := w.client.R().
-		SetBody(&vcwallet.VerifyRequest{
-			WalletAuth:   vcwallet.WalletAuth{UserID: userId, Auth: token},
-			Presentation: rawPresentation,
-		}).
+		SetResult(&res).
+		SetBody(body).
 		Post("/vcwallet/verify")
 
 	if err != nil {
@@ -164,9 +163,13 @@ func (w *Wallet) VerifyPresentation(userId string, passphrase string, rawPresent
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		return nil
+		if res.Verified == true {
+			return nil
+		} else {
+			return fmt.Errorf(res.Error)
+		}
 	} else {
-		return errors.New(string(resp.Body()))
+		return fmt.Errorf(resp.String())
 	}
 }
 
