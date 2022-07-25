@@ -1,0 +1,10 @@
+{
+    "doctors": [
+        {
+            "doctorId": "d0001",
+            "dids": [
+                "did:cheqd:testnet:z8dkkAefsXkMce3QZkZibb9xdsiGwJPv"
+            ]
+        }
+    ]
+}
