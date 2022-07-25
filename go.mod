@@ -54,7 +54,7 @@ require (
 	github.com/multiformats/go-multibase v0.0.1 // indirect
 	github.com/multiformats/go-multihash v0.0.13 // indirect
 	github.com/multiformats/go-varint v0.0.5 // indirect
-	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c // indirect
+	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
