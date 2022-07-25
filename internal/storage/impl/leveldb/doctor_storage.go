@@ -21,10 +21,10 @@
 package leveldb
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
@@ -176,29 +176,21 @@ func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
 	}
 
 	var res doctors
-	client := resty.New()
-	resp, err := client.R().
-		SetResult(&res).
-		Get("https://ssimp.s3.amazonaws.com/data/doctors.json")
-
-	if err != nil {
-		return "", err
+	if err = json.Unmarshal(s.doctors, &res); err != nil {
+		return "", fmt.Errorf("failed to unmarshalling integration_tests/testdata/doctors.json file: %v", err)
 	}
 
-	if resp.StatusCode() == http.StatusOK {
-		for _, doctor := range res.Doctors {
-			if doctor.DoctorId == doctorId {
-				if len(doctor.Dids) > 0 {
-					return doctor.Dids[0], nil
-				} else {
-					return "", fmt.Errorf("doctor did not found")
-				}
+	for _, doctor := range res.Doctors {
+		if doctor.DoctorId == doctorId {
+			if len(doctor.Dids) > 0 {
+				return doctor.Dids[0], nil
+			} else {
+				return "", fmt.Errorf("doctor did not found")
 			}
 		}
-		return "", fmt.Errorf("doctor not found")
-	} else {
-		return "", fmt.Errorf(string(resp.Body()))
 	}
+
+	return "", fmt.Errorf("doctor not found")
 }
 
 type PrescriptionOffer struct {
