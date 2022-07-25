@@ -22,7 +22,7 @@ package leveldb
 
 import (
 	"fmt"
-	"net/http"
+	"os"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
@@ -30,6 +30,7 @@ import (
 
 type DoctorStorage struct {
 	levelDB *LevelDB
+	doctors []byte
 }
 
 func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
@@ -38,7 +39,12 @@ func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 		return nil, err
 	}
 
-	return &DoctorStorage{levelDB: levelDB}, nil
+	data, err := os.ReadFile("../../../../integration_tests/testdata/doctors.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read integration_tests/testdata/doctors.json file: %v", err)
+	}
+
+	return &DoctorStorage{levelDB: levelDB, doctors: data}, nil
 }
 
 func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
