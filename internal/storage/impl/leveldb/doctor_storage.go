@@ -39,9 +39,9 @@ func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 		return nil, err
 	}
 
-	data, err := os.ReadFile("../../../../integration_tests/testdata/doctors.json")
+	data, err := os.ReadFile("etc/ssimp/testdata/doctors.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to read integration_tests/testdata/doctors.json file: %v", err)
+		return nil, fmt.Errorf("failed to read etc/ssimp/testdata/doctors.json file: %v", err)
 	}
 
 	return &DoctorStorage{levelDB: levelDB, doctors: data}, nil
@@ -177,7 +177,7 @@ func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
 
 	var res doctors
 	if err = json.Unmarshal(s.doctors, &res); err != nil {
-		return "", fmt.Errorf("failed to unmarshalling integration_tests/testdata/doctors.json file: %v", err)
+		return "", fmt.Errorf("failed to unmarshalling etc/ssimp/testdata/doctors.json file: %v", err)
 	}
 
 	for _, doctor := range res.Doctors {

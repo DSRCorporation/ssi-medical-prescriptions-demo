@@ -17,6 +17,9 @@ services:
     
     networks:
       - aries-agent_ssimp_demo_net
+
+    volumes:
+      - ../../integration_tests/testdata:/etc/ssimp/testdata
 networks:
   aries-agent_ssimp_demo_net:
     external: true
