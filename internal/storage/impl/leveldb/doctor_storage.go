@@ -33,15 +33,17 @@ type DoctorStorage struct {
 	doctors []byte
 }
 
+var doctorsDIDsPath = "/etc/ssimp/testdata/doctors.json"
+
 func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 	levelDB, err := NewLevelDB(dbPath)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := os.ReadFile("etc/ssimp/testdata/doctors.json")
+	data, err := os.ReadFile(doctorsDIDsPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read etc/ssimp/testdata/doctors.json file: %v", err)
+		return nil, fmt.Errorf("failed to read %s file: %v", doctorsDIDsPath, err)
 	}
 
 	return &DoctorStorage{levelDB: levelDB, doctors: data}, nil
@@ -177,7 +179,7 @@ func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
 
 	var res doctors
 	if err = json.Unmarshal(s.doctors, &res); err != nil {
-		return "", fmt.Errorf("failed to unmarshalling etc/ssimp/testdata/doctors.json file: %v", err)
+		return "", fmt.Errorf("failed to unmarshalling %s file: %v", doctorsDIDsPath, err)
 	}
 
 	for _, doctor := range res.Doctors {

@@ -21,15 +21,17 @@
 package leveldb
 
 import (
+	"encoding/json"
 	"fmt"
-	"net/http"
-
-	"github.com/go-resty/resty/v2"
+	"os"
 )
 
 type PatientStorage struct {
-	levelDB *LevelDB
+	levelDB  *LevelDB
+	patients []byte
 }
+
+var patientsDIDsPath = "/etc/ssimp/testdata/patients.json"
 
 func NewPatientStorage(path string) (*PatientStorage, error) {
 	levelDB, err := NewLevelDB(path)
@@ -37,7 +39,12 @@ func NewPatientStorage(path string) (*PatientStorage, error) {
 		return nil, err
 	}
 
-	return &PatientStorage{levelDB: levelDB}, nil
+	data, err := os.ReadFile(patientsDIDsPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s file: %v", patientsDIDsPath, err)
+	}
+
+	return &PatientStorage{levelDB: levelDB, patients: data}, nil
 }
 
 func (s *PatientStorage) AddCredentialIdByPatientId(patientId string, credentialId string) (err error) {
@@ -86,23 +93,14 @@ func (s *PatientStorage) GetDIDs(patientId string) (dids []string, err error) {
 	}
 
 	var res patients
-	client := resty.New()
-	resp, err := client.R().
-		SetResult(&res).
-		Get("https://ssimp.s3.amazonaws.com/data/patients.json")
-
-	if err != nil {
-		return []string{}, err
+	if err = json.Unmarshal(s.patients, &res); err != nil {
+		return dids, fmt.Errorf("failed to unmarshalling %s file: %v", patientsDIDsPath, err)
 	}
 
-	if resp.StatusCode() == http.StatusOK {
-		for _, patient := range res.Patients {
-			if patient.PatientId == patientId {
-				return patient.Dids, nil
-			}
+	for _, patient := range res.Patients {
+		if patient.PatientId == patientId {
+			return patient.Dids, nil
 		}
-		return []string{}, fmt.Errorf("patient not found")
-	} else {
-		return []string{}, fmt.Errorf(string(resp.Body()))
 	}
+	return []string{}, fmt.Errorf("patient not found")
 }
