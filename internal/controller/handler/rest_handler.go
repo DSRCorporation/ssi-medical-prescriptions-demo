@@ -22,6 +22,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -57,7 +58,9 @@ func New(doctorService *service.DoctorService, patientService *service.PatientSe
 // (POST /v1/doctors/{doctorId}/prescriptions/credential-offers/)
 func (h *RestHandler) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx echo.Context, doctorId string) error {
 	var body rest.Prescription
-	ctx.Bind(&body)
+	if err := ctx.Bind(&body); err != nil {
+		return fmt.Errorf("Error unmarshalling body: %v", err)
+	}
 
 	prescription, err := ConvertToPrescription(body, doctorId)
 	if err != nil {
@@ -78,6 +81,7 @@ func (h *RestHandler) PostV1DoctorsDoctorIdPrescriptionsCredentialOffers(ctx ech
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -102,6 +106,7 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -127,6 +132,7 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 
 		time.Sleep(time.Second)
 	}
+
 	return echo.NewHTTPError(http.StatusInternalServerError, "Credential not found")
 }
 
@@ -146,6 +152,7 @@ func (h *RestHandler) GetV1PatientsPatientIdDids(ctx echo.Context, patientId str
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -173,6 +180,7 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Co
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -180,7 +188,9 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Co
 // (POST /v1/patients/{patientId}/prescriptions/credentials/)
 func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.Context, patientId string) error {
 	var body rest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody
-	ctx.Bind(&body)
+	if err := ctx.Bind(&body); err != nil {
+		return fmt.Errorf("Error unmarshalling body: %v", err)
+	}
 
 	credentialOfferId := *body.CredentialOfferId
 	patientDID := body.Did
@@ -228,6 +238,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsCredentials(ctx echo.C
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -265,7 +276,9 @@ func (h *RestHandler) GetV1PatientsPatientIdPrescriptionsCredentialsCredentialId
 // (POST /v1/patients/{patientId}/prescriptions/presentations/)
 func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo.Context, patientId string) error {
 	var body rest.PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody
-	ctx.Bind(&body)
+	if err := ctx.Bind(&body); err != nil {
+		return fmt.Errorf("Error unmarshalling prescription body: %v", err)
+	}
 
 	requestId := *body.PresentationRequestId
 	credentialId := *body.CredentialId
@@ -306,6 +319,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -350,6 +364,7 @@ func (h *RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequests
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -379,6 +394,7 @@ func (h *RestHandler) GetV1PharmaciesPharmacyIdPrescriptionsPresentationRequests
 		}
 		time.Sleep(time.Second)
 	}
+
 	return echo.NewHTTPError(http.StatusInternalServerError, "Presentation not found")
 }
 
