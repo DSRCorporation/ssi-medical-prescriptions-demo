@@ -1,0 +1,10 @@
+{
+    "patients": [
+        {
+            "patientId": "p0001",
+            "dids": [
+                "did:cheqd:testnet:zAgG9ebVEHCxToaSLQYxTaR1cJAEKzjE"
+            ]
+        }
+    ]
+}
