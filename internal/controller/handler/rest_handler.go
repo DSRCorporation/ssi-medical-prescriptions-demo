@@ -315,7 +315,7 @@ func (h *RestHandler) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 		Presentation: signedPresentation.RawPresentation,
 	}
 
-	err = ctx.JSON(http.StatusCreated, response)
+	err = ctx.JSON(http.StatusOK, response)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -336,7 +336,7 @@ func (h *RestHandler) PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequest
 		PresentationRequestId: &requestId,
 	}
 
-	err = ctx.JSON(http.StatusCreated, response)
+	err = ctx.JSON(http.StatusOK, response)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

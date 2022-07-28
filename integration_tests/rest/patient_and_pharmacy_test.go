@@ -78,7 +78,7 @@ func TestGetExistPresentationRequestForPrescriptionByRequestID(t *testing.T) {
 		Post(fmt.Sprintf("%s/pharmacies/%s/prescriptions/presentation-requests",
 			testconstants.Host, testconstants.PharmacyID))
 	require.NoError(t, err)
-	require.Equal(t, http.StatusCreated, resp.StatusCode())
+	require.Equal(t, http.StatusOK, resp.StatusCode())
 
 	var receivedPresentationRequestResponse controllerRest.GetPresentationRequestResponse
 
@@ -137,7 +137,7 @@ func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T)
 		Post(fmt.Sprintf("%s/pharmacies/%s/prescriptions/presentation-requests",
 			testconstants.Host, testconstants.PharmacyID))
 	require.NoError(t, err)
-	require.Equal(t, http.StatusCreated, resp.StatusCode())
+	require.Equal(t, http.StatusOK, resp.StatusCode())
 
 	var receivedCredential controllerRest.Credential
 	err = json.Unmarshal(*credential.Credential, &receivedCredential)
@@ -157,7 +157,7 @@ func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T)
 		Post(fmt.Sprintf("%s/patients/%s/prescriptions/presentations",
 			testconstants.Host, testconstants.PatientID))
 	require.NoError(t, err)
-	require.Equal(t, http.StatusCreated, resp.StatusCode())
+	require.Equal(t, http.StatusOK, resp.StatusCode())
 
 	var receivedVerifiablePresentationResponse verifiablePresentationResponse
 
