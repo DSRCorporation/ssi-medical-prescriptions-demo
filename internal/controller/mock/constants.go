@@ -34,7 +34,7 @@ var PharmacyID = "v0001"
 var DoctorDID = "did:cheqd:testnet:z265BXc422gE9cvzYFHvbnFkASeTU5mn"
 var PatientDID = "did:cheqd:testnet:zEm358tWMFGBppzUtw3zLxJdjCso4uEM"
 
-var DoctorKMSPassphrase = "Yp6VR4Yg6XYL"
+var DoctorKMSPassphrase = "Np6VR4Yg6PPL"
 var PatientKMSPassphrase = "4ELnzCgVBcDP"
 var PharmacyKMSPassphrase = "Np6VR4Yg6PPL"
 

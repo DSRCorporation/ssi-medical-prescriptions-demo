@@ -25,7 +25,7 @@ userId="d0001"
 localKMSPassphrase="Np6VR4Yg6PPL"
 
 # Create a wallet profile
-echo "Create doctors's wallet profile"
+echo "Create doctor's wallet profile"
 response=$(curl --location --request POST 'http://localhost:8082/vcwallet/create-profile' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -37,7 +37,7 @@ is_ok "$response"
 divider
 
 # Open a wallet
-echo "Open doctos's wallet"
+echo "Open doctor's wallet"
 response=$(curl --location --request POST 'http://localhost:8082/vcwallet/open' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -72,7 +72,7 @@ is_ok "$response"
 
 divider
 
-echo "Close pharmacy's wallet"
+echo "Close doctor's wallet"
 response=$(curl --location --request POST 'http://localhost:8082/vcwallet/close' \
 --header 'Content-Type: application/json' \
 --data-raw '{
