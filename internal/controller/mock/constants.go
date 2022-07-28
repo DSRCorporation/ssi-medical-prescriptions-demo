@@ -81,7 +81,6 @@ var context3 string = "https://w3id.org/security/suites/jws-2020/v1"
 
 // Type info
 var type1 string = "VerifiableCredential"
-var type2 string = "PrescriptionCredential"
 
 // Issuer info
 var id string = "did:example:123"
@@ -97,6 +96,9 @@ var jws string = "ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0
 var dids1 string = "did:example:1"
 var dids2 string = "did:example:2"
 var dids3 string = "did:example:3"
+
+// Generate Verifiable Id
+var verifiableId = "did:4347d8e1-9d7e-47cc-9dab-97de8afc4d95"
 
 // Create presentation request response info
 var presentationRequestId string = "some presentation request ID"
@@ -190,17 +192,9 @@ var CredentialResponseInfo = rest.Credential{
 		context2,
 		context3,
 	},
-	Type: &[]string{
-		type1,
-		type2,
-	},
-	Issuer: &struct {
-		Id   *string "json:\"id,omitempty\""
-		Name *string "json:\"name,omitempty\""
-	}{
-		Id:   &id,
-		Name: &doctorName,
-	},
+	Type:           &type1,
+	Id:             &verifiableId,
+	Issuer:         &id,
 	IssuanceDate:   &issuanceDate,
 	ExpirationDate: &expirationDate,
 	CredentialSubject: &struct {
