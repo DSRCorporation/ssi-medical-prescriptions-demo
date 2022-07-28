@@ -27,7 +27,7 @@ make demo-server
 
 ## Mock server
 
-### Generate mock stubs for openapi specs
+### Generate stubs from openapi specs
 1. Install oapi-codegen:
     ```bash
     go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
@@ -37,7 +37,7 @@ make demo-server
     ```
 2. Generate mock stubs for openapi specs
     ```bash
-    oapi-codegen -package mock ./api/openapi-spec/openapi.yml > internal/controller/mock/ssimp_mock.gen.go
+    oapi-codegen -package rest ./api/openapi-spec/openapi.yml > internal/controller/rest/ssimp_rest.gen.go
     ```
 ### Build mock server
 ```bash
