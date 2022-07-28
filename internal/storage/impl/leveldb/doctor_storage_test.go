@@ -252,7 +252,9 @@ func TestGetExistDID(t *testing.T) {
 
 	did, err := doctorStorage.GetDID(doctorId)
 	require.NoError(t, err)
-	require.Equal(t, "did:cheqd:testnet:z3hj8sC2t6ku9R3tbo7wpSGfjSQyoi5D", did)
+
+	var expectedDID = "did:cheqd:testnet:z3hj8sC2t6ku9R3tbo7wpSGfjSQyoi5D"
+	require.Equal(t, expectedDID, did)
 }
 
 func TestGetNotExistDID(t *testing.T) {
