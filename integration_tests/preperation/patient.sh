@@ -51,12 +51,12 @@ divider
 # Get tokenId from response
 tokenId=$(echo "$response" | jq -r '.token')
 
-verification_id="did:cheqd:testnet:z4TRtQjhizgKYVR6tLr42RQmyxfAPZDB#key-8g5iyxylyh"
-privateKeyBase58="5SsDgS3P89XRW9wdKKm5UVdLP6EJj4NW2YWzLawXFYikfHfRmKwepyZ4bGGvp8jQ2A5mggk7fLT95YHxxwrC8pgM"
+verification_id="did:cheqd:testnet:zEm358tWMFGBppzUtw3zLxJdjCso4uEM#key-8g5iyxylyh"
+privateKeyBase58="2S5FgtM5qy2ZqZDUMhYNJrPRQbY3QhRWMVo4QJap1f83Nai2jgAJKvygwWYPss59pKBeBg7T5cU9Vo2v9B77yF2C"
 
 # Add DID method private key to a wallet
 echo "Add DID method private key to patient's wallet"
-curl --location --request POST 'http://localhost:9082/vcwallet/add' \
+response=$(curl --location --request POST 'http://localhost:9082/vcwallet/add' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "auth": "'$tokenId'",
@@ -67,7 +67,7 @@ curl --location --request POST 'http://localhost:9082/vcwallet/add' \
     },
     "contentType": "key",
     "userID": "'$userId'"
-}'
+}')
 is_ok "$response"
 
 divider

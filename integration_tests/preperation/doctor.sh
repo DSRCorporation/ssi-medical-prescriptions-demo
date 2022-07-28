@@ -51,8 +51,8 @@ divider
 # Get tokenId from response
 tokenId=$(echo "$response" | jq -r '.token')
 
-verification_id="did:cheqd:testnet:zBG9bFMS4zZ2W9Y12Nz4TaQx1ecSxFiJ#key-8g5ivmwlyh"
-privateKeyBase58="4P2H6YmmuKBu5x65MzbEDit9LDhZFGTyiUT9Q9P8ZFsgjkFdRo2Dgyf9Zhfm1DrdZwiXu1wK7DsmkVvcacQSXvs4"
+verification_id="did:cheqd:testnet:z265BXc422gE9cvzYFHvbnFkASeTU5mn#key1"
+privateKeyBase58="ZgDKsbFk6ymsSGueWXnrt6ywrUof98yznEU3ubBZc1aiH3m6r7SHjgjF4YvWXp762XTz3xzgDUei2zpnpnMbTHJ"
 
 # Add DID method private key to a wallet
 echo "Add DID method private key to doctor's wallet"

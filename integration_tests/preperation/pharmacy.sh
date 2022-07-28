@@ -36,27 +36,4 @@ is_ok "$response"
 
 divider
 
-echo "Open pharmacy's wallet"
-response=$(curl --location --request POST 'http://localhost:10082/vcwallet/open' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "userId": "'$userId'",
-    "localKMSPassphrase": "'$localKMSPassphrase'"
-}')
-is_ok "$response"
-
-divider
-
-# Close a wallet
-echo "Close pharmacy's wallet"
-response=$(curl --location --request POST 'http://localhost:10082/vcwallet/close' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "userId": "'$userId'",
-    "localKMSPassphrase": "'$localKMSPassphrase'"
-}')
-check_response "$response" "true"
-
-divider
-
-echo "Successfully! Has opened pharmacy's wallet"
+echo "Successfully! Has created pharmacy's wallet"
