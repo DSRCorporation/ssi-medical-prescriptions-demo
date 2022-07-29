@@ -30,10 +30,19 @@ import (
 
 type DoctorStorage struct {
 	levelDB *LevelDB
-	doctors []byte
+	doctors *doctors
 }
 
 var doctorsDIDsPath = "/etc/ssimp/testdata/doctors.json"
+
+type doctor struct {
+	DoctorId string   `json:"doctorId"`
+	Dids     []string `json:"dids"`
+}
+
+type doctors struct {
+	Doctors []doctor `json:"doctors"`
+}
 
 func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 	levelDB, err := NewLevelDB(dbPath)
@@ -46,7 +55,12 @@ func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 		return nil, fmt.Errorf("failed to read %s file: %v", doctorsDIDsPath, err)
 	}
 
-	return &DoctorStorage{levelDB: levelDB, doctors: data}, nil
+	var res doctors
+	if err = json.Unmarshal(data, &res); err != nil {
+		return nil, fmt.Errorf("failed to unmarshalling %s file: %v", doctorsDIDsPath, err)
+	}
+
+	return &DoctorStorage{levelDB: levelDB, doctors: &res}, nil
 }
 
 func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
@@ -168,21 +182,7 @@ func (s *DoctorStorage) GetKMSPassphrase(doctorId string) (kmspassphrase string,
 }
 
 func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
-	type doctor struct {
-		DoctorId string   `json:"doctorId"`
-		Dids     []string `json:"dids"`
-	}
-
-	type doctors struct {
-		Doctors []doctor `json:"doctors"`
-	}
-
-	var res doctors
-	if err = json.Unmarshal(s.doctors, &res); err != nil {
-		return "", fmt.Errorf("failed to unmarshalling %s file: %v", doctorsDIDsPath, err)
-	}
-
-	for _, doctor := range res.Doctors {
+	for _, doctor := range s.doctors.Doctors {
 		if doctor.DoctorId == doctorId {
 			if len(doctor.Dids) > 0 {
 				return doctor.Dids[0], nil
