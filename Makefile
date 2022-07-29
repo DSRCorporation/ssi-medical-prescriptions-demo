@@ -124,4 +124,5 @@ run-unit-tests:
 
 run-integration-tests:
 	@echo "Running integration tests ... ..."
+	@bash integration_tests/preperation/add_wallets.sh 
 	@go test -v github.com/DSRCorporation/ssi-medical-prescriptions-demo/integration_tests/rest
