@@ -25,7 +25,7 @@ make demo-server
     make stop-demo-server
     ```
 
-## Mock server
+## Mock server and test
 
 ### Generate stubs from openapi specs
 1. Install oapi-codegen:
@@ -55,6 +55,20 @@ make mock-server
 2. Stop mock server
     ```bash
     make stop-mock-server
+    ```
+### Run unit tests:
+```bash
+make run-unit-tests
+```
+
+### Run integration tests
+1. Run script for adding doctor, patient, pharmacy wallets
+    ```bash
+    bash integration_tests/preperation/add_wallets.sh     
+    ```
+2. Run integration tests
+    ```bash
+    make run-integration-tests
     ```
 
 ## Components
