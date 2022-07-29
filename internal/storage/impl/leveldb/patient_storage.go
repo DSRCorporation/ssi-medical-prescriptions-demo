@@ -31,8 +31,6 @@ type PatientStorage struct {
 	patients *patients
 }
 
-var patientsDIDsPath = "/etc/ssimp/testdata/patients.json"
-
 type patient struct {
 	PatientId string   `json:"patientId"`
 	Dids      []string `json:"dids"`
@@ -41,6 +39,8 @@ type patient struct {
 type patients struct {
 	Patients []patient `json:"patients"`
 }
+
+var patientsDIDsPath = "/etc/ssimp/testdata/patients.json"
 
 func NewPatientStorage(path string) (*PatientStorage, error) {
 	levelDB, err := NewLevelDB(path)
