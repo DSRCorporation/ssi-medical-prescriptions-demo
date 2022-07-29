@@ -240,3 +240,32 @@ func TestGetNotExistCredentialsIDByDoctorID(t *testing.T) {
 	_, err = doctorStorage.GetCredentialIdsByDoctorId(doctorId)
 	require.Error(t, leveldb.ErrNotFound, err)
 }
+
+func TestGetExistDID(t *testing.T) {
+	var doctorId = "d0001"
+
+	var dbPath = generateDBPath()
+	defer cleanUp(dbPath)
+
+	doctorStorage, err := NewDoctorStorage(dbPath)
+	require.NoError(t, err)
+
+	did, err := doctorStorage.GetDID(doctorId)
+	require.NoError(t, err)
+
+	var expectedDID = "did:cheqd:testnet:z3hj8sC2t6ku9R3tbo7wpSGfjSQyoi5D"
+	require.Equal(t, expectedDID, did)
+}
+
+func TestGetNotExistDID(t *testing.T) {
+	var doctorId = tmrand.Str(6)
+
+	var dbPath = generateDBPath()
+	defer cleanUp(dbPath)
+
+	doctorStorage, err := NewDoctorStorage(dbPath)
+	require.NoError(t, err)
+
+	_, err = doctorStorage.GetDID(doctorId)
+	require.Error(t, err)
+}

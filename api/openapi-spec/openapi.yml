@@ -432,19 +432,11 @@ components:
             type: string
           example: ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1", "https://w3id.org/security/suites/jws-2020/v1"]
         type:
-          type: array
-          items:
-            type: string
-          example: ["VerifiableCredential", "PrescriptionCredential"]
+          type: string
+        id:
+          type: string
         issuer:
-          type: object
-          properties:
-            id:
-              type: string
-              example: did:example:123
-            name:
-              type: string
-              example: Dr. Connors
+          type: string
         issuanceDate:
           type: string
         expirationDate:

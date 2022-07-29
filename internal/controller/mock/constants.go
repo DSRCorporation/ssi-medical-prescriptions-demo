@@ -21,14 +21,22 @@
 package mock
 
 import (
-	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 )
 
 // Global constants for integration tests.
-var DoctorID = tmrand.Str(6)
-var PatientID = tmrand.Str(6)
-var PharmacyID = tmrand.Str(6)
+var Host = "http://localhost:8888/v1"
+
+var DoctorID = "d0001"
+var PatientID = "p0001"
+var PharmacyID = "v0001"
+
+var DoctorDID = "did:cheqd:testnet:z265BXc422gE9cvzYFHvbnFkASeTU5mn"
+var PatientDID = "did:cheqd:testnet:zEm358tWMFGBppzUtw3zLxJdjCso4uEM"
+
+var DoctorKMSPassphrase = "Np6VR4Yg6PPL"
+var PatientKMSPassphrase = "4ELnzCgVBcDP"
+var PharmacyKMSPassphrase = "Np6VR4Yg6PPL"
 
 // Credential offer response info
 var credentialOfferResponse string = "some credential offer"
@@ -81,7 +89,6 @@ var context3 string = "https://w3id.org/security/suites/jws-2020/v1"
 
 // Type info
 var type1 string = "VerifiableCredential"
-var type2 string = "PrescriptionCredential"
 
 // Issuer info
 var id string = "did:example:123"
@@ -97,6 +104,9 @@ var jws string = "ejJrNjQiOmZshbHNlfdJjcmlLKjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..TR0
 var dids1 string = "did:example:1"
 var dids2 string = "did:example:2"
 var dids3 string = "did:example:3"
+
+// Generate Verifiable Id
+var verifiableId = "did:4347d8e1-9d7e-47cc-9dab-97de8afc4d95"
 
 // Create presentation request response info
 var presentationRequestId string = "some presentation request ID"
@@ -190,17 +200,9 @@ var CredentialResponseInfo = rest.Credential{
 		context2,
 		context3,
 	},
-	Type: &[]string{
-		type1,
-		type2,
-	},
-	Issuer: &struct {
-		Id   *string "json:\"id,omitempty\""
-		Name *string "json:\"name,omitempty\""
-	}{
-		Id:   &id,
-		Name: &doctorName,
-	},
+	Type:           &type1,
+	Id:             &verifiableId,
+	Issuer:         &id,
 	IssuanceDate:   &issuanceDate,
 	ExpirationDate: &expirationDate,
 	CredentialSubject: &struct {

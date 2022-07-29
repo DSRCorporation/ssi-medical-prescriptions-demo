@@ -117,3 +117,12 @@ stop-mock-server:
 	@echo "Stopping mock server containers ..."
 	@docker-compose -f deployment/mock-server/docker-compose.yml down
 	@docker-compose -f deployment/openapi/docker-compose.yml down
+
+run-unit-tests:
+	@echo "Running unit tests ... ..."
+	@go test -v github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage/impl/leveldb
+
+run-integration-tests:
+	@echo "Running integration tests ... ..."
+	@bash integration_tests/preperation/add_wallets.sh 
+	@go test -v github.com/DSRCorporation/ssi-medical-prescriptions-demo/integration_tests/rest

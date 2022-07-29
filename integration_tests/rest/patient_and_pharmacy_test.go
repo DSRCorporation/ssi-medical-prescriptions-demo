@@ -29,7 +29,6 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/require"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
 	testconstants "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/mock"
 	controllerRest "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 )
@@ -37,39 +36,37 @@ import (
 func TestGetExistPresentationRequestForPrescriptionByRequestID(t *testing.T) {
 	client := resty.New()
 
-	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo)
+	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo.Prescription)
 	require.NoError(t, err)
 
-	var prescription controllerRest.GetCredentialOfferResponse
+	var prescription controllerRest.Prescription
 	require.NoError(t, json.Unmarshal(body, &prescription))
 
 	var receivedCredentialID controllerRest.CredentialOfferResponse
 
 	// Creates credential offer for prescription.
 	resp, err := client.R().
-		SetHeader("Content-Type", "application/json").
 		SetBody(prescription).
 		SetResult(&receivedCredentialID).
-		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", testconstants.DoctorID))
+		Post(fmt.Sprintf("%s/doctors/%s/prescriptions/credential-offers/",
+			testconstants.Host, testconstants.DoctorID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
-	var credential controllerRest.Credential
+	patientsPatientIdPrescriptionsCredentials := controllerRest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody{
+		CredentialOfferId: receivedCredentialID.CredentialOfferId,
+		Did:               &testconstants.PatientDID,
+		KmsPassphrase:     &testconstants.PatientKMSPassphrase,
+	}
+
+	var credential Credential
 
 	// Creates credential in response to credential offer from doctor.
 	resp, err = client.R().
-		SetHeader("Content-Type", "application/json").
-		SetBody(struct {
-			credentialOfferId string
-			did               string
-			kmsPassphrase     string
-		}{
-			credentialOfferId: tmrand.Str(6),
-			did:               fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
-			kmsPassphrase:     tmrand.Str(16),
-		}).
+		SetBody(patientsPatientIdPrescriptionsCredentials).
 		SetResult(&credential).
-		Post(fmt.Sprintf("http://localhost:8989/v1/patients/%s/prescriptions/credentials/", testconstants.PatientID))
+		Post(fmt.Sprintf("%s/patients/%s/prescriptions/credentials/",
+			testconstants.Host, testconstants.PatientID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -77,9 +74,9 @@ func TestGetExistPresentationRequestForPrescriptionByRequestID(t *testing.T) {
 
 	// Creates presentation request for prescriptions.
 	resp, err = client.R().
-		SetHeader("ContentType", "application/json").
 		SetResult(&createPresentationRequestResponse).
-		Post(fmt.Sprintf("http://localhost:8989/v1/pharmacies/%s/prescriptions/presentation-requests", testconstants.PharmacyID))
+		Post(fmt.Sprintf("%s/pharmacies/%s/prescriptions/presentation-requests",
+			testconstants.Host, testconstants.PharmacyID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -87,10 +84,9 @@ func TestGetExistPresentationRequestForPrescriptionByRequestID(t *testing.T) {
 
 	// Get presentation request for prescription by request ID.
 	resp, err = client.R().
-		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedPresentationRequestResponse).
-		Get(fmt.Sprintf("http://localhost:8989/v1/pharmacies/%s/prescriptions/presentation-requests/%s",
-			testconstants.PharmacyID, *createPresentationRequestResponse.PresentationRequestId))
+		Get(fmt.Sprintf("%s/pharmacies/%s/prescriptions/presentation-requests/%s",
+			testconstants.Host, testconstants.PharmacyID, *createPresentationRequestResponse.PresentationRequestId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 	require.Equal(t, *createPresentationRequestResponse.PresentationRequestId, *receivedPresentationRequestResponse.PresentationRequestId)
@@ -99,38 +95,37 @@ func TestGetExistPresentationRequestForPrescriptionByRequestID(t *testing.T) {
 func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T) {
 	client := resty.New()
 
-	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo)
+	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo.Prescription)
 	require.NoError(t, err)
 
-	var prescription controllerRest.GetCredentialOfferResponse
+	var prescription controllerRest.Prescription
 	require.NoError(t, json.Unmarshal(body, &prescription))
 
 	var receivedCredentialID controllerRest.CredentialOfferResponse
+
 	// Creates credential offer for prescription.
 	resp, err := client.R().
-		SetHeader("Content-Type", "application/json").
 		SetBody(prescription).
 		SetResult(&receivedCredentialID).
-		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", testconstants.DoctorID))
+		Post(fmt.Sprintf("%s/doctors/%s/prescriptions/credential-offers/",
+			testconstants.Host, testconstants.DoctorID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
-	var credential controllerRest.Credential
+	patientsPatientIdPrescriptionsCredentials := controllerRest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody{
+		CredentialOfferId: receivedCredentialID.CredentialOfferId,
+		Did:               &testconstants.PatientDID,
+		KmsPassphrase:     &testconstants.PatientKMSPassphrase,
+	}
+
+	var credential Credential
 
 	// Creates credential in response to credential offer from doctor.
 	resp, err = client.R().
-		SetHeader("Content-Type", "application/json").
-		SetBody(struct {
-			credentialOfferId string
-			did               string
-			kmsPassphrase     string
-		}{
-			credentialOfferId: tmrand.Str(6),
-			did:               fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
-			kmsPassphrase:     tmrand.Str(16),
-		}).
+		SetBody(patientsPatientIdPrescriptionsCredentials).
 		SetResult(&credential).
-		Post(fmt.Sprintf("http://localhost:8989/v1/patients/%s/prescriptions/credentials/", testconstants.PatientID))
+		Post(fmt.Sprintf("%s/patients/%s/prescriptions/credentials/",
+			testconstants.Host, testconstants.PatientID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -138,44 +133,49 @@ func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T)
 
 	// Creates presentation request for prescriptions.
 	resp, err = client.R().
-		SetHeader("ContentType", "application/json").
 		SetResult(&createPresentationRequestResponse).
-		Post(fmt.Sprintf("http://localhost:8989/v1/pharmacies/%s/prescriptions/presentation-requests", testconstants.PharmacyID))
+		Post(fmt.Sprintf("%s/pharmacies/%s/prescriptions/presentation-requests",
+			testconstants.Host, testconstants.PharmacyID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
-	var presentation controllerRest.Presentation
+	var receivedCredential controllerRest.Credential
+	err = json.Unmarshal(*credential.Credential, &receivedCredential)
+	require.NoError(t, err)
+
+	patientIdPrescriptionsPresentations := controllerRest.PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody{
+		PresentationRequestId: createPresentationRequestResponse.PresentationRequestId,
+		CredentialId:          receivedCredential.Id,
+		KmsPassphrase:         &testconstants.PatientKMSPassphrase,
+	}
+	var presentation verifiablePresentationResponse
 
 	// Creates verifiable presentation in response to prescription presentation request from pharmacy.
 	resp, err = client.R().
-		SetHeader("ContentType", "application/json").
-		SetBody(struct {
-			presentationRequestId string
-			credentialId          string
-			challenge             string
-			kmsPassphrase         string
-		}{
-			presentationRequestId: *createPresentationRequestResponse.PresentationRequestId,
-			credentialId:          tmrand.Str(6),
-			challenge:             tmrand.Str(10),
-			kmsPassphrase:         tmrand.Str(16),
-		}).
+		SetBody(patientIdPrescriptionsPresentations).
 		SetResult(&presentation).
-		Post(fmt.Sprintf("http://localhost:8989/v1/patients/%s/prescriptions/presentations", testconstants.PatientID))
+		Post(fmt.Sprintf("%s/patients/%s/prescriptions/presentations",
+			testconstants.Host, testconstants.PatientID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
-	var receivedVerifiablePresentationResponse controllerRest.GetVerifiablePresentationResponse
+	var receivedVerifiablePresentationResponse verifiablePresentationResponse
 
 	// Gets verifiable presentation for given presentation request.
 	resp, err = client.R().
 		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedVerifiablePresentationResponse).
-		Get(fmt.Sprintf("http://localhost:8989/v1/pharmacies/%s/prescriptions/presentation-requests/%s/presentation",
-			testconstants.PharmacyID, *createPresentationRequestResponse.PresentationRequestId))
+		Get(fmt.Sprintf("%s/pharmacies/%s/prescriptions/presentation-requests/%s/presentation",
+			testconstants.Host, testconstants.PharmacyID, *createPresentationRequestResponse.PresentationRequestId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
-	require.True(t, reflect.DeepEqual(presentation, *receivedVerifiablePresentationResponse.Presentation))
-	require.Equal(t, "Verification Successful", *receivedVerifiablePresentationResponse.VerificationComment)
-	require.True(t, *receivedVerifiablePresentationResponse.VerificationStatus)
+	require.True(t, reflect.DeepEqual(presentation.Presentation, receivedVerifiablePresentationResponse.Presentation))
+	require.Equal(t, "Verification successful", receivedVerifiablePresentationResponse.VerificationComment)
+	require.True(t, receivedVerifiablePresentationResponse.VerificationStatus)
+}
+
+type verifiablePresentationResponse struct {
+	Presentation        *json.RawMessage `json:"presentation"`
+	VerificationComment string           `json:"verificationComment"`
+	VerificationStatus  bool             `json:"verificationStatus"`
 }

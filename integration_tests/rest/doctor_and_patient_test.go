@@ -29,7 +29,6 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/require"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
 	testconstants "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/mock"
 	controllerRest "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 )
@@ -37,20 +36,20 @@ import (
 func TestGetExistCredentialByOfferID(t *testing.T) {
 	client := resty.New()
 
-	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo)
+	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo.Prescription)
 	require.NoError(t, err)
 
-	var prescription controllerRest.GetCredentialOfferResponse
+	var prescription controllerRest.Prescription
 	require.NoError(t, json.Unmarshal(body, &prescription))
 
 	var receivedCredentialID controllerRest.CredentialOfferResponse
 
 	// Creates credential offer for prescription.
 	resp, err := client.R().
-		SetHeader("Content-Type", "application/json").
 		SetBody(prescription).
 		SetResult(&receivedCredentialID).
-		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", testconstants.DoctorID))
+		Post(fmt.Sprintf("%s/doctors/%s/prescriptions/credential-offers/",
+			testconstants.Host, testconstants.DoctorID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -58,63 +57,64 @@ func TestGetExistCredentialByOfferID(t *testing.T) {
 
 	// Get credential by offer ID.
 	resp, err = client.R().
-		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedCredentialOfferResponse).
-		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s",
-			testconstants.DoctorID, *receivedCredentialID.CredentialOfferId))
+		Get(fmt.Sprintf("%s/doctors/%s/prescriptions/credential-offers/%s",
+			testconstants.Host, testconstants.DoctorID, *receivedCredentialID.CredentialOfferId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
-	require.True(t, reflect.DeepEqual(prescription, receivedCredentialOfferResponse))
+
+	require.True(t, reflect.DeepEqual(prescription, *receivedCredentialOfferResponse.Prescription))
 }
 
 func TestGetExistCredentialIssuedForGivenCredentialOffer(t *testing.T) {
 	client := resty.New()
 
-	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo)
+	body, err := json.Marshal(testconstants.GetCredentialOfferResponseInfo.Prescription)
 	require.NoError(t, err)
 
-	var prescription controllerRest.GetCredentialOfferResponse
+	var prescription controllerRest.Prescription
 	require.NoError(t, json.Unmarshal(body, &prescription))
 
 	var receivedCredentialID controllerRest.CredentialOfferResponse
 
 	// Creates credential offer for prescription.
 	resp, err := client.R().
-		SetHeader("Content-Type", "application/json").
 		SetBody(prescription).
 		SetResult(&receivedCredentialID).
-		Post(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/", testconstants.DoctorID))
+		Post(fmt.Sprintf("%s/doctors/%s/prescriptions/credential-offers/",
+			testconstants.Host, testconstants.DoctorID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
-	var credential controllerRest.Credential
+	patientsPatientIdPrescriptionsCredentials := controllerRest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody{
+		CredentialOfferId: receivedCredentialID.CredentialOfferId,
+		Did:               &testconstants.PatientDID,
+		KmsPassphrase:     &testconstants.PatientKMSPassphrase,
+	}
+
+	var credential Credential
 
 	// Creates credential in response to credential offer from doctor.
 	resp, err = client.R().
-		SetHeader("Content-Type", "application/json").
-		SetBody(struct {
-			credentialOfferId string
-			did               string
-			kmsPassphrase     string
-		}{
-			credentialOfferId: *receivedCredentialID.CredentialOfferId,
-			did:               fmt.Sprintf("cheqd:testnet:%s", tmrand.Str(32)),
-			kmsPassphrase:     tmrand.Str(16),
-		}).
+		SetBody(patientsPatientIdPrescriptionsCredentials).
 		SetResult(&credential).
-		Post(fmt.Sprintf("http://localhost:8989/v1/patients/%s/prescriptions/credentials/", testconstants.PatientID))
+		Post(fmt.Sprintf("%s/patients/%s/prescriptions/credentials/",
+			testconstants.Host, testconstants.PatientID))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
-	var receivedCredential controllerRest.Credential
+	var receivedCredential Credential
 
 	// Gets credential issued for given credential offer.
 	resp, err = client.R().
-		SetHeader("Content-Type", "application/json").
 		SetResult(&receivedCredential).
-		Get(fmt.Sprintf("http://localhost:8989/v1/doctors/%s/prescriptions/credential-offers/%s/credential",
-			testconstants.DoctorID, *receivedCredentialID.CredentialOfferId))
+		Get(fmt.Sprintf("%s/doctors/%s/prescriptions/credential-offers/%s/credential",
+			testconstants.Host, testconstants.DoctorID, *receivedCredentialID.CredentialOfferId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 	require.True(t, reflect.DeepEqual(credential, receivedCredential))
+}
+
+type Credential struct {
+	Credential *json.RawMessage `json:"credential"`
 }

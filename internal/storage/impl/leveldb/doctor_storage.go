@@ -21,16 +21,28 @@
 package leveldb
 
 import (
+	"encoding/json"
 	"fmt"
-	"net/http"
+	"os"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 )
 
 type DoctorStorage struct {
 	levelDB *LevelDB
+	doctors *doctors
 }
+
+type doctor struct {
+	DoctorId string   `json:"doctorId"`
+	Dids     []string `json:"dids"`
+}
+
+type doctors struct {
+	Doctors []doctor `json:"doctors"`
+}
+
+var doctorsDIDsPath = "/etc/ssimp/testdata/doctors.json"
 
 func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 	levelDB, err := NewLevelDB(dbPath)
@@ -38,7 +50,17 @@ func NewDoctorStorage(dbPath string) (*DoctorStorage, error) {
 		return nil, err
 	}
 
-	return &DoctorStorage{levelDB: levelDB}, nil
+	data, err := os.ReadFile(doctorsDIDsPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s file: %v", doctorsDIDsPath, err)
+	}
+
+	var res doctors
+	if err = json.Unmarshal(data, &res); err != nil {
+		return nil, fmt.Errorf("failed to unmarshalling %s file: %v", doctorsDIDsPath, err)
+	}
+
+	return &DoctorStorage{levelDB: levelDB, doctors: &res}, nil
 }
 
 func (s *DoctorStorage) CreatePrescriptionOffer(offerId string, prescription domain.Prescription) (err error) {
@@ -160,39 +182,17 @@ func (s *DoctorStorage) GetKMSPassphrase(doctorId string) (kmspassphrase string,
 }
 
 func (s *DoctorStorage) GetDID(doctorId string) (did string, err error) {
-	type doctor struct {
-		DoctorId string   `json:"doctorId"`
-		Dids     []string `json:"dids"`
-	}
-
-	type doctors struct {
-		Doctors []doctor `json:"doctors"`
-	}
-
-	var res doctors
-	client := resty.New()
-	resp, err := client.R().
-		SetResult(&res).
-		Get("https://ssimp.s3.amazonaws.com/data/doctors.json")
-
-	if err != nil {
-		return "", err
-	}
-
-	if resp.StatusCode() == http.StatusOK {
-		for _, doctor := range res.Doctors {
-			if doctor.DoctorId == doctorId {
-				if len(doctor.Dids) > 0 {
-					return doctor.Dids[0], nil
-				} else {
-					return "", fmt.Errorf("doctor did not found")
-				}
+	for _, doctor := range s.doctors.Doctors {
+		if doctor.DoctorId == doctorId {
+			if len(doctor.Dids) > 0 {
+				return doctor.Dids[0], nil
+			} else {
+				return "", fmt.Errorf("doctor did not found")
 			}
 		}
-		return "", fmt.Errorf("doctor not found")
-	} else {
-		return "", fmt.Errorf(string(resp.Body()))
 	}
+
+	return "", fmt.Errorf("doctor not found")
 }
 
 type PrescriptionOffer struct {
