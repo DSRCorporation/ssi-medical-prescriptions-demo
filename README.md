@@ -11,6 +11,27 @@ The application is based on [aries-framework-go](https://github.com/hyperledger/
 make demo-server
 ```
 
+### Build af-go rest agent docker image
+1. Configure af-go version for the image
+    ```Makefile
+    ARIES_AGENT_IMAGE_NAME 	?= aries-agent
+    ARIES_AGENT_IMAGE_TAG	?= latest
+    ARIES_FRAMEWORK_GO_REPO ?= https://github.com/DSRCorporation/aries-framework-go.git
+    ARIES_FRAMEWORK_GO_REPO_BRANCH ?= <branch-or-tag>
+    ```
+2. Build docker image
+    ```bash
+    make aries-agent-docker
+    ```
+- docker image will be tagged as `aries-agent:latest`
+
+### Build demo server docker image
+1. Build docker image
+    ```bash
+    make demo-server-docker
+    ```
+- docker image will be tagged as `demo-server:latest`
+
 ### Run demo server and swagger ui using docker
 1. Run demo server
     ```
@@ -56,7 +77,6 @@ make mock-server
     ```bash
     make stop-mock-server
     ```
-
 ## Test
 ### Run unit tests
 ```bash
