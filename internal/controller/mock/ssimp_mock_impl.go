@@ -147,14 +147,26 @@ func (*SSIMPMockImpl) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 // Login patient
 // (POST /v1/patients/login)
 func (h *SSIMPMockImpl) PostV1PatientsLogin(ctx echo.Context) error {
-	// @TODO: implement
+	response := PatientLoginResponse
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
 	return nil
 }
 
 // Register new patient
 // (POST /v1/patients/register)
 func (h *SSIMPMockImpl) PostV1PatientsRegister(ctx echo.Context) error {
-	// @TODO: implement
+	response := PatientRegistrationResponse
+
+	err := ctx.JSON(http.StatusOK, response)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
 	return nil
 }
 
