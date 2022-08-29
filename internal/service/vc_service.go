@@ -21,7 +21,9 @@
 package service
 
 import (
+	"crypto/ed25519"
 	"encoding/json"
+	"fmt"
 
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
@@ -35,15 +37,17 @@ type VCService struct {
 	issuerWallet   vc.Wallet
 	holderWallet   vc.Wallet
 	verifierWallet vc.Wallet
+	vdr            vc.VDR
 	storage        storage.VCStorage
 }
 
-func NewVCService(storage storage.VCStorage, issuerAgent vc.Issuer, holderAgent vc.Holder, verifierAgent vc.Verifier, issuerWallet vc.Wallet, holderWallet vc.Wallet, verifierWallet vc.Wallet) *VCService {
+func NewVCService(storage storage.VCStorage, issuerAgent vc.Issuer, holderAgent vc.Holder, verifierAgent vc.Verifier, vdr vc.VDR, issuerWallet vc.Wallet, holderWallet vc.Wallet, verifierWallet vc.Wallet) *VCService {
 	return &VCService{
 		storage:        storage,
 		issuerAgent:    issuerAgent,
 		holderAgent:    holderAgent,
 		verifierAgent:  verifierAgent,
+		vdr:            vdr,
 		issuerWallet:   issuerWallet,
 		holderWallet:   holderWallet,
 		verifierWallet: verifierWallet,
@@ -175,6 +179,41 @@ func (s *VCService) VerifyPresentation(rawPresentation json.RawMessage) error {
 	}
 
 	return s.verifierWallet.VerifyPresentation(userId, passphrase, rawPresentation)
+}
+
+func (s *VCService) HolderWalletExists(userId string) bool {
+	return s.holderWallet.WalletExists(userId)
+}
+
+func (s *VCService) CreateHolderWallet(userId string, passphrase string) (err error) {
+	if s.HolderWalletExists(userId) {
+		return fmt.Errorf("wallet already exists")
+	} else {
+		return s.holderWallet.CreateWallet(userId, passphrase)
+	}
+}
+
+func (s *VCService) CreateHolderKeyDID(userId string, passphrase string) (did string, err error) {
+	if s.HolderWalletExists(userId) {
+		pub, priv, err := ed25519.GenerateKey(nil)
+		if err != nil {
+			return "", err
+		}
+
+		did, verificationMethodId, err := s.vdr.CreateKeyDID(pub)
+		if err != nil {
+			return "", err
+		}
+
+		err = s.holderWallet.AddKey(userId, passphrase, verificationMethodId, priv)
+		if err != nil {
+			return "", err
+		}
+
+		return did, nil
+	} else {
+		return "", fmt.Errorf("non existing wallet")
+	}
 }
 
 func (s *VCService) createConnection(inviterId string, inviter vc.OOBInviter, inviteeId string, invitee vc.OOBInvitee) (conn domain.Connection, err error) {

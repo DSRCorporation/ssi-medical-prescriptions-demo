@@ -20,21 +20,8 @@
 
 package vc
 
-import (
-	"crypto/ed25519"
-	"encoding/json"
+import "crypto/ed25519"
 
-	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
-)
-
-type Wallet interface {
-	SignCredential(userId string, passphrase string, did string, credential domain.Credential) (domain.Credential, error)
-	SignPresentation(userId string, passphrase string, did string, presentaion domain.Presentation) (domain.Presentation, error)
-	VerifyCredential(userId string, passphrase string, rawCredential json.RawMessage) error
-	VerifyPresentation(userId string, passphrase string, rawPresentation json.RawMessage) error
-
-	WalletExists(userId string) bool
-	CreateWallet(userId string, passphrase string) (err error)
-
-	AddKey(userId string, passphrase string, keyId string, privKey ed25519.PrivateKey) (err error)
+type VDR interface {
+	CreateKeyDID(pubKey ed25519.PublicKey) (did string, verificationMethodId string, err error)
 }

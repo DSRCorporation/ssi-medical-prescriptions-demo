@@ -21,11 +21,13 @@
 package rest
 
 import (
+	"crypto/ed25519"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/go-resty/resty/v2"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command/vcwallet"
 	"github.com/hyperledger/aries-framework-go/pkg/wallet"
@@ -171,6 +173,85 @@ func (w *Wallet) Verify(body any) error {
 	} else {
 		return fmt.Errorf(resp.String())
 	}
+}
+
+func (w *Wallet) WalletExists(userId string) bool {
+	resp, err := w.client.R().
+		Get(fmt.Sprintf("/vcwallet/profile/%s", userId))
+
+	if err != nil {
+		return false
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return true
+	}
+
+	return false
+}
+
+func (w *Wallet) CreateWallet(userId string, passphrase string) (err error) {
+	resp, err := w.client.R().
+		SetBody(vcwallet.CreateOrUpdateProfileRequest{
+			UserID:             userId,
+			LocalKMSPassphrase: passphrase,
+		}).
+		Post("/vcwallet/create-profile")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return nil
+	}
+
+	return errors.New(string(resp.Body()))
+}
+
+func (w *Wallet) AddKey(userId string, passphrase string, keyId string, privKey ed25519.PrivateKey) (err error) {
+	token, err := w.open(userId, passphrase)
+	if err != nil {
+		return err
+	}
+
+	defer w.close(userId, passphrase)
+
+	ct := struct {
+		Id               string `json:"id"`
+		Type             string `json:"type"`
+		PrivateKeyBase58 string `json:"privateKeyBase58"`
+	}{
+		Id:               keyId,
+		Type:             "ed25519verificationkey2018",
+		PrivateKeyBase58: base58.Encode(privKey),
+	}
+
+	ctRaw, err := json.Marshal(ct)
+	if err != nil {
+		return err
+	}
+
+	resp, err := w.client.R().
+		SetBody(&vcwallet.AddContentRequest{
+			WalletAuth: vcwallet.WalletAuth{
+				Auth:   token,
+				UserID: userId,
+			},
+			Content:     json.RawMessage(ctRaw),
+			ContentType: wallet.ContentType("key"),
+		}).
+		Post("/vcwallet/add")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return nil
+	}
+
+	return errors.New(string(resp.Body()))
 }
 
 func (w *Wallet) open(userId string, passphrase string) (token string, err error) {

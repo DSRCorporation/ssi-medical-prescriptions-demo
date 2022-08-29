@@ -105,7 +105,69 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'       
+                $ref: '#/components/schemas/error'   
+
+  /v1/patients/register:
+    post:
+      tags:
+        - Patient
+      summary: Register new patient
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/patientAuthCredential'
+          description: "**`username`** and **`passphrase`** should be between **4 and 100 characters**"
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patientId:
+                    type: string
+                  did:
+                     type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'    
+
+  /v1/patients/login:
+    post:
+      tags:
+        - Patient
+      summary: Login patient
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/patientAuthCredential'
+          description: "**`username`** and **`passphrase`** should be between **4 and 100 characters**"
+          required: true
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patientId:
+                    type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'  
 
   /v1/patients/{patientId}/prescriptions/credentials/:
     post:
@@ -595,6 +657,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/drug'
+    
+
+    patientAuthCredential:
+      type: object
+      properties:
+        username:
+          type: string
+        passphrase:
+          type: string
+      example:
+        username: john@example.com
+        passphrase: qwerty123
 
     credentialOfferResponse:
       type: object

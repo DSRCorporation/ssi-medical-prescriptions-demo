@@ -21,8 +21,5 @@
 # Add doctor's DID and key
 bash 'integration_tests/preperation/doctor.sh'
 
-# Add patient's DID and key
-bash 'integration_tests/preperation/patient.sh'
-
 # Create pharmacy's wallet
 bash 'integration_tests/preperation/pharmacy.sh'

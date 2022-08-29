@@ -151,6 +151,13 @@ func initializeRestHandler(params *ServerParameters) (h *handler.RestHandler, er
 		return nil, fmt.Errorf("error creating vc verifier agent: %v\n", err)
 	}
 
+	// Use holder agent for VDR for simplicity
+	// @TODO: may need dedicated agent in future
+	vdr, err := aries.NewVDR(params.holderRestEndpoint)
+	if err != nil {
+		return nil, fmt.Errorf("error creating vc verifier agent: %v\n", err)
+	}
+
 	issuerWallet, err := aries.NewWallet(params.issuerRestEndpoint)
 	if err != nil {
 		return nil, fmt.Errorf("error creating issuer wallet: %v\n", err)
@@ -166,7 +173,7 @@ func initializeRestHandler(params *ServerParameters) (h *handler.RestHandler, er
 		return nil, fmt.Errorf("error creating holder wallet: %v\n", err)
 	}
 
-	vcService := service.NewVCService(vcStorage, issuerAgent, holderAgent, verifierAgent, issuerWallet, holderWallet, verifierWallet)
+	vcService := service.NewVCService(vcStorage, issuerAgent, holderAgent, verifierAgent, vdr, issuerWallet, holderWallet, verifierWallet)
 
 	// initialize rest hander
 	h = handler.New(doctorService, patientService, pharmacyService, vcService)

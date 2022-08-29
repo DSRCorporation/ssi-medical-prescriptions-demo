@@ -21,6 +21,9 @@
 package service
 
 import (
+	"fmt"
+
+	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
 	"github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/storage"
 )
 
@@ -32,6 +35,25 @@ func NewPatientService(storage storage.PatientStorage) *PatientService {
 	return &PatientService{
 		storage: storage,
 	}
+}
+
+func (s *PatientService) PatientExists(username string) bool {
+	return s.storage.PatientExists(username)
+}
+
+func (s *PatientService) CreatePatient(username string, password string) (*domain.Patient, error) {
+	if s.PatientExists(username) {
+		return nil, fmt.Errorf("patient %s already exists", username)
+	}
+	return s.storage.CreatePatient(username, password)
+}
+
+func (s *PatientService) GetPatientByCredentials(username string, password string) (*domain.Patient, error) {
+	return s.storage.GetPatientByCredentials(username, password)
+}
+
+func (s *PatientService) AddPatientDID(patientId string, did string) (err error) {
+	return s.storage.AddPatientDID(patientId, did)
 }
 
 func (s *PatientService) GetDIDs(patientId string) (dids []string, err error) {

@@ -29,6 +29,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/require"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	testconstants "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/mock"
 	controllerRest "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 )
@@ -86,12 +87,31 @@ func TestGetExistCredentialIssuedForGivenCredentialOffer(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
+	var patientUserName = tmrand.Str(12)
+	var patientPassword = tmrand.Str(8)
+
+	patientAuthInfo := controllerRest.PatientAuthCredential{
+		Username: &patientUserName,
+		Password: &patientPassword,
+	}
+	registerationPatientResponse := struct {
+		PatientId string `json:"patientId"`
+		DID       string `json:"did"`
+	}{}
+
+	// Registration patient
+	resp, err = client.R().
+		SetBody(patientAuthInfo).
+		SetResult(&registerationPatientResponse).
+		Post(fmt.Sprintf("%s/patients/register", testconstants.Host))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode())
+
 	patientsPatientIdPrescriptionsCredentials := controllerRest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody{
 		CredentialOfferId: receivedCredentialID.CredentialOfferId,
-		Did:               &testconstants.PatientDID,
-		KmsPassphrase:     &testconstants.PatientKMSPassphrase,
+		Did:               &registerationPatientResponse.DID,
+		KmsPassphrase:     patientAuthInfo.Password,
 	}
-
 	var credential Credential
 
 	// Creates credential in response to credential offer from doctor.
@@ -99,7 +119,7 @@ func TestGetExistCredentialIssuedForGivenCredentialOffer(t *testing.T) {
 		SetBody(patientsPatientIdPrescriptionsCredentials).
 		SetResult(&credential).
 		Post(fmt.Sprintf("%s/patients/%s/prescriptions/credentials/",
-			testconstants.Host, testconstants.PatientID))
+			testconstants.Host, registerationPatientResponse.PatientId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
