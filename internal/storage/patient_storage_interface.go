@@ -20,7 +20,13 @@
 
 package storage
 
+import "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/domain"
+
 type PatientStorage interface {
+	PatientExists(username string) bool
+	CreatePatient(username string, password string) (*domain.Patient, error)
+	GetPatientByCredentials(username string, password string) (*domain.Patient, error)
+	AddPatientDID(patientId string, did string) (err error)
 	GetDIDs(patientId string) (dids []string, err error)
 	AddCredentialIdByPatientId(patientId string, credentialId string) (err error)
 	GetCredentialIdsByPatientId(patientId string) (credentialIds []string, err error)

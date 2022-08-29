@@ -113,6 +113,12 @@ type OintmentDrugInfo struct {
 	UseArea              *string  `json:"useArea,omitempty"`
 }
 
+// PatientAuthCredential defines model for patientAuthCredential.
+type PatientAuthCredential struct {
+	Password *string `json:"password,omitempty"`
+	Username *string `json:"username,omitempty"`
+}
+
 // Prescription defines model for prescription.
 type Prescription struct {
 	Drugs        *[]Drug `json:"drugs,omitempty"`
@@ -175,6 +181,12 @@ type VerificationResponse struct {
 // PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody defines parameters for PostV1DoctorsDoctorIdPrescriptionsCredentialOffers.
 type PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody = Prescription
 
+// PostV1PatientsLoginJSONBody defines parameters for PostV1PatientsLogin.
+type PostV1PatientsLoginJSONBody = PatientAuthCredential
+
+// PostV1PatientsRegisterJSONBody defines parameters for PostV1PatientsRegister.
+type PostV1PatientsRegisterJSONBody = PatientAuthCredential
+
 // PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody defines parameters for PostV1PatientsPatientIdPrescriptionsCredentials.
 type PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody struct {
 	CredentialOfferId *string `json:"credentialOfferId,omitempty"`
@@ -197,6 +209,12 @@ type PostV1VcVerifyPresentationJSONBody = Presentation
 
 // PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody defines body for PostV1DoctorsDoctorIdPrescriptionsCredentialOffers for application/json ContentType.
 type PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONRequestBody = PostV1DoctorsDoctorIdPrescriptionsCredentialOffersJSONBody
+
+// PostV1PatientsLoginJSONRequestBody defines body for PostV1PatientsLogin for application/json ContentType.
+type PostV1PatientsLoginJSONRequestBody = PostV1PatientsLoginJSONBody
+
+// PostV1PatientsRegisterJSONRequestBody defines body for PostV1PatientsRegister for application/json ContentType.
+type PostV1PatientsRegisterJSONRequestBody = PostV1PatientsRegisterJSONBody
 
 // PostV1PatientsPatientIdPrescriptionsCredentialsJSONRequestBody defines body for PostV1PatientsPatientIdPrescriptionsCredentials for application/json ContentType.
 type PostV1PatientsPatientIdPrescriptionsCredentialsJSONRequestBody PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody
@@ -221,6 +239,12 @@ type ServerInterface interface {
 	// Gets credential issued for given credential offer
 	// (GET /v1/doctors/{doctorId}/prescriptions/credential-offers/{credentialOfferId}/credential)
 	GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx echo.Context, doctorId string, credentialOfferId string) error
+	// Login patient
+	// (POST /v1/patients/login)
+	PostV1PatientsLogin(ctx echo.Context) error
+	// Register new patient
+	// (POST /v1/patients/register)
+	PostV1PatientsRegister(ctx echo.Context) error
 	// Gets all dids belonging to given patient
 	// (GET /v1/patients/{patientId}/dids)
 	GetV1PatientsPatientIdDids(ctx echo.Context, patientId string) error
@@ -323,6 +347,24 @@ func (w *ServerInterfaceWrapper) GetV1DoctorsDoctorIdPrescriptionsCredentialOffe
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential(ctx, doctorId, credentialOfferId)
+	return err
+}
+
+// PostV1PatientsLogin converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1PatientsLogin(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostV1PatientsLogin(ctx)
+	return err
+}
+
+// PostV1PatientsRegister converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1PatientsRegister(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostV1PatientsRegister(ctx)
 	return err
 }
 
@@ -541,6 +583,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/v1/doctors/:doctorId/prescriptions/credential-offers/", wrapper.PostV1DoctorsDoctorIdPrescriptionsCredentialOffers)
 	router.GET(baseURL+"/v1/doctors/:doctorId/prescriptions/credential-offers/:credentialOfferId", wrapper.GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferId)
 	router.GET(baseURL+"/v1/doctors/:doctorId/prescriptions/credential-offers/:credentialOfferId/credential", wrapper.GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentialOfferIdCredential)
+	router.POST(baseURL+"/v1/patients/login", wrapper.PostV1PatientsLogin)
+	router.POST(baseURL+"/v1/patients/register", wrapper.PostV1PatientsRegister)
 	router.GET(baseURL+"/v1/patients/:patientId/dids", wrapper.GetV1PatientsPatientIdDids)
 	router.GET(baseURL+"/v1/patients/:patientId/prescriptions/credentials", wrapper.GetV1PatientsPatientIdPrescriptionsCredentials)
 	router.POST(baseURL+"/v1/patients/:patientId/prescriptions/credentials/", wrapper.PostV1PatientsPatientIdPrescriptionsCredentials)
@@ -557,40 +601,42 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"AAD//7a6k9XqNQAA",
+	"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",
+	"bOG23qs6AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

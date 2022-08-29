@@ -144,6 +144,20 @@ func (*SSIMPMockImpl) PostV1PatientsPatientIdPrescriptionsPresentations(ctx echo
 	return nil
 }
 
+// Login patient
+// (POST /v1/patients/login)
+func (h *SSIMPMockImpl) PostV1PatientsLogin(ctx echo.Context) error {
+	// @TODO: implement
+	return nil
+}
+
+// Register new patient
+// (POST /v1/patients/register)
+func (h *SSIMPMockImpl) PostV1PatientsRegister(ctx echo.Context) error {
+	// @TODO: implement
+	return nil
+}
+
 // Creates presentation request for prescription (generates link for a QR code)
 // (POST /v1/pharmacies/{pharmacyId}/prescriptions/presentation-requests)
 func (*SSIMPMockImpl) PostV1PharmaciesPharmacyIdPrescriptionsPresentationRequests(ctx echo.Context, pharmacyId string) error {

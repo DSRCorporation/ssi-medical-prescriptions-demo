@@ -29,6 +29,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/require"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	testconstants "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/mock"
 	controllerRest "github.com/DSRCorporation/ssi-medical-prescriptions-demo/internal/controller/rest"
 )
@@ -53,11 +54,31 @@ func TestGetExistPresentationRequestForPrescriptionByRequestID(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
+	var patientUserName = tmrand.Str(12)
+	var patientPassword = tmrand.Str(8)
+
+	patientAuthInfo := controllerRest.PatientAuthCredential{
+		Username: &patientUserName,
+		Password: &patientPassword,
+	}
+	registerationPatientResponse := struct {
+		PatientId string `json:"patientId"`
+		DID       string `json:"did"`
+	}{}
+
 	patientsPatientIdPrescriptionsCredentials := controllerRest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody{
 		CredentialOfferId: receivedCredentialID.CredentialOfferId,
-		Did:               &testconstants.PatientDID,
-		KmsPassphrase:     &testconstants.PatientKMSPassphrase,
+		Did:               &registerationPatientResponse.DID,
+		KmsPassphrase:     patientAuthInfo.Password,
 	}
+
+	// Registration patient
+	resp, err = client.R().
+		SetBody(patientAuthInfo).
+		SetResult(&registerationPatientResponse).
+		Post(fmt.Sprintf("%s/patients/register", testconstants.Host))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode())
 
 	var credential Credential
 
@@ -66,7 +87,7 @@ func TestGetExistPresentationRequestForPrescriptionByRequestID(t *testing.T) {
 		SetBody(patientsPatientIdPrescriptionsCredentials).
 		SetResult(&credential).
 		Post(fmt.Sprintf("%s/patients/%s/prescriptions/credentials/",
-			testconstants.Host, testconstants.PatientID))
+			testconstants.Host, registerationPatientResponse.PatientId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -112,10 +133,30 @@ func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
+	var patientUserName = tmrand.Str(12)
+	var patientPassword = tmrand.Str(8)
+
+	patientAuthInfo := controllerRest.PatientAuthCredential{
+		Username: &patientUserName,
+		Password: &patientPassword,
+	}
+	registerationPatientResponse := struct {
+		PatientId string `json:"patientId"`
+		DID       string `json:"did"`
+	}{}
+
+	// Registration patient
+	resp, err = client.R().
+		SetBody(patientAuthInfo).
+		SetResult(&registerationPatientResponse).
+		Post(fmt.Sprintf("%s/patients/register", testconstants.Host))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode())
+
 	patientsPatientIdPrescriptionsCredentials := controllerRest.PostV1PatientsPatientIdPrescriptionsCredentialsJSONBody{
 		CredentialOfferId: receivedCredentialID.CredentialOfferId,
-		Did:               &testconstants.PatientDID,
-		KmsPassphrase:     &testconstants.PatientKMSPassphrase,
+		Did:               &registerationPatientResponse.DID,
+		KmsPassphrase:     patientAuthInfo.Password,
 	}
 
 	var credential Credential
@@ -125,7 +166,7 @@ func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T)
 		SetBody(patientsPatientIdPrescriptionsCredentials).
 		SetResult(&credential).
 		Post(fmt.Sprintf("%s/patients/%s/prescriptions/credentials/",
-			testconstants.Host, testconstants.PatientID))
+			testconstants.Host, registerationPatientResponse.PatientId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 
@@ -146,8 +187,9 @@ func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T)
 	patientIdPrescriptionsPresentations := controllerRest.PostV1PatientsPatientIdPrescriptionsPresentationsJSONBody{
 		PresentationRequestId: createPresentationRequestResponse.PresentationRequestId,
 		CredentialId:          receivedCredential.Id,
-		KmsPassphrase:         &testconstants.PatientKMSPassphrase,
+		KmsPassphrase:         patientAuthInfo.Password,
 	}
+
 	var presentation verifiablePresentationResponse
 
 	// Creates verifiable presentation in response to prescription presentation request from pharmacy.
@@ -155,7 +197,7 @@ func TestGetExistVerifiablePresentationForGivenPresentationRequest(t *testing.T)
 		SetBody(patientIdPrescriptionsPresentations).
 		SetResult(&presentation).
 		Post(fmt.Sprintf("%s/patients/%s/prescriptions/presentations",
-			testconstants.Host, testconstants.PatientID))
+			testconstants.Host, registerationPatientResponse.PatientId))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode())
 

@@ -136,6 +136,73 @@ func (h *RestHandler) GetV1DoctorsDoctorIdPrescriptionsCredentialOffersCredentia
 	return echo.NewHTTPError(http.StatusInternalServerError, "Credential not found")
 }
 
+// Login patient
+// (POST /v1/patients/login)
+func (h *RestHandler) PostV1PatientsLogin(ctx echo.Context) error {
+	var body rest.PatientAuthCredential
+	if err := ctx.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	username := *body.Username
+	password := *body.Password
+
+	patient, err := h.patientService.GetPatientByCredentials(username, password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	response := struct {
+		PatientId string `json:"patientId"`
+	}{
+		PatientId: patient.PatientId,
+	}
+
+	return ctx.JSON(http.StatusOK, response)
+}
+
+// Register new patient
+// (POST /v1/patients/register)
+func (h *RestHandler) PostV1PatientsRegister(ctx echo.Context) error {
+	var body rest.PatientAuthCredential
+	if err := ctx.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	username := *body.Username
+	password := *body.Password
+
+	patient, err := h.patientService.CreatePatient(username, password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.vcService.CreateHolderWallet(patient.PatientId, password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	did, err := h.vcService.CreateHolderKeyDID(patient.PatientId, password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.patientService.AddPatientDID(patient.PatientId, did)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	response := struct {
+		PatientId string `json:"patientId"`
+		DID       string `json:"did"`
+	}{
+		PatientId: patient.PatientId,
+		DID:       did,
+	}
+
+	return ctx.JSON(http.StatusOK, response)
+}
+
 // Gets all dids belonging to given patient
 // (GET /v1/patients/{patientId}/dids)
 func (h *RestHandler) GetV1PatientsPatientIdDids(ctx echo.Context, patientId string) error {

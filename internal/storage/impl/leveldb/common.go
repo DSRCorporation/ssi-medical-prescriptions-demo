@@ -45,6 +45,20 @@ func cleanUp(dbPath string) {
 	os.RemoveAll(dbPath)
 }
 
+func (s *LevelDB) Write(key string, value string) error {
+	db, err := leveldb.OpenFile(s.path, nil)
+	if err != nil {
+		return fmt.Errorf("error opening database file: %v", err)
+	}
+	defer db.Close()
+
+	if err = db.Put([]byte(key), []byte(value), nil); err != nil {
+		return fmt.Errorf("error writing to database file: %v", err)
+	}
+
+	return nil
+}
+
 func (s *LevelDB) WriteAsJson(key string, value any) error {
 	db, err := leveldb.OpenFile(s.path, nil)
 	if err != nil {
@@ -62,6 +76,21 @@ func (s *LevelDB) WriteAsJson(key string, value any) error {
 	}
 
 	return nil
+}
+
+func (s *LevelDB) Read(key string) (string, error) {
+	db, err := leveldb.OpenFile(s.path, nil)
+	if err != nil {
+		return "", fmt.Errorf("error opening database file: %v", err)
+	}
+	defer db.Close()
+
+	data, err := db.Get([]byte(key), nil)
+	if err != nil {
+		return "", fmt.Errorf("error reading from database: %v", err)
+	}
+
+	return string(data), err
 }
 
 func (s *LevelDB) ReadFromJson(key string, out any) error {
