@@ -42,10 +42,10 @@ var credentialOfferResponse string = "some credential offer"
 var challenge string = "some challange"
 
 // Patient info
-var patientName string = "John"
+var patientName string = "John@gmail.com"
 var patientBirthday string = "13.10.1985"
 var patientSex string = "Man"
-var patientID string = "did:example:567"
+var patientID string = "p0001"
 
 // Issuance info
 var issuanceDate string = "20.02.2022"
@@ -111,6 +111,22 @@ var presentationRequestId string = "some presentation request ID"
 // Get verifiable presentation response info
 var verificationStatus bool = true
 var verificationComment string = "Verification Successful"
+
+// Patient registration response info
+var PatientRegistrationResponse = struct {
+	PatientId string `json:"patientId"`
+	DID       string `json:"did"`
+}{
+	PatientId: patientID,
+	DID:       dids1,
+}
+
+// Patient login response info
+var PatientLoginResponse = struct {
+	PatientId string `json:"patientId"`
+}{
+	PatientId: patientID,
+}
 
 // Ointment drug info
 var OintmentDrugInfoI interface{} = rest.OintmentDrugInfo{

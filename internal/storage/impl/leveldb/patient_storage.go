@@ -119,7 +119,7 @@ func (s *PatientStorage) CreatePatient(username string, password string) (*domai
 			minCountOfCharacters, maxCountOfCharacters)
 	}
 	if len(password) < minCountOfCharacters || len(password) > maxCountOfCharacters {
-		return nil, fmt.Errorf("username should be between %d and %d characters",
+		return nil, fmt.Errorf("password should be between %d and %d characters",
 			minCountOfCharacters, maxCountOfCharacters)
 	}
 
@@ -188,7 +188,7 @@ func (s *PatientStorage) AddPatientDID(patientId string, did string) (err error)
 	var patientInfo patient
 
 	if err := s.levelDB.ReadFromJson(patientId, &patientInfo); err != nil {
-		return err
+		return fmt.Errorf("no patient found for patientId: %s", patientId)
 	}
 
 	for _, existsDid := range patientInfo.Dids {
